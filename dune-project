@@ -4,6 +4,7 @@
 (version dev)
 (generate_opam_files true)
 (executables_implicit_empty_intf)
+(using mdx 0.4)
 
 (source (github xvw/kohai))
 (license MIT)
@@ -13,8 +14,9 @@
 (package
  (name kohai)
  (allow_empty)
- (synopsis "TODO: to be done")
- (description "TODO: to be done")
+ (synopsis "A small hand-crafted tool for entering activities")
+ (description "A tool for collecting personal activity reports
+(and an excuse to write OCaml and reinvent the wheel)")
  (depends
   (ocaml (>= 5.2.0))
   (ocamlformat :with-dev-setup)
@@ -25,7 +27,11 @@
 
 (package
  (name rensai)
- (synopsis "TODO: to be done")
- (description "TODO: to be done")
+ (synopsis "Rensai can be used to describe generic encoders and decoders ")
+ (description "By lifting heterogeneous data into a finite set of constructors,
+it is possible to describe languages similar to JSON, TOML or S-Expression,
+for which the encoding and validation functions become generic
+(and interchangeable).")
  (depends
-  (ocaml (>= 5.2.0))))
+  (ocaml (>= 5.2.0))
+  (mdx :with-test)))

@@ -1,3 +1,7 @@
 (library
  (name rensai)
  (public_name rensai))
+
+(mdx
+ (files *.mli)
+ (libraries rensai))

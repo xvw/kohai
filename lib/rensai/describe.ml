@@ -54,3 +54,9 @@ let result ok error =
 ;;
 
 let record fields = Record fields
+
+module Infix = struct
+  let ( <$> ) = use
+end
+
+include Infix

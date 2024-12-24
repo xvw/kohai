@@ -190,6 +190,18 @@ end
 
 include module type of Infix (** @inline *)
 
+(** {1 Misc} *)
+
+(** [equal a b] return [true] if [a] equal [b].  Note that records are
+    compared in a case-insensitive way. In example:
+
+    {mdx@ocaml[
+      # equal (record ["a", unit; "b", null])
+              (record ["b", null; "a", unit]) ;;
+      - : bool = true
+    ]mdx} *)
+val equal : t -> t -> bool
+
 (** {1 Example}
 
     Let's imagine these different types:

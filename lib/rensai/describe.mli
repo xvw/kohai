@@ -15,6 +15,9 @@
 
 (** {1 Types} *)
 
+(** The type describing a record. *)
+type record
+
 (** The type describing the AST of a generic data structure. *)
 type t = private
   | Null
@@ -29,7 +32,7 @@ type t = private
   | Pair of t * t
   | List of t list
   | Constr of string * t
-  | Record of (string * t) list
+  | Record of record
 
 (** A shortcut for describing conversions from arbitrary values to a
     generic representation. *)
@@ -192,8 +195,9 @@ include module type of Infix (** @inline *)
 
 (** {1 Misc} *)
 
-(** [equal a b] return [true] if [a] equal [b].  Note that records are
-    compared in a case-insensitive way. In example:
+(** [equal a b] returns [true] if [a] equal [b], [false] otherwise.
+    Note that records are compared in a case-insensitive way. In
+    example:
 
     {mdx@ocaml[
       # equal (record ["a", unit; "b", null])
@@ -201,6 +205,9 @@ include module type of Infix (** @inline *)
       - : bool = true
     ]mdx} *)
 val equal : t -> t -> bool
+
+(** Returns the associative list representation of a record. *)
+val record_to_assoc : record -> (string * t) list
 
 (** {1 Example}
 
@@ -253,29 +260,12 @@ val equal : t -> t -> bool
 
     {mdx@ocaml[
       # conv_user @@ user "A" "B" Male ;;
-      - : t =
-      Record
-       [("first_name", String "A"); ("last_name", String "B");
-        ("is_active", Bool true); ("gender", Constr ("male", Unit));
-        ("crowd", List [])]
+      - : t = Record <abstr>
     ]mdx}
 
     {mdx@ocaml[
       # conv_user (
            user ~crowd:[user "C" "D" Male; user "E" "F" Male]
            ~is_active:false "A" "B" Female);;
-      - : t =
-      Record
-       [("first_name", String "A"); ("last_name", String "B");
-        ("is_active", Bool false); ("gender", Constr ("female", Unit));
-        ("crowd",
-         List
-          [Record
-            [("first_name", String "C"); ("last_name", String "D");
-             ("is_active", Bool true); ("gender", Constr ("male", Unit));
-             ("crowd", List [])];
-           Record
-            [("first_name", String "E"); ("last_name", String "F");
-             ("is_active", Bool true); ("gender", Constr ("male", Unit));
-             ("crowd", List [])]])]
+      - : t = Record <abstr>
     ]mdx} *)

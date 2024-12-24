@@ -1,3 +1,5 @@
+module S_map = Stdlib.Map.Make (String)
+
 type t =
   | Null
   | Unit
@@ -11,7 +13,9 @@ type t =
   | Pair of t * t
   | List of t list
   | Constr of string * t
-  | Record of (string * t) list
+  | Record of record
+
+and record = t S_map.t
 
 type 'a conv = 'a -> t
 
@@ -28,11 +32,7 @@ let rec equal a b =
   | Pair (a, b), Pair (x, y) -> equal a x && equal b y
   | List a, List b -> List.equal equal a b
   | Constr (a, va), Constr (b, vb) -> String.equal a b && equal va vb
-  | Record a, Record b ->
-    let sort_keys = List.sort (fun (ka, _) (kb, _) -> String.compare ka kb) in
-    let a = sort_keys a
-    and b = sort_keys b in
-    List.equal (fun (ka, va) (kb, vb) -> String.equal ka kb && equal va vb) a b
+  | Record a, Record b -> S_map.equal equal a b
   | Null, _
   | Unit, _
   | Bool _, _
@@ -48,6 +48,7 @@ let rec equal a b =
   | Record _, _ -> false
 ;;
 
+let record_to_assoc = S_map.to_list
 let use f conv x = conv (f x)
 let replace x v = use (fun _ -> x) v
 let null = Null
@@ -86,7 +87,10 @@ let result ok error =
     | Error x -> "error", error x)
 ;;
 
-let record fields = Record fields
+let record fields =
+  let fields = S_map.of_list fields in
+  Record fields
+;;
 
 module Infix = struct
   let ( <$> ) = use

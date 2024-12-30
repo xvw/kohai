@@ -1,0 +1,4 @@
+(library
+ (name rensai_fmt)
+ (public_name rensai-fmt)
+ (libraries rensai))

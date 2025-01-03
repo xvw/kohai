@@ -77,6 +77,11 @@ val string : string conv
     given converter ([conv]) to each element.*)
 val list : 'a conv -> 'a list conv
 
+(** [hlist terms] Allows you to create heterogeneous lists for a
+    posteriori validation. (ie: managing n-uplet at the validation
+    level) *)
+val hlist : t list -> t
+
 (** {2 Product types}
 
     AST supports a minimal product form using the [Pair] and [Records]

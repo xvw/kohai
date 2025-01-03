@@ -1,4 +1,0 @@
-(library
- (name rensai_qcheck)
- (public_name rensai-qcheck)
- (libraries rensai qcheck-core))

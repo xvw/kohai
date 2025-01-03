@@ -42,15 +42,5 @@ for which the encoding and validation functions become generic
  (description "Pretty Printers for Rensai Data Structures.")
  (depends
   (ocaml (>= 5.2.0))
+  (ppx_expect :with-test)
   (rensai (= :version))))
- 
-(package
- (name rensai-qcheck)
- (synopsis "Rensai arbitrary data generator in QCheck")
- (description "Utilities for building data generators described by the
-Rensai library, to be used in conjunction with QCheck.")
- (depends
-  (ocaml (>= 5.2.0))
-  (qcheck-core (>= 0.23))
-  (rensai (= :version))))
-

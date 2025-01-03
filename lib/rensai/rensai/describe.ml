@@ -67,6 +67,7 @@ let triple' f g h a b c = triple f g h (a, b, c)
 let quad f g h i (a, b, c, d) = pair f (pair g (pair h i)) (a, (b, (c, d)))
 let quad' f g h i a b c d = quad f g h i (a, b, c, d)
 let list f l = List (List.map f l)
+let hlist l = List l
 
 let constr f x =
   let k, value = f x in

@@ -3,7 +3,8 @@
     is not the most efficient approach, but it is easy and (from our
     point of view) pleasant to use.
 
-    In a way, it's a very simple and naive form of a runtime type. *)
+    In a way, it's a very simple and naive form of a runtime type or,
+    at least, a kind of dynamic typing tool. *)
 
 (**/**)
 

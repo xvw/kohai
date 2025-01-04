@@ -1,5 +1,6 @@
 type ast = Format.formatter -> Rensai.Ast.t -> unit
 type kind = Format.formatter -> Rensai.Kind.t -> unit
+type value_error = Format.formatter -> Rensai.Validation.value_error -> unit
 
 module Ast = Rensai.Ast
 module Kind = Rensai.Kind
@@ -103,4 +104,15 @@ let rec pp_kind st = function
   | Kind.Record -> pp_krecord st ()
   | Kind.Or (l, r) -> pp_kor pp_kind st l r
   | Kind.And (l, r) -> pp_kand pp_kind st l r
+;;
+
+let kind_s k = k |> Format.asprintf "%a" pp_kind |> Ast.string
+
+let pp_value_error st = function
+  | Rensai.Validation.Unexpected_kind { expected; given; value } ->
+    let r =
+      Ast.record
+        [ "expected", kind_s expected; "given", kind_s given; "value", value ]
+    in
+    Format.fprintf st "Unexpected_kind %a" pp_ast r
 ;;

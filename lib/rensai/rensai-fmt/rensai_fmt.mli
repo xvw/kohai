@@ -9,8 +9,14 @@ type ast = Format.formatter -> Rensai.Ast.t -> unit
     pretty-printer. *)
 type kind = Format.formatter -> Rensai.Kind.t -> unit
 
+(** A shortcut describing a value error. *)
+type value_error = Format.formatter -> Rensai.Validation.value_error -> unit
+
 (** A pretty-printer for Rensai expressions. *)
 val pp_ast : ast
 
 (** A pretty-printer for Rensai Kind of expressions. *)
 val pp_kind : kind
+
+(** A pretty-printer for value error. *)
+val pp_value_error : value_error

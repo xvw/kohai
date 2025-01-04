@@ -22,11 +22,14 @@ type 'a t = Ast.t -> 'a checked
     Set of “simple” validators that act on data fragments described as
     {!type:Rensai.Ast.t}. *)
 
-(** [null] ensures that the fragment must be [Null]. *)
+(** [null] ensures that the fragment is a [Null]. *)
 val null : unit t
 
-(** [unit] ensures that the fragment must be [Unit]. *)
+(** [unit] ensures that the fragment is a [Unit]. *)
 val unit : unit t
 
 (** [unitish] accept [null] or [unit]. *)
 val unitish : unit t
+
+(** [bool] ensure that the fragment is a [bool]. *)
+val bool : bool t

@@ -27,3 +27,8 @@ let unitish = function
   | Ast.Unit | Ast.Null -> Ok ()
   | value -> unexpected_kind Kind.(Unit || Null) value
 ;;
+
+let bool = function
+  | Ast.Bool x -> Ok x
+  | value -> unexpected_kind Kind.Bool value
+;;

@@ -8,7 +8,7 @@
 (**/**)
 
 (**  {@ocaml[
-       open Rensai.Describe
+       open Rensai.Ast
      ]} *)
 
 (**/**)

@@ -3,7 +3,7 @@
     purposes. *)
 
 (** A shortcut describing a Rensai expression pretty-printer. *)
-type t = Format.formatter -> Rensai.Describe.t -> unit
+type t = Format.formatter -> Rensai.Ast.t -> unit
 
 (** A pretty-printer for Rensai expressions. *)
 val pp : t

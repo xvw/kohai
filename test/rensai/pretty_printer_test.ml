@@ -2,7 +2,7 @@ let dump rensai_expr =
   rensai_expr |> Format.asprintf "%a" Rensai_fmt.pp |> print_endline
 ;;
 
-open Rensai.Describe
+open Rensai.Ast
 
 let%expect_test "pretty-print null" =
   let expr = null in
@@ -324,7 +324,8 @@ let rec conv_user { first_name; last_name; is_active; gender; crowd } =
 let%expect_test "test creating an user - 1" =
   let expr = conv_user @@ user "A" "B" Male in
   dump expr;
-  [%expect {|
+  [%expect
+    {|
     {crowd = []; first_name = "A"; gender = (male(<unit>)); is_active = true;
      last_name = "B"}
     |}]
@@ -341,7 +342,8 @@ let%expect_test "test creating an user - 2" =
          Female)
   in
   dump expr;
-  [%expect {|
+  [%expect
+    {|
     {crowd =
       [{crowd = []; first_name = "C"; gender = (male(<unit>)); is_active = true;
         last_name = "D"};

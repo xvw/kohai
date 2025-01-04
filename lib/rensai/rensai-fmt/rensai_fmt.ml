@@ -1,6 +1,6 @@
-type t = Format.formatter -> Rensai.Describe.t -> unit
+type t = Format.formatter -> Rensai.Ast.t -> unit
 
-module D = Rensai.Describe
+module Ast = Rensai.Ast
 
 let keyword st value = Format.fprintf st "@[<1><%s>@]" value
 let parens pf st x = Format.fprintf st "@[<1>(%a)@]" pf x
@@ -40,7 +40,7 @@ let pp_constr pf st constr value =
 ;;
 
 let pp_record pf st record =
-  let record = D.record_to_assoc record in
+  let record = Ast.record_to_assoc record in
   let field st (key, value) =
     Format.fprintf st "@[<1>%s =@ %a@]" key pf value
   in
@@ -48,17 +48,17 @@ let pp_record pf st record =
 ;;
 
 let rec pp st = function
-  | D.Null -> pp_null st ()
-  | D.Unit -> pp_unit st ()
-  | D.Bool b -> pp_bool st b
-  | D.Char c -> pp_char st c
-  | D.Int i -> pp_int st i
-  | D.Int32 i -> pp_int32 st i
-  | D.Int64 i -> pp_int64 st i
-  | D.Float f -> pp_float st f
-  | D.String s -> pp_string st s
-  | D.Pair (a, b) -> pp_pair pp st (a, b)
-  | D.List xs -> pp_list pp st xs
-  | D.Constr (constr, v) -> pp_constr pp st constr v
-  | D.Record record -> pp_record pp st record
+  | Ast.Null -> pp_null st ()
+  | Ast.Unit -> pp_unit st ()
+  | Ast.Bool b -> pp_bool st b
+  | Ast.Char c -> pp_char st c
+  | Ast.Int i -> pp_int st i
+  | Ast.Int32 i -> pp_int32 st i
+  | Ast.Int64 i -> pp_int64 st i
+  | Ast.Float f -> pp_float st f
+  | Ast.String s -> pp_string st s
+  | Ast.Pair (a, b) -> pp_pair pp st (a, b)
+  | Ast.List xs -> pp_list pp st xs
+  | Ast.Constr (constr, v) -> pp_constr pp st constr v
+  | Ast.Record record -> pp_record pp st record
 ;;

@@ -15,10 +15,15 @@ let unexpected_kind expected value =
 
 let null = function
   | Ast.Null -> Ok ()
-  | value -> unexpected_kind Null value
+  | value -> unexpected_kind Kind.Null value
 ;;
 
 let unit = function
   | Ast.Unit -> Ok ()
-  | value -> unexpected_kind Unit value
+  | value -> unexpected_kind Kind.Unit value
+;;
+
+let unitish = function
+  | Ast.Unit | Ast.Null -> Ok ()
+  | value -> unexpected_kind Kind.(Unit || Null) value
 ;;

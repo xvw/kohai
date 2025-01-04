@@ -51,8 +51,8 @@ let rec equal a b =
 let record_to_assoc = S_map.to_list
 let use f conv x = conv (f x)
 let replace x v = use (fun _ -> x) v
-let null = Null
-let unit = Unit
+let null _ = Null
+let unit _ = Unit
 let bool b = Bool b
 let int i = Int i
 let int32 i = Int32 i
@@ -74,7 +74,7 @@ let constr f x =
   Constr (k, value)
 ;;
 
-let option some = Option.fold ~none:null ~some
+let option some = Option.fold ~none:(null ()) ~some
 
 let either left right =
   constr (function

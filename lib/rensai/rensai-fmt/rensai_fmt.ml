@@ -1,12 +1,15 @@
-type t = Format.formatter -> Rensai.Ast.t -> unit
+type ast = Format.formatter -> Rensai.Ast.t -> unit
+type kind = Format.formatter -> Rensai.Kind.t -> unit
 
 module Ast = Rensai.Ast
+module Kind = Rensai.Kind
 
 let keyword st value = Format.fprintf st "@[<1><%s>@]" value
 let parens pf st x = Format.fprintf st "@[<1>(%a)@]" pf x
 let brackets pf st x = Format.fprintf st "@[<1>[%a]@]" pf x
 let braces pf st x = Format.fprintf st "@[<1>{%a}@]" pf x
 let break_with value st () = Format.fprintf st "%s @," value
+let pre_break_with value st () = Format.fprintf st "@, %s" value
 
 let quote ?(enclosing = "\"") pf st x =
   Format.fprintf st "@[<1>@<1>%s%a@<1>%s@]" enclosing pf x enclosing
@@ -23,10 +26,8 @@ let pp_int32 st i = pp_specific_int ~suffix:"l" Int32.to_string st i
 let pp_int64 st i = pp_specific_int ~suffix:"L" Int64.to_string st i
 let pp_float st f = Format.pp_print_float st f
 
-let pp_pair pf st pair =
-  let pp st (a, b) =
-    Format.fprintf st "%a %a %a" pf a (break_with ",") () pf b
-  in
+let pp_pair ?(sep = ",") pf st pair =
+  let pp st (a, b) = Format.fprintf st "%a%a%a" pf a (break_with sep) () pf b in
   parens pp st pair
 ;;
 
@@ -47,7 +48,7 @@ let pp_record pf st record =
   braces (Format.pp_print_list ~pp_sep:(break_with ";") field) st record
 ;;
 
-let rec pp st = function
+let rec pp_ast st = function
   | Ast.Null -> pp_null st ()
   | Ast.Unit -> pp_unit st ()
   | Ast.Bool b -> pp_bool st b
@@ -57,8 +58,49 @@ let rec pp st = function
   | Ast.Int64 i -> pp_int64 st i
   | Ast.Float f -> pp_float st f
   | Ast.String s -> pp_string st s
-  | Ast.Pair (a, b) -> pp_pair pp st (a, b)
-  | Ast.List xs -> pp_list pp st xs
-  | Ast.Constr (constr, v) -> pp_constr pp st constr v
-  | Ast.Record record -> pp_record pp st record
+  | Ast.Pair (a, b) -> pp_pair pp_ast st (a, b)
+  | Ast.List xs -> pp_list pp_ast st xs
+  | Ast.Constr (constr, v) -> pp_constr pp_ast st constr v
+  | Ast.Record record -> pp_record pp_ast st record
+;;
+
+let pp_kany st () = Format.fprintf st "?any"
+let pp_knull st () = Format.fprintf st "null"
+let pp_kunit st () = Format.fprintf st "unit"
+let pp_kbool st () = Format.fprintf st "bool"
+let pp_kchar st () = Format.fprintf st "char"
+let pp_kint st () = Format.fprintf st "int"
+let pp_kint32 st () = Format.fprintf st "int32"
+let pp_kint64 st () = Format.fprintf st "int64"
+let pp_kfloat st () = Format.fprintf st "float"
+let pp_kstring st () = Format.fprintf st "string"
+let pp_kpair pp st pair = pp_pair ~sep:" * " pp st pair
+let pp_klist pp st kinds = pp_list pp st [ kinds ]
+let pp_kconstr pp st k v = pp_constr pp st k v
+let pp_krecord st () = Format.fprintf st "?record"
+
+let pp_kenum sep pp st l r =
+  Format.pp_print_list ~pp_sep:(pre_break_with sep) pp st [ l; r ]
+;;
+
+let pp_kor = pp_kenum "| "
+let pp_kand = pp_kenum "& "
+
+let rec pp_kind st = function
+  | Kind.Any -> pp_kany st ()
+  | Kind.Null -> pp_knull st ()
+  | Kind.Unit -> pp_kunit st ()
+  | Kind.Bool -> pp_kbool st ()
+  | Kind.Char -> pp_kchar st ()
+  | Kind.Int -> pp_kint st ()
+  | Kind.Int32 -> pp_kint32 st ()
+  | Kind.Int64 -> pp_kint64 st ()
+  | Kind.Float -> pp_kfloat st ()
+  | Kind.String -> pp_kstring st ()
+  | Kind.Pair (a, b) -> pp_kpair pp_kind st (a, b)
+  | Kind.List kinds -> pp_klist pp_kind st kinds
+  | Kind.Constr (k, v) -> pp_kconstr pp_kind st k v
+  | Kind.Record -> pp_krecord st ()
+  | Kind.Or (l, r) -> pp_kor pp_kind st l r
+  | Kind.And (l, r) -> pp_kand pp_kind st l r
 ;;

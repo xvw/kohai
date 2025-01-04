@@ -46,11 +46,11 @@ type 'a conv = 'a -> t
 
 (** {2 Primitive types} *)
 
-(** [null] describes a [Null] type value. *)
-val null : t
+(** [null _] describes a [Null] type value. *)
+val null : 'a conv
 
-(** [unit] describes a [Unit] type value. *)
-val unit : t
+(** [unit _] describes a [Unit] type value. *)
+val unit : 'a conv
 
 (** [bool x] transforms [x], a Boolean, into [Bool]. *)
 val bool : bool conv
@@ -147,7 +147,7 @@ val record : (string * t) list conv
 
     {mdx@ocaml[
       # constr (function
-          | Foo -> "foo", unit
+          | Foo -> "foo", unit ()
           | Bar x -> "bar", int x
           | Baz s -> "baz", string s
         ) ;;
@@ -205,8 +205,8 @@ include module type of Infix (** @inline *)
     example:
 
     {mdx@ocaml[
-      # equal (record ["a", unit; "b", null])
-              (record ["b", null; "a", unit]) ;;
+      # equal (record ["a", unit (); "b", null ()])
+              (record ["b", null (); "a", unit ()]) ;;
       - : bool = true
     ]mdx} *)
 val equal : t -> t -> bool
@@ -243,8 +243,8 @@ val record_to_assoc : record -> (string * t) list
     {@ocaml[
       let conv_gender =
         constr (function
-          | Male -> "male", unit
-          | Female -> "female", unit
+          | Male -> "male", unit ()
+          | Female -> "female", unit ()
           | Other s -> "other", string s)
       ;;
     ]}

@@ -1,17 +1,17 @@
 let dump rensai_expr =
-  rensai_expr |> Format.asprintf "%a" Rensai_fmt.pp |> print_endline
+  rensai_expr |> Format.asprintf "%a" Rensai_fmt.pp_ast |> print_endline
 ;;
 
 open Rensai.Ast
 
 let%expect_test "pretty-print null" =
-  let expr = null in
+  let expr = null () in
   dump expr;
   [%expect {| <null> |}]
 ;;
 
 let%expect_test "pretty-print unit" =
-  let expr = unit in
+  let expr = unit () in
   dump expr;
   [%expect {| <unit> |}]
 ;;
@@ -165,7 +165,7 @@ let%expect_test "pretty-print an hlist" =
   in
   dump expr;
   [%expect
-    {| [23; true; (42 ,  ("foo" ,  (33445556L ,  [true; true; false])))] |}]
+    {| [23; true; (42, ("foo", (33445556L, [true; true; false])))] |}]
 ;;
 
 let%expect_test "pretty-print a simple record" =
@@ -306,8 +306,8 @@ let user ?(crowd = []) ?(is_active = true) first_name last_name gender =
 
 let conv_gender =
   constr (function
-    | Male -> "male", unit
-    | Female -> "female", unit
+    | Male -> "male", unit ()
+    | Female -> "female", unit ()
     | Other s -> "other", string s)
 ;;
 

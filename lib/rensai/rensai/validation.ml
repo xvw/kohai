@@ -48,21 +48,13 @@ let char ?(strict = false) = function
     unexpected_kind Kind.Char value
 ;;
 
-module type NUMBER = sig
-  type t
-
-  val to_int : t -> int
-  val of_int : int -> t
-  val equal : t -> t -> bool
-end
-
-let as_integer (type a) (module N : NUMBER with type t = a) i value =
-  let x = N.to_int i in
-  let y = N.of_int x in
-  if not (N.equal i y) then unexpected_kind Kind.Int value else Ok x
+let as_integer kind from into equal i value =
+  let x = into i in
+  let y = from x in
+  if not (equal i y) then unexpected_kind kind value else Ok x
 ;;
 
-let from_string from into s value kind =
+let from_string kind from into s value =
   let s = strim s in
   match from s with
   | None -> unexpected_kind kind value
@@ -74,9 +66,35 @@ let from_string from into s value kind =
 let int ?(strict = false) = function
   | Ast.Int i -> Ok i
   | Ast.String s as value when not strict ->
-    from_string int_of_string_opt string_of_int s value Kind.Int
-  | Ast.Int32 i as value when not strict -> as_integer (module Int32) i value
-  | Ast.Int64 i as value when not strict -> as_integer (module Int64) i value
-  | Ast.Float i as value when not strict -> as_integer (module Float) i value
+    from_string Kind.Int int_of_string_opt string_of_int s value
+  | Ast.Int32 i as value when not strict ->
+    as_integer Kind.Int Int32.of_int Int32.to_int Int32.equal i value
+  | Ast.Int64 i as value when not strict ->
+    as_integer Kind.Int Int64.of_int Int64.to_int Int64.equal i value
+  | Ast.Float i as value when not strict ->
+    as_integer Kind.Int Float.of_int Float.to_int Float.equal i value
   | value -> unexpected_kind Kind.Int value
+;;
+
+let int32 ?(strict = false) = function
+  | Ast.Int32 i -> Ok i
+  | Ast.Int i when not strict -> Ok (Int32.of_int i)
+  | Ast.Int64 i as value when not strict ->
+    as_integer Kind.Int32 Int64.of_int32 Int64.to_int32 Int64.equal i value
+  | Ast.Float i as value when not strict ->
+    as_integer Kind.Int32 Int32.to_float Int32.of_float Float.equal i value
+  | Ast.String s as value when not strict ->
+    from_string Kind.Int32 Int32.of_string_opt Int32.to_string s value
+  | value -> unexpected_kind Kind.Int32 value
+;;
+
+let int64 ?(strict = false) = function
+  | Ast.Int64 i -> Ok i
+  | Ast.Int i when not strict -> Ok (Int64.of_int i)
+  | Ast.Int32 i when not strict -> Ok (Int64.of_int32 i)
+  | Ast.Float i as value when not strict ->
+    as_integer Kind.Int64 Int64.to_float Int64.of_float Float.equal i value
+  | Ast.String s as value when not strict ->
+    from_string Kind.Int64 Int64.of_string_opt Int64.to_string s value
+  | value -> unexpected_kind Kind.Int64 value
 ;;

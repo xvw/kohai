@@ -185,6 +185,22 @@ let%expect_test "validate an int value using a string" =
   [%expect {| ok |}]
 ;;
 
+let%expect_test "validate an int value using an invalid string - 1" =
+  let expr = Ast.string "foo" in
+  let check = Validation.int in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {| Unexpected_kind {expected = "int"; given = "string"; value = "foo"} |}]
+;;
+
+let%expect_test "validate an int value using an invalid string - 2" =
+  let expr = Ast.string "33sasa" in
+  let check = Validation.int in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {| Unexpected_kind {expected = "int"; given = "string"; value = "foo"} |}]
+;;
+
 let%expect_test "validate an int value using a string in strict mode" =
   let expr = Ast.string "42" in
   let check = Validation.int ~strict:true in
@@ -245,7 +261,8 @@ let%expect_test "validate an int value using an invalid float" =
   let expr = Ast.float 42.32 in
   let check = Validation.int in
   expr |> check |> dump pp_ok;
-  [%expect {| Unexpected_kind {expected = "int"; given = "float"; value = 42.32} |}]
+  [%expect
+    {| Unexpected_kind {expected = "int"; given = "float"; value = 42.32} |}]
 ;;
 
 let%expect_test "validate an int value using a float in strict mode" =

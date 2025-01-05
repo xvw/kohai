@@ -62,12 +62,19 @@ let as_integer (type a) (module N : NUMBER with type t = a) i value =
   if not (N.equal i y) then unexpected_kind Kind.Int value else Ok x
 ;;
 
+let from_string from into s value kind =
+  let s = strim s in
+  match from s with
+  | None -> unexpected_kind kind value
+  | Some x ->
+    let y = into x in
+    if String.equal s y then Ok x else unexpected_kind kind value
+;;
+
 let int ?(strict = false) = function
   | Ast.Int i -> Ok i
   | Ast.String s as value when not strict ->
-    (match int_of_string_opt s with
-     | None -> unexpected_kind Kind.Int value
-     | Some i -> Ok i)
+    from_string int_of_string_opt string_of_int s value Kind.Int
   | Ast.Int32 i as value when not strict -> as_integer (module Int32) i value
   | Ast.Int64 i as value when not strict -> as_integer (module Int64) i value
   | Ast.Float i as value when not strict -> as_integer (module Float) i value

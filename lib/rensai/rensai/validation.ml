@@ -48,23 +48,28 @@ let char ?(strict = false) = function
     unexpected_kind Kind.Char value
 ;;
 
+module type NUMBER = sig
+  type t
+
+  val to_int : t -> int
+  val of_int : int -> t
+  val equal : t -> t -> bool
+end
+
+let as_integer (type a) (module N : NUMBER with type t = a) i value =
+  let x = N.to_int i in
+  let y = N.of_int x in
+  if not (N.equal i y) then unexpected_kind Kind.Int value else Ok x
+;;
+
 let int ?(strict = false) = function
   | Ast.Int i -> Ok i
   | Ast.String s as value when not strict ->
     (match int_of_string_opt s with
      | None -> unexpected_kind Kind.Int value
      | Some i -> Ok i)
-  | Ast.Int32 i as value when not strict ->
-    let x = Int32.to_int i in
-    let y = Int32.of_int x in
-    if not (Int32.equal i y) then unexpected_kind Kind.Int value else Ok x
-  | Ast.Int64 i as value when not strict ->
-    let x = Int64.to_int i in
-    let y = Int64.of_int x in
-    if not (Int64.equal i y) then unexpected_kind Kind.Int value else Ok x
-  | Ast.Float i as value when not strict ->
-    let x = Float.to_int i in
-    let y = Float.of_int x in
-    if not (Float.equal i y) then unexpected_kind Kind.Int value else Ok x
+  | Ast.Int32 i as value when not strict -> as_integer (module Int32) i value
+  | Ast.Int64 i as value when not strict -> as_integer (module Int64) i value
+  | Ast.Float i as value when not strict -> as_integer (module Float) i value
   | value -> unexpected_kind Kind.Int value
 ;;

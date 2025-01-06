@@ -4,18 +4,38 @@ type value_error =
       ; given : Kind.t
       ; value : Ast.t
       }
+  | Unexpected_pair of pair_error
+
+and pair_error =
+  | Invalid_fst of value_error
+  | Invalid_snd of value_error
+  | Invalid_both of value_error * value_error
 
 type 'a checked = ('a, value_error) result
-type 'a t = Ast.t -> 'a checked
+type ('a, 'b) v = 'a -> 'b checked
+type 'a t = (Ast.t, 'a) v
 
 module Infix = struct
   let ( $ ) l f x = Result.map f (l x)
-
-  (* let ( & ) l r x = Result.bind (l x) r *)
+  let ( & ) l r x = Result.bind (l x) r
   let ( / ) l r x = Result.fold ~ok:Result.ok ~error:(fun _ -> r x) (l x)
 end
 
+module Syntax = struct
+  let ( let+ ) x f = Result.map f x
+  let ( let* ) = Result.bind
+
+  let ( and+ ) a b =
+    match a, b with
+    | Ok x, Ok y -> Ok (x, y)
+    | Error err, _ | _, Error err -> Error err
+  ;;
+
+  let ( and* ) = ( and+ )
+end
+
 include Infix
+include Syntax
 
 let strim subject = subject |> String.trim |> String.lowercase_ascii
 
@@ -29,6 +49,10 @@ let replace_expected_kind new_kind = function
     Error (Unexpected_kind { expected = new_kind; given; value })
   | value -> value
 ;;
+
+let invalid_first err = Error (Unexpected_pair (Invalid_fst err))
+let invalid_second err = Error (Unexpected_pair (Invalid_snd err))
+let invalid_both err1 err2 = Error (Unexpected_pair (Invalid_both (err1, err2)))
 
 let null = function
   | Ast.Null -> Ok ()
@@ -142,4 +166,31 @@ let number ?(strict = false) subject =
   subject
   |> float ~strict / (integer ~strict $ Int64.to_float)
   |> replace_expected_kind Kind.(Int || Int32 || Int64 || Float)
+;;
+
+let string ?(strict = false) = function
+  | Ast.String s -> Ok s
+  | Ast.Bool b when not strict -> Ok (string_of_bool b)
+  | Ast.Char c when not strict -> Ok (String.make 1 c)
+  | Ast.Int i when not strict -> Ok (string_of_int i)
+  | Ast.Int32 i when not strict -> Ok (Int32.to_string i)
+  | Ast.Int64 i when not strict -> Ok (Int64.to_string i)
+  | Ast.Float i when not strict -> Ok (Float.to_string i)
+  | value -> unexpected_kind Kind.String value
+;;
+
+let pair fst snd = function
+  | Ast.Pair (a, b) ->
+    (match fst a, snd b with
+     | Ok x, Ok y -> Ok (x, y)
+     | Error x, Ok _ -> invalid_first x
+     | Ok _, Error x -> invalid_second x
+     | Error x, Error y -> invalid_both x y)
+  | value -> unexpected_kind Kind.(Pair (Any, Any)) value
+;;
+
+let triple fst snd trd = pair fst (pair snd trd) $ fun (x, (y, z)) -> x, y, z
+
+let quad fst snd trd frd =
+  pair fst (pair snd (pair trd frd)) $ fun (w, (x, (y, z))) -> w, x, y, z
 ;;

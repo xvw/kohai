@@ -25,7 +25,7 @@ let%expect_test "validate a non-null value - 1" =
   let check = Validation.null in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "null"; given = "unit"; value = <unit>} |}]
+    {| Kind {expected = "null"; given = "unit"; value = <unit>} |}]
 ;;
 
 let%expect_test "validate a non-null value - 2" =
@@ -42,10 +42,10 @@ let%expect_test "validate a non-null value - 2" =
   expr |> check |> dump pp_ok;
   [%expect
     {|
-    Unexpected_kind {expected = "null";
-                     given =
-                      "[int & string & [int64 & bool] & (int *  (int *  (string *  string)))]";
-                     value = [12; "foo"; [1344L; true]; (1, (2, ("foo", "bar")))]}
+    Kind {expected = "null";
+          given =
+           "[int & string & [int64 & bool] & (int *  (int *  (string *  string)))]";
+          value = [12; "foo"; [1344L; true]; (1, (2, ("foo", "bar")))]}
     |}]
 ;;
 
@@ -61,7 +61,7 @@ let%expect_test "validate an non-unit value - 1" =
   let check = Validation.unit in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "unit"; given = "null"; value = <null>} |}]
+    {| Kind {expected = "unit"; given = "null"; value = <null>} |}]
 ;;
 
 let%expect_test "validate a non-unit value - 2" =
@@ -78,10 +78,10 @@ let%expect_test "validate a non-unit value - 2" =
   expr |> check |> dump pp_ok;
   [%expect
     {|
-    Unexpected_kind {expected = "unit";
-                     given =
-                      "[int & string & [int64 & bool] & (int *  (int *  (string *  string)))]";
-                     value = [12; "foo"; [1344L; true]; (1, (2, ("foo", "bar")))]}
+    Kind {expected = "unit";
+          given =
+           "[int & string & [int64 & bool] & (int *  (int *  (string *  string)))]";
+          value = [12; "foo"; [1344L; true]; (1, (2, ("foo", "bar")))]}
     |}]
 ;;
 
@@ -162,10 +162,10 @@ let%expect_test "validate a non-bool value - 1" =
   expr |> check |> dump pp_ok;
   [%expect
     {|
-    Unexpected_kind {expected = "bool";
-                     given =
-                      "[int & string & [int64 & bool] & (int *  (int *  (string *  string)))]";
-                     value = [12; "bar"; [1344L; true]; (1, (2, ("foo", "bar")))]}
+    Kind {expected = "bool";
+          given =
+           "[int & string & [int64 & bool] & (int *  (int *  (string *  string)))]";
+          value = [12; "bar"; [1344L; true]; (1, (2, ("foo", "bar")))]}
     |}]
 ;;
 
@@ -195,14 +195,14 @@ let%expect_test "validate a char value using an invalid string value" =
   let check = Validation.char in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "char"; given = "string"; value = "xo"} |}]
+    {| Kind {expected = "char"; given = "string"; value = "xo"} |}]
 ;;
 
 let%expect_test "validate a char value using an invalid value" =
   let expr = Ast.int 45 in
   let check = Validation.char in
   expr |> check |> dump pp_ok;
-  [%expect {| Unexpected_kind {expected = "char"; given = "int"; value = 45} |}]
+  [%expect {| Kind {expected = "char"; given = "int"; value = 45} |}]
 ;;
 
 let%expect_test "validate a char value using a string value in strict mode" =
@@ -210,7 +210,7 @@ let%expect_test "validate a char value using a string value in strict mode" =
   let check = Validation.char ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "char"; given = "string"; value = "x"} |}]
+    {| Kind {expected = "char"; given = "string"; value = "x"} |}]
 ;;
 
 let%expect_test "validate an int value" =
@@ -239,7 +239,7 @@ let%expect_test "validate an int value using an invalid string - 1" =
   let check = Validation.int in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int"; given = "string"; value = "foo"} |}]
+    {| Kind {expected = "int"; given = "string"; value = "foo"} |}]
 ;;
 
 let%expect_test "validate an int value using an invalid string - 2" =
@@ -247,7 +247,7 @@ let%expect_test "validate an int value using an invalid string - 2" =
   let check = Validation.int in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int"; given = "string"; value = "33sasa"} |}]
+    {| Kind {expected = "int"; given = "string"; value = "33sasa"} |}]
 ;;
 
 let%expect_test "validate an int value using a string in strict mode" =
@@ -255,7 +255,7 @@ let%expect_test "validate an int value using a string in strict mode" =
   let check = Validation.int ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int"; given = "string"; value = "42"} |}]
+    {| Kind {expected = "int"; given = "string"; value = "42"} |}]
 ;;
 
 let%expect_test "validate an int value using an int32" =
@@ -270,7 +270,7 @@ let%expect_test "validate an int value using an int32 in strict mode" =
   let check = Validation.int ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int"; given = "int32"; value = 42l} |}]
+    {| Kind {expected = "int"; given = "int32"; value = 42l} |}]
 ;;
 
 let%expect_test "validate an int value using an int64" =
@@ -285,10 +285,7 @@ let%expect_test "validate an int value using an invalid int64" =
   let check = Validation.int in
   expr |> check |> dump pp_ok;
   [%expect
-    {|
-    Unexpected_kind {expected = "int"; given = "int64";
-                     value = 9223372036854775807L}
-    |}]
+    {| Kind {expected = "int"; given = "int64"; value = 9223372036854775807L} |}]
 ;;
 
 let%expect_test "validate an int value using an int64 in strict mode" =
@@ -296,7 +293,7 @@ let%expect_test "validate an int value using an int64 in strict mode" =
   let check = Validation.int ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int"; given = "int64"; value = 42L} |}]
+    {| Kind {expected = "int"; given = "int64"; value = 42L} |}]
 ;;
 
 let%expect_test "validate an int value using a float" =
@@ -311,7 +308,7 @@ let%expect_test "validate an int value using an invalid float" =
   let check = Validation.int in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int"; given = "float"; value = 42.32} |}]
+    {| Kind {expected = "int"; given = "float"; value = 42.32} |}]
 ;;
 
 let%expect_test "validate an int value using a float in strict mode" =
@@ -319,7 +316,7 @@ let%expect_test "validate an int value using a float in strict mode" =
   let check = Validation.int ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int"; given = "float"; value = 42.} |}]
+    {| Kind {expected = "int"; given = "float"; value = 42.} |}]
 ;;
 
 let%expect_test "validate an int32 value" =
@@ -348,7 +345,7 @@ let%expect_test "validate an int32 value using an int in strict mode" =
   let check = Validation.int32 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int32"; given = "int"; value = 42} |}]
+    {| Kind {expected = "int32"; given = "int"; value = 42} |}]
 ;;
 
 let%expect_test "validate an int32 value using an int64" =
@@ -363,10 +360,7 @@ let%expect_test "validate an int32 value using an invalid int64" =
   let check = Validation.int32 in
   expr |> check |> dump pp_ok;
   [%expect
-    {|
-    Unexpected_kind {expected = "int32"; given = "int64";
-                     value = 9223372036854775807L}
-    |}]
+    {| Kind {expected = "int32"; given = "int64"; value = 9223372036854775807L} |}]
 ;;
 
 let%expect_test "validate an int32 value using an int64 in strict mode" =
@@ -374,7 +368,7 @@ let%expect_test "validate an int32 value using an int64 in strict mode" =
   let check = Validation.int32 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int32"; given = "int64"; value = 42L} |}]
+    {| Kind {expected = "int32"; given = "int64"; value = 42L} |}]
 ;;
 
 let%expect_test "validate an int32 value using a float" =
@@ -389,7 +383,7 @@ let%expect_test "validate an int32 value using a float in strict mode" =
   let check = Validation.int32 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int32"; given = "float"; value = 42.} |}]
+    {| Kind {expected = "int32"; given = "float"; value = 42.} |}]
 ;;
 
 let%expect_test "validate an int32 value using an invalid float" =
@@ -397,7 +391,7 @@ let%expect_test "validate an int32 value using an invalid float" =
   let check = Validation.int32 in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int32"; given = "float"; value = 3.14} |}]
+    {| Kind {expected = "int32"; given = "float"; value = 3.14} |}]
 ;;
 
 let%expect_test "validate an int32 value using a string" =
@@ -412,7 +406,7 @@ let%expect_test "validate an int32 value using a string in strict mode" =
   let check = Validation.int32 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int32"; given = "string"; value = "42"} |}]
+    {| Kind {expected = "int32"; given = "string"; value = "42"} |}]
 ;;
 
 let%expect_test "validate an int32 value using an invalid string" =
@@ -420,7 +414,7 @@ let%expect_test "validate an int32 value using an invalid string" =
   let check = Validation.int32 in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int32"; given = "string"; value = "hello"} |}]
+    {| Kind {expected = "int32"; given = "string"; value = "hello"} |}]
 ;;
 
 let%expect_test "validate an int64 value" =
@@ -449,7 +443,7 @@ let%expect_test "validate an int value as an int64 in strict mode" =
   let check = Validation.int64 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int64"; given = "int"; value = 42} |}]
+    {| Kind {expected = "int64"; given = "int"; value = 42} |}]
 ;;
 
 let%expect_test "validate an int32 value as an int64" =
@@ -464,7 +458,7 @@ let%expect_test "validate an int32 value as an int64 in strict mode" =
   let check = Validation.int64 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int64"; given = "int32"; value = 42l} |}]
+    {| Kind {expected = "int64"; given = "int32"; value = 42l} |}]
 ;;
 
 let%expect_test "validate a float value as an int64" =
@@ -479,7 +473,7 @@ let%expect_test "validate an invalid float value as an int64" =
   let check = Validation.int64 in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int64"; given = "float"; value = 42.22} |}]
+    {| Kind {expected = "int64"; given = "float"; value = 42.22} |}]
 ;;
 
 let%expect_test "validate a float value as an int64 in strict mode" =
@@ -487,7 +481,7 @@ let%expect_test "validate a float value as an int64 in strict mode" =
   let check = Validation.int64 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int64"; given = "float"; value = 42.} |}]
+    {| Kind {expected = "int64"; given = "float"; value = 42.} |}]
 ;;
 
 let%expect_test "validate a float value as an int64" =
@@ -509,10 +503,7 @@ let%expect_test "validate a string value as an invalid int64" =
   let check = Validation.int64 in
   expr |> check |> dump pp_ok;
   [%expect
-    {|
-    Unexpected_kind {expected = "int64"; given = "string";
-                     value = "kkk345678909"}
-    |}]
+    {| Kind {expected = "int64"; given = "string"; value = "kkk345678909"} |}]
 ;;
 
 let%expect_test "validate a string value as an int64 in strict mode" =
@@ -520,7 +511,7 @@ let%expect_test "validate a string value as an int64 in strict mode" =
   let check = Validation.int64 ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "int64"; given = "string"; value = "345678909"} |}]
+    {| Kind {expected = "int64"; given = "string"; value = "345678909"} |}]
 ;;
 
 let%expect_test "validate a float" =
@@ -549,7 +540,7 @@ let%expect_test "validate a float using an int in strict mode" =
   let check = Validation.float ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "float"; given = "int"; value = 42} |}]
+    {| Kind {expected = "float"; given = "int"; value = 42} |}]
 ;;
 
 let%expect_test "validate a float using an int32" =
@@ -564,7 +555,7 @@ let%expect_test "validate a float using an int32 in strict mode" =
   let check = Validation.float ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "float"; given = "int32"; value = 42l} |}]
+    {| Kind {expected = "float"; given = "int32"; value = 42l} |}]
 ;;
 
 let%expect_test "validate a float using an int64" =
@@ -579,7 +570,7 @@ let%expect_test "validate a float using an int64 in strict mode" =
   let check = Validation.float ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "float"; given = "int64"; value = 42L} |}]
+    {| Kind {expected = "float"; given = "int64"; value = 42L} |}]
 ;;
 
 let%expect_test "validate a float using a string - 1" =
@@ -601,7 +592,7 @@ let%expect_test "validate a float using an invalid string" =
   let check = Validation.float in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "float"; given = "string"; value = "foo"} |}]
+    {| Kind {expected = "float"; given = "string"; value = "foo"} |}]
 ;;
 
 let%expect_test "validate a float using a string in strict mode" =
@@ -609,7 +600,7 @@ let%expect_test "validate a float using a string in strict mode" =
   let check = Validation.float ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Unexpected_kind {expected = "float"; given = "string"; value = "3.14"} |}]
+    {| Kind {expected = "float"; given = "string"; value = "3.14"} |}]
 ;;
 
 let%expect_test "validate an integer - 1" =
@@ -638,10 +629,7 @@ let%expect_test "validate an integer with a float" =
   let check = Validation.integer ~strict:true in
   expr |> check |> dump pp_ok;
   [%expect
-    {|
-    Unexpected_kind {expected = "int | int32 | int64"; given = "float";
-                     value = 2.33}
-    |}]
+    {| Kind {expected = "int | int32 | int64"; given = "float"; value = 2.33} |}]
 ;;
 
 let%expect_test "validate an integer with a float in non-strict mode" =
@@ -683,8 +671,123 @@ let%expect_test "validate an invalid number" =
   let expr = Ast.string "Foo" in
   let check = Validation.number in
   expr |> check |> dump pp_ok;
-  [%expect {|
-    Unexpected_kind {expected = "int | int32 | int64 | float"; given = "string";
-                     value = "Foo"}
+  [%expect
+    {|
+    Kind {expected = "int | int32 | int64 | float"; given = "string";
+          value = "Foo"}
+    |}]
+;;
+
+let%expect_test "validate a string - 1" =
+  let expr = Ast.string "Hello World" in
+  let check = Validation.string in
+  expr |> check |> dump pp_ok;
+  [%expect {| ok |}]
+;;
+
+let%expect_test "validate a string - 2" =
+  let expr = Ast.bool true in
+  let check = Validation.string in
+  expr |> check |> dump pp_ok;
+  [%expect {| ok |}]
+;;
+
+let%expect_test "validate a string - 3" =
+  let expr = Ast.bool false in
+  let check = Validation.string in
+  expr |> check |> dump pp_ok;
+  [%expect {| ok |}]
+;;
+
+let%expect_test "validate a string in strict mode" =
+  let expr = Ast.string "Hello World" in
+  let check = Validation.string ~strict:true in
+  expr |> check |> dump pp_ok;
+  [%expect {| ok |}]
+;;
+
+let%expect_test "validate something else in strict mode" =
+  let expr = Ast.float 32.0 in
+  let check = Validation.string ~strict:true in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {| Kind {expected = "string"; given = "float"; value = 32.} |}]
+;;
+
+let%expect_test "validate a pair - 1" =
+  let expr = Ast.(pair' unit unit () ()) in
+  let check = Validation.(pair unit unit) in
+  expr |> check |> dump pp_ok;
+  [%expect {| ok |}]
+;;
+
+let%expect_test "validate a pair - 1" =
+  let expr = Ast.(pair' int string 42 "foo") in
+  let check = Validation.(pair int string) in
+  expr |> check |> dump pp_ok;
+  [%expect {| ok |}]
+;;
+
+let%expect_test "validate a pair using an invalid shape - 1" =
+  let expr = Ast.string "foo" in
+  let check = Validation.(pair int string) in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {| Kind {expected = "(?any *  ?any)"; given = "string"; value = "foo"} |}]
+;;
+
+let%expect_test "validate a pair using an invalid shape - 2" =
+  let expr = Ast.(pair' string int "foo" 42) in
+  let check = Validation.(pair int string) in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {| Pair (first Kind {expected = "int"; given = "string"; value = "foo"}) |}]
+;;
+
+let%expect_test "validate a pair using an invalid shape - 3" =
+  let expr = Ast.(pair' string int "foo" 42) in
+  let check = Validation.(pair (int ~strict:true) (string ~strict:true)) in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {|
+    Pair (both {first =
+                 "Kind {expected = "int"; given = "string"; value = "foo"}";
+                second = "Kind {expected = "string"; given = "int"; value = 42}"})
+    |}]
+;;
+
+let%expect_test "validate a pair using an invalid shape - 4" =
+  let expr = Ast.(pair' int int 12 42) in
+  let check = Validation.(pair (int ~strict:true) (string ~strict:true)) in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {| Pair (second Kind {expected = "string"; given = "int"; value = 42}) |}]
+;;
+
+let%expect_test "validate a pair using an invalid shape - 5" =
+  let expr = Ast.(pair' string string "foo" "42") in
+  let check = Validation.(pair (int ~strict:true) (string ~strict:true)) in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {| Pair (first Kind {expected = "int"; given = "string"; value = "foo"}) |}]
+;;
+
+let%expect_test "validate a quad - 1" =
+  let expr = Ast.(quad' int int int int 1 2 3 4) in
+  let check = Validation.(quad int int int int) in
+  expr |> check |> dump pp_ok;
+  [%expect {| ok |}]
+;;
+
+let%expect_test "validate an invalid quad - 1" =
+  let expr = Ast.(quad' null int bool int 1 2 true 4) in
+  let check = Validation.(quad int int int int) in
+  expr |> check |> dump pp_ok;
+  [%expect
+    {|
+    Pair (both {first = "Kind {expected = "int"; given = "null"; value = <null>}";
+                second =
+                 "Pair (second Pair (first Kind {expected = "int"; given = "bool";
+                                   value = true}))"})
     |}]
 ;;

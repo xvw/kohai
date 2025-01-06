@@ -7,6 +7,7 @@ module Kind = Rensai.Kind
 
 let keyword st value = Format.fprintf st "@[<1><%s>@]" value
 let parens pf st x = Format.fprintf st "@[<1>(%a)@]" pf x
+let box pf st x = Format.fprintf st "@[<1>%a@]" pf x
 let brackets pf st x = Format.fprintf st "@[<1>[%a]@]" pf x
 let braces pf st x = Format.fprintf st "@[<1>{%a}@]" pf x
 let break_with value st () = Format.fprintf st "%s @," value
@@ -80,12 +81,12 @@ let pp_klist pp st kinds = pp_list pp st [ kinds ]
 let pp_kconstr pp st k v = pp_constr pp st k v
 let pp_krecord st () = Format.fprintf st "?record"
 
-let pp_kenum sep pp st l r =
+let pp_kenum sep pp st (l, r) =
   Format.pp_print_list ~pp_sep:(pre_break_with sep) pp st [ l; r ]
 ;;
 
-let pp_kor = pp_kenum "| "
-let pp_kand = pp_kenum "& "
+let pp_kor pp = box (pp_kenum "| " pp)
+let pp_kand pp = box (pp_kenum "& " pp)
 
 let rec pp_kind st = function
   | Kind.Any -> pp_kany st ()
@@ -102,8 +103,8 @@ let rec pp_kind st = function
   | Kind.List kinds -> pp_klist pp_kind st kinds
   | Kind.Constr (k, v) -> pp_kconstr pp_kind st k v
   | Kind.Record -> pp_krecord st ()
-  | Kind.Or (l, r) -> pp_kor pp_kind st l r
-  | Kind.And (l, r) -> pp_kand pp_kind st l r
+  | Kind.Or (l, r) -> pp_kor pp_kind st (l, r)
+  | Kind.And (l, r) -> pp_kand pp_kind st (l, r)
 ;;
 
 let kind_s k = k |> Format.asprintf "%a" pp_kind |> Ast.string

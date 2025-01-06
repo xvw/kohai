@@ -54,3 +54,16 @@ val int32 : ?strict:bool -> int32 t
     [strict] is [false], the validation is relaxed accepting [int],
     [int32], [float] or [string]. *)
 val int64 : ?strict:bool -> int64 t
+
+(** [float ?strict] ensure that the fragment is a [float]. If the flag
+    [strict] is [false], the validation is relaxed accepting [int],
+    [int32], [int64] or [string]. *)
+val float : ?strict:bool -> float t
+
+(** [integer ?strict] ensure that the fragment is an [integer]. If the flag
+    [strict] is [false], the validation is relaxed accepting [string]. *)
+val integer : ?strict:bool -> int64 t
+
+(** [number ?strict] ensure that the fragment is an [number]. If the flag
+    [strict] is [false], the validation is relaxed accepting [string]. *)
+val number : ?strict:bool -> float t

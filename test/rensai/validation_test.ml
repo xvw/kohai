@@ -714,7 +714,10 @@ let%expect_test "validate a pair using an invalid shape - 2" =
   let check = Validation.(pair int string) in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Pair (first Kind {expected = "int"; given = "string"; value = "foo"}) |}]
+    {|
+    Pair ({first = "Kind {expected = "int"; given = "string"; value = "foo"}";
+           given = "(string *  int)"; value = ("foo", 42)})
+    |}]
 ;;
 
 let%expect_test "validate a pair using an invalid shape - 3" =
@@ -723,9 +726,10 @@ let%expect_test "validate a pair using an invalid shape - 3" =
   expr |> check |> dump pp_ok;
   [%expect
     {|
-    Pair (both {first =
-                 "Kind {expected = "int"; given = "string"; value = "foo"}";
-                second = "Kind {expected = "string"; given = "int"; value = 42}"})
+    Pair ({first = "Kind {expected = "int"; given = "string"; value = "foo"}";
+           given = "(string *  int)";
+           second = "Kind {expected = "string"; given = "int"; value = 42}";
+           value = ("foo", 42)})
     |}]
 ;;
 
@@ -734,7 +738,11 @@ let%expect_test "validate a pair using an invalid shape - 4" =
   let check = Validation.(pair (int ~strict:true) (string ~strict:true)) in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Pair (second Kind {expected = "string"; given = "int"; value = 42}) |}]
+    {|
+    Pair ({given = "(int *  int)";
+           second = "Kind {expected = "string"; given = "int"; value = 42}";
+           value = (12, 42)})
+    |}]
 ;;
 
 let%expect_test "validate a pair using an invalid shape - 5" =
@@ -742,7 +750,10 @@ let%expect_test "validate a pair using an invalid shape - 5" =
   let check = Validation.(pair (int ~strict:true) (string ~strict:true)) in
   expr |> check |> dump pp_ok;
   [%expect
-    {| Pair (first Kind {expected = "int"; given = "string"; value = "foo"}) |}]
+    {|
+    Pair ({first = "Kind {expected = "int"; given = "string"; value = "foo"}";
+           given = "(string *  string)"; value = ("foo", "42")})
+    |}]
 ;;
 
 let%expect_test "validate a quad - 1" =
@@ -766,10 +777,15 @@ let%expect_test "validate an invalid quad - 1" =
   expr |> check |> dump pp_ok;
   [%expect
     {|
-    Pair (both {first = "Kind {expected = "int"; given = "null"; value = <null>}";
-                second =
-                 "Pair (second Pair (first Kind {expected = "int"; given = "bool";
-                                   value = true}))"})
+    Pair ({first = "Kind {expected = "int"; given = "null"; value = <null>}";
+           given = "(null *  (int *  (bool *  int)))";
+           second =
+            "Pair ({given = "(int *  (bool *  int))";
+           second =
+            "Pair ({first = "Kind {expected = "int"; given = "bool"; value = true}";
+           given = "(bool *  int)"; value = (true, 4)})";
+           value = (2, (true, 4))})";
+           value = (<null>, (2, (true, 4)))})
     |}]
 ;;
 
@@ -779,12 +795,16 @@ let%expect_test "validate an invalid quad using a list - 2" =
   expr |> check |> dump pp_ok;
   [%expect
     {|
-    Pair (second Pair (both {first =
-                              "Kind {expected = "int"; given = "bool"; value = true}";
-                             second =
-                              "Pair (both {first =
-                 "Kind {expected = "int"; given = "string"; value = "Hello"}";
-                second =
-                 "Kind {expected = "int"; given = "float"; value = 32.21}"})"}))
+    Pair ({given = "(int *  (bool *  (string *  float)))";
+           second =
+            "Pair ({first = "Kind {expected = "int"; given = "bool"; value = true}";
+           given = "(bool *  (string *  float))";
+           second =
+            "Pair ({first = "Kind {expected = "int"; given = "string"; value = "Hello"}";
+           given = "(string *  float)";
+           second = "Kind {expected = "int"; given = "float"; value = 32.21}";
+           value = ("Hello", 32.21)})";
+           value = (true, ("Hello", 32.21))})";
+           value = (1, (true, ("Hello", 32.21)))})
     |}]
 ;;

@@ -10,7 +10,11 @@ type value_error =
       ; given : Kind.t
       ; value : Ast.t
       }
-  | Unexpected_pair of pair_error
+  | Unexpected_pair of
+      { error : pair_error
+      ; value : Ast.t
+      ; given : Kind.t
+      }
 
 (** Dedicated error for Pair. *)
 and pair_error =
@@ -134,3 +138,8 @@ val triple : 'a t -> 'b t -> 'c t -> ('a * 'b * 'c) t
 (** [quad v1 v2 v3 v4] is a shortcut for
     [pair v1 (pair v2 (pair v3 v4)) $ fun (w, (x, (y, z))) -> w, x, y, z]. *)
 val quad : 'a t -> 'b t -> 'c t -> 'd t -> ('a * 'b * 'c * 'd) t
+
+(** [list] is a validator that extract a list (to perform manual validation). *)
+val list : Ast.t list t
+
+(* val list_of : 'a t -> 'a list t *)

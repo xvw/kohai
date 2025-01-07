@@ -116,20 +116,26 @@ let rec pp_value_error st = function
         [ "expected", kind_s expected; "given", kind_s given; "value", value ]
     in
     Format.fprintf st "Kind @[<1>%a@]" pp_ast r
-  | Rensai.Validation.Unexpected_pair pair_error ->
-    Format.fprintf st "Pair (@[<1>%a@])" pp_pair_error pair_error
-
-and pp_pair_error st = function
-  | Rensai.Validation.Invalid_fst err ->
-    Format.fprintf st "first @[<1>%a@]" pp_value_error err
-  | Rensai.Validation.Invalid_snd err ->
-    Format.fprintf st "second @[<1>%a@]" pp_value_error err
-  | Rensai.Validation.Invalid_both (fst, snd) ->
+  | Rensai.Validation.Unexpected_pair { error; given; value } ->
     let r =
       Ast.record
-        [ "first", Ast.string @@ Format.asprintf "%a" pp_value_error fst
-        ; "second", Ast.string @@ Format.asprintf "%a" pp_value_error snd
-        ]
+        ([ "given", kind_s given; "value", value ]
+         @
+         match error with
+         | Rensai.Validation.Invalid_both (a, b) ->
+           Ast.
+             [ "first", string @@ Format.asprintf "@[<1>%a@]" pp_value_error a
+             ; "second", string @@ Format.asprintf "@[<1>%a@]" pp_value_error b
+             ]
+         | Rensai.Validation.Invalid_fst err ->
+           Ast.
+             [ "first", string @@ Format.asprintf "@[<1>%a@]" pp_value_error err
+             ]
+         | Rensai.Validation.Invalid_snd err ->
+           Ast.
+             [ ( "second"
+               , string @@ Format.asprintf "@[<1>%a@]" pp_value_error err )
+             ])
     in
-    Format.fprintf st "both @[<1>%a@]" pp_ast r
+    Format.fprintf st "Pair (@[<1>%a@])" pp_ast r
 ;;

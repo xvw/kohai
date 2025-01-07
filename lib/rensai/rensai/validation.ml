@@ -4,7 +4,11 @@ type value_error =
       ; given : Kind.t
       ; value : Ast.t
       }
-  | Unexpected_pair of pair_error
+  | Unexpected_pair of
+      { error : pair_error
+      ; value : Ast.t
+      ; given : Kind.t
+      }
 
 and pair_error =
   | Invalid_fst of value_error
@@ -50,9 +54,10 @@ let replace_expected_kind new_kind = function
   | value -> value
 ;;
 
-let invalid_first err = Error (Unexpected_pair (Invalid_fst err))
-let invalid_second err = Error (Unexpected_pair (Invalid_snd err))
-let invalid_both err1 err2 = Error (Unexpected_pair (Invalid_both (err1, err2)))
+let unexpected_pair value error =
+  let given = Kind.classify value in
+  Error (Unexpected_pair { error; given; value })
+;;
 
 let null = function
   | Ast.Null -> Ok ()
@@ -180,12 +185,12 @@ let string ?(strict = false) = function
 ;;
 
 let pair fst snd = function
-  | Ast.Pair (a, b) | Ast.List [ a; b ] ->
+  | (Ast.Pair (a, b) | Ast.List [ a; b ]) as value ->
     (match fst a, snd b with
      | Ok x, Ok y -> Ok (x, y)
-     | Error x, Ok _ -> invalid_first x
-     | Ok _, Error x -> invalid_second x
-     | Error x, Error y -> invalid_both x y)
+     | Error x, Ok _ -> unexpected_pair value (Invalid_fst x)
+     | Ok _, Error x -> unexpected_pair value (Invalid_snd x)
+     | Error x, Error y -> unexpected_pair value (Invalid_both (x, y)))
   | value -> unexpected_kind Kind.(Pair (Any, Any)) value
 ;;
 
@@ -208,3 +213,10 @@ let quad fst snd trd frd x =
   in
   aux x
 ;;
+
+let list = function
+  | Ast.List list -> Ok list
+  | value -> unexpected_kind Kind.(List Any) value
+;;
+
+(* let list_of *)

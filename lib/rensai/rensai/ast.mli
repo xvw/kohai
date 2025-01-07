@@ -88,6 +88,9 @@ val hlist : t list -> t
     AST supports a minimal product form using the [Pair] and [Records]
     constructors. *)
 
+(** [lpair a b c] create a literal pair. *)
+val lpair : t -> t -> t
+
 (** [pair a b (x, y)] transform the product [x, y] into [Pair] using
     the converters [a] (for [x]) and [b] (for [y]). *)
 val pair : 'a conv -> 'b conv -> ('a * 'b) conv

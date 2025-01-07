@@ -60,6 +60,7 @@ let int64 i = Int64 i
 let float f = Float f
 let string s = String s
 let char c = Char c
+let lpair a b = Pair (a, b)
 let pair f g (a, b) = Pair (f a, g b)
 let pair' f g a b = pair f g (a, b)
 let triple f g h (a, b, c) = pair f (pair g h) (a, (b, c))

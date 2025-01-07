@@ -180,7 +180,7 @@ let string ?(strict = false) = function
 ;;
 
 let pair fst snd = function
-  | Ast.Pair (a, b) ->
+  | Ast.Pair (a, b) | Ast.List [ a; b ] ->
     (match fst a, snd b with
      | Ok x, Ok y -> Ok (x, y)
      | Error x, Ok _ -> invalid_first x
@@ -189,8 +189,22 @@ let pair fst snd = function
   | value -> unexpected_kind Kind.(Pair (Any, Any)) value
 ;;
 
-let triple fst snd trd = pair fst (pair snd trd) $ fun (x, (y, z)) -> x, y, z
+let triple fst snd trd x =
+  let rec aux = function
+    (* Be more lax on tuple treatement. *)
+    | Ast.List [ a; b; c ] -> aux Ast.(lpair a (lpair b c))
+    | value -> (pair fst (pair snd trd) $ fun (x, (y, z)) -> x, y, z) value
+  in
+  aux x
+;;
 
-let quad fst snd trd frd =
-  pair fst (pair snd (pair trd frd)) $ fun (w, (x, (y, z))) -> w, x, y, z
+let quad fst snd trd frd x =
+  let rec aux = function
+    (* Be more lax on tuple treatement. *)
+    | Ast.List [ a; b; c; d ] -> aux Ast.(lpair a (lpair b (lpair c d)))
+    | value ->
+      (pair fst (pair snd (pair trd frd)) $ fun (w, (x, (y, z))) -> w, x, y, z)
+        value
+  in
+  aux x
 ;;

@@ -43,4 +43,5 @@ for which the encoding and validation functions become generic
 (and interchangeable).")
  (depends
   (ocaml (>= 5.2.0))
+  fmt
   (mdx :with-test)))

@@ -99,3 +99,25 @@ module Infix = struct
 end
 
 include Infix
+
+let rec pp st = function
+  | Null -> Fmt.pf st "<null>"
+  | Unit -> Fmt.pf st "<unit>"
+  | Bool x -> Fmt.bool st x
+  | Char c -> Fmt.pf st "%C" c
+  | Int i -> Fmt.int st i
+  | Int32 i -> Fmt.int32 st i
+  | Int64 i -> Fmt.int64 st i
+  | Float f -> Fmt.float st f
+  | String s -> Fmt.pf st "%S" s
+  | Pair (a, b) -> Fmt.Dump.pair pp pp st (a, b)
+  | List xs -> Fmt.Dump.list pp st xs
+  | Constr (constr, value) -> Fmt.pf st "%s%a" constr (Fmt.parens pp) value
+  | Record record ->
+    let fields =
+      Fmt.list ~sep:(Fmt.any ";@,") (fun st (k, v) ->
+        Fmt.pf st "@[<1>%s =@ %a@]" k pp v)
+    in
+    let fields = Fmt.using record_to_assoc fields in
+    (Fmt.box ~indent:2 (Fmt.braces fields)) st record
+;;

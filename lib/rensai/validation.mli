@@ -145,3 +145,15 @@ val list : Ast.t list t
 (** [list_of v] is a validator that extract a list of values validated
     by [v]. *)
 val list_of : 'a t -> 'a list t
+
+(** {1 Misc} *)
+
+(** Pretty Printers for value error. *)
+val pp_value_error : Format.formatter -> value_error -> unit
+
+(** Pretty Printers for checked values. *)
+val pp_checked
+  :  (Format.formatter -> 'a -> unit)
+  -> Format.formatter
+  -> 'a checked
+  -> unit

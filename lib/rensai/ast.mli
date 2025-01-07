@@ -9,7 +9,8 @@
 (**/**)
 
 (**  {@ocaml[
-       open Rensai.Ast
+       # open Rensai.Ast ;;
+       # #install_printer Rensai.Ast.pp ;;
      ]} *)
 
 (**/**)
@@ -215,6 +216,9 @@ include module type of Infix (** @inline *)
     ]mdx} *)
 val equal : t -> t -> bool
 
+(** Pretty-Printers for AST fragment. *)
+val pp : Format.formatter -> t -> unit
+
 (** Returns the associative list representation of a record. *)
 val record_to_assoc : record -> (string * t) list
 
@@ -269,12 +273,20 @@ val record_to_assoc : record -> (string * t) list
 
     {mdx@ocaml[
       # conv_user @@ user "A" "B" Male ;;
-      - : t = Record <abstr>
+      - : t =
+      {crowd = [];first_name = "A";gender = male(<unit>);is_active = true;
+       last_name = "B"}
     ]mdx}
 
     {mdx@ocaml[
       # conv_user (
            user ~crowd:[user "C" "D" Male; user "E" "F" Male]
            ~is_active:false "A" "B" Female);;
-      - : t = Record <abstr>
+      - : t =
+      {crowd =
+        [{crowd = [];first_name = "C";gender = male(<unit>);is_active = true;
+          last_name = "D"};
+         {crowd = [];first_name = "E";gender = male(<unit>);is_active = true;
+          last_name = "F"}];
+       first_name = "A";gender = female(<unit>);is_active = false;last_name = "B"}
     ]mdx} *)

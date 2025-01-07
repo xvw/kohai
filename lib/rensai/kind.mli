@@ -39,6 +39,12 @@ val classify : Ast.t -> t
     is empty, the result will be [Any]. *)
 val from_list : t list -> t
 
+(** Pretty-Printers for Kind. *)
+val pp : Format.formatter -> t -> unit
+
+(** Equality between kinds. *)
+val equal : t -> t -> bool
+
 (** {2 Infix}
 
     Infix operators for easy creation of kinds composition. *)

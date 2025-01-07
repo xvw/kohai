@@ -93,3 +93,22 @@ module Infix = struct
 end
 
 include Infix
+
+let rec pp st = function
+  | Null -> Fmt.pf st "null"
+  | Unit -> Fmt.pf st "unit"
+  | Bool -> Fmt.pf st "bool"
+  | Char -> Fmt.pf st "char"
+  | Int -> Fmt.pf st "int"
+  | Int32 -> Fmt.pf st "int32"
+  | Int64 -> Fmt.pf st "int64"
+  | Float -> Fmt.pf st "float"
+  | String -> Fmt.pf st "string"
+  | Pair (a, b) -> Fmt.Dump.pair pp pp st (a, b)
+  | List xs -> Fmt.pf st "list<%a>" pp xs
+  | Constr (k, value) -> Fmt.pf st "%s(%a)" k pp value
+  | Record -> Fmt.pf st "?record"
+  | Any -> Fmt.pf st "?any"
+  | Or (a, b) -> Fmt.pair ~sep:(Fmt.any " |@, ") pp pp st (a, b)
+  | And (a, b) -> Fmt.pair ~sep:(Fmt.any " &@, ") pp pp st (a, b)
+;;

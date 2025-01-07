@@ -15,6 +15,54 @@ and pair_error =
   | Invalid_snd of value_error
   | Invalid_both of value_error * value_error
 
+let pp_record l = Fmt.braces (Fmt.record ~sep:(Fmt.any ";@,") l)
+
+let rec pp_value_error st = function
+  | Unexpected_kind { expected; given; value } ->
+    pp_record
+      Fmt.
+        [ field "message" (fun (x, _, _, _) -> x) Dump.string
+        ; field "expected" (fun (_, x, _, _) -> x) Kind.pp
+        ; field "given" (fun (_, _, x, _) -> x) Kind.pp
+        ; field "value" (fun (_, _, _, x) -> x) Ast.pp
+        ]
+      st
+      ("unexpected kind", expected, given, value)
+  | Unexpected_pair { error; value; given } ->
+    pp_record
+      Fmt.
+        [ field "message" (fun (x, _, _, _) -> x) Dump.string
+        ; field "where" (fun (_, _, _, x) -> x) pp_pair_error
+        ; field "given" (fun (_, x, _, _) -> x) Kind.pp
+        ; field "value" (fun (_, _, x, _) -> x) Ast.pp
+        ]
+      st
+      ("unexpected pair", given, value, error)
+
+and pp_pair_error st = function
+  | Invalid_fst err ->
+    pp_record
+      Fmt.[ field "on" fst Dump.string; field "error" snd pp_value_error ]
+      st
+      ("first", err)
+  | Invalid_snd err ->
+    pp_record
+      Fmt.[ field "on" fst Dump.string; field "error" snd pp_value_error ]
+      st
+      ("second", err)
+  | Invalid_both (errf, errs) ->
+    pp_record
+      Fmt.
+        [ field "on" (fun (x, _, _) -> x) Dump.string
+        ; field "first_error" (fun (_, x, _) -> x) pp_value_error
+        ; field "second_error" (fun (_, _, x) -> x) pp_value_error
+        ]
+      st
+      ("both", errf, errs)
+;;
+
+let pp_checked pp = Fmt.result ~ok:pp ~error:pp_value_error
+
 type 'a checked = ('a, value_error) result
 type ('a, 'b) v = 'a -> 'b checked
 type 'a t = (Ast.t, 'a) v

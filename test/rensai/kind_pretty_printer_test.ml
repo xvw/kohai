@@ -1,7 +1,7 @@
 let dump rensai_expr =
   rensai_expr
   |> Rensai.Kind.classify
-  |> Format.asprintf "%a" Rensai.Fmt.pp_kind
+  |> Format.asprintf "%a" Rensai.Kind.pp
   |> print_endline
 ;;
 
@@ -70,31 +70,34 @@ let%expect_test "pretty print kind of a string" =
 let%expect_test "pretty print kind of a pair" =
   let expr = pair' int string 10 "foo" in
   dump expr;
-  [%expect {| (int *  string) |}]
+  [%expect {| (int, string) |}]
 ;;
 
 let%expect_test "pretty print kind of an other pair" =
   let expr = quad' int string bool unit 10 "foo" true () in
   dump expr;
-  [%expect {| (int *  (string *  (bool *  unit))) |}]
+  [%expect {| (int, (string, (bool, unit))) |}]
 ;;
 
 let%expect_test "pretty print kind a regular list" =
   let expr = list int [ 1; 2; 3; 4 ] in
   dump expr;
-  [%expect {| [int] |}]
+  [%expect {| list<int> |}]
 ;;
 
 let%expect_test "pretty print kind an other regular list" =
   let expr = hlist [ int 1; int 2; int 3 ] in
   dump expr;
-  [%expect {| [int] |}]
+  [%expect {| list<int> |}]
 ;;
 
 let%expect_test "pretty print kind an irregular list" =
   let expr = hlist [ int 1; int 2; int 3; float 32.5; int64 4L; bool false ] in
   dump expr;
-  [%expect {| [int & float & int64 & bool] |}]
+  [%expect {|
+    list<int & float & int64 &
+     bool>
+    |}]
 ;;
 
 let%expect_test "pretty print kind a constructor" =
@@ -105,7 +108,7 @@ let%expect_test "pretty print kind a constructor" =
       (`Foo 10)
   in
   dump expr;
-  [%expect {| (foo(int)) |}]
+  [%expect {| foo(int) |}]
 ;;
 
 let%expect_test "Avoid everything using the sad record type!" =

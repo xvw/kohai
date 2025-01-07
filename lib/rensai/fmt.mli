@@ -3,14 +3,14 @@
     purposes. *)
 
 (** A shortcut describing a Rensai expression pretty-printer. *)
-type ast = Format.formatter -> Rensai.Ast.t -> unit
+type ast = Format.formatter -> Ast.t -> unit
 
 (** A shortcut describing a Rensai Kind of expression
     pretty-printer. *)
-type kind = Format.formatter -> Rensai.Kind.t -> unit
+type kind = Format.formatter -> Kind.t -> unit
 
 (** A shortcut describing a value error. *)
-type value_error = Format.formatter -> Rensai.Validation.value_error -> unit
+type value_error = Format.formatter -> Validation.value_error -> unit
 
 (** A pretty-printer for Rensai expressions. *)
 val pp_ast : ast

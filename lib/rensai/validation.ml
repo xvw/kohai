@@ -219,4 +219,7 @@ let list = function
   | value -> unexpected_kind Kind.(List Any) value
 ;;
 
-(* let list_of *)
+let list_of _v = function
+  | Ast.List _list -> assert false
+  | value -> unexpected_kind Kind.(List Any) value
+;;

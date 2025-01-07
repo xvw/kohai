@@ -142,4 +142,6 @@ val quad : 'a t -> 'b t -> 'c t -> 'd t -> ('a * 'b * 'c * 'd) t
 (** [list] is a validator that extract a list (to perform manual validation). *)
 val list : Ast.t list t
 
-(* val list_of : 'a t -> 'a list t *)
+(** [list_of v] is a validator that extract a list of values validated
+    by [v]. *)
+val list_of : 'a t -> 'a list t

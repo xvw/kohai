@@ -1,5 +1,5 @@
 let dump_error err =
-  err |> Format.asprintf "%a" Rensai_fmt.pp_value_error |> print_endline
+  err |> Format.asprintf "%a" Rensai.Fmt.pp_value_error |> print_endline
 ;;
 
 let dump_value pp value = value |> Format.asprintf "%a" pp |> print_endline
@@ -767,8 +767,7 @@ let%expect_test "validate a quad using a list - 2" =
   let expr = Ast.(hlist [ int 1; bool true; string "Hello"; float 32.21 ]) in
   let check = Validation.(quad int bool string float) in
   expr |> check |> dump pp_ok;
-  [%expect
-    {| ok |}]
+  [%expect {| ok |}]
 ;;
 
 let%expect_test "validate an invalid quad - 1" =

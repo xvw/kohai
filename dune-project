@@ -12,6 +12,15 @@
 (maintainers "Xavier Van de Woestyne <xaviervdw@gmail.com>")
 
 (package
+ (name prelude)
+ (allow_empty)
+ (synopsis "A small standard library extension")
+ (description "Some tools for easing Kohai development")
+ (depends
+  (ocaml (>= 5.2.0))
+  (ppx_expect :with-test)))
+
+(package
  (name kohai)
  (allow_empty)
  (synopsis "A small hand-crafted tool for entering activities")
@@ -35,12 +44,3 @@ for which the encoding and validation functions become generic
  (depends
   (ocaml (>= 5.2.0))
   (mdx :with-test)))
-
-(package
- (name rensai-fmt)
- (synopsis "Rensai Pretty Printers")
- (description "Pretty Printers for Rensai Data Structures.")
- (depends
-  (ocaml (>= 5.2.0))
-  (ppx_expect :with-test)
-  (rensai (= :version))))

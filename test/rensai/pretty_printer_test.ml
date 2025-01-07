@@ -1,5 +1,5 @@
 let dump rensai_expr =
-  rensai_expr |> Format.asprintf "%a" Rensai_fmt.pp_ast |> print_endline
+  rensai_expr |> Format.asprintf "%a" Rensai.Fmt.pp_ast |> print_endline
 ;;
 
 open Rensai.Ast
@@ -164,8 +164,7 @@ let%expect_test "pretty-print an hlist" =
       ]
   in
   dump expr;
-  [%expect
-    {| [23; true; (42, ("foo", (33445556L, [true; true; false])))] |}]
+  [%expect {| [23; true; (42, ("foo", (33445556L, [true; true; false])))] |}]
 ;;
 
 let%expect_test "pretty-print a simple record" =

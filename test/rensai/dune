@@ -1,7 +1,7 @@
 (library
  (name rensai_test)
- (package rensai-fmt)
+ (package rensai)
  (inline_tests)
- (libraries rensai rensai-fmt)
+ (libraries rensai)
  (preprocess
   (pps ppx_expect)))

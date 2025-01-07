@@ -1,9 +1,6 @@
-type ast = Format.formatter -> Rensai.Ast.t -> unit
-type kind = Format.formatter -> Rensai.Kind.t -> unit
-type value_error = Format.formatter -> Rensai.Validation.value_error -> unit
-
-module Ast = Rensai.Ast
-module Kind = Rensai.Kind
+type ast = Format.formatter -> Ast.t -> unit
+type kind = Format.formatter -> Kind.t -> unit
+type value_error = Format.formatter -> Validation.value_error -> unit
 
 let keyword st value = Format.fprintf st "@[<1><%s>@]" value
 let parens pf st x = Format.fprintf st "@[<1>(%a)@]" pf x
@@ -110,28 +107,28 @@ let rec pp_kind st = function
 let kind_s k = k |> Format.asprintf "%a" pp_kind |> Ast.string
 
 let rec pp_value_error st = function
-  | Rensai.Validation.Unexpected_kind { expected; given; value } ->
+  | Validation.Unexpected_kind { expected; given; value } ->
     let r =
       Ast.record
         [ "expected", kind_s expected; "given", kind_s given; "value", value ]
     in
     Format.fprintf st "Kind @[<1>%a@]" pp_ast r
-  | Rensai.Validation.Unexpected_pair { error; given; value } ->
+  | Validation.Unexpected_pair { error; given; value } ->
     let r =
       Ast.record
         ([ "given", kind_s given; "value", value ]
          @
          match error with
-         | Rensai.Validation.Invalid_both (a, b) ->
+         | Validation.Invalid_both (a, b) ->
            Ast.
              [ "first", string @@ Format.asprintf "@[<1>%a@]" pp_value_error a
              ; "second", string @@ Format.asprintf "@[<1>%a@]" pp_value_error b
              ]
-         | Rensai.Validation.Invalid_fst err ->
+         | Validation.Invalid_fst err ->
            Ast.
              [ "first", string @@ Format.asprintf "@[<1>%a@]" pp_value_error err
              ]
-         | Rensai.Validation.Invalid_snd err ->
+         | Validation.Invalid_snd err ->
            Ast.
              [ ( "second"
                , string @@ Format.asprintf "@[<1>%a@]" pp_value_error err )

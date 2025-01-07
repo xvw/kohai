@@ -1,7 +1,7 @@
 let dump rensai_expr =
   rensai_expr
   |> Rensai.Kind.classify
-  |> Format.asprintf "%a" Rensai_fmt.pp_kind
+  |> Format.asprintf "%a" Rensai.Fmt.pp_kind
   |> print_endline
 ;;
 

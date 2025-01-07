@@ -15,6 +15,7 @@ bug-reports: "https://github.com/xvw/kohai/issues"
 depends: [
   "dune" {>= "3.17"}
   "ocaml" {>= "5.2.0"}
+  "kohai-prelude" {= version}
   "fmt"
   "mdx" {with-test}
   "odoc" {with-doc}

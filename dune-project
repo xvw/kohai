@@ -12,10 +12,9 @@
 (maintainers "Xavier Van de Woestyne <xaviervdw@gmail.com>")
 
 (package
- (name prelude)
- (allow_empty)
+ (name kohai-prelude)
  (synopsis "A small standard library extension")
- (description "Some tools for easing Kohai development")
+ (description "Some tools for easing Kohai foundational development")
  (depends
   (ocaml (>= 5.2.0))
   (ppx_expect :with-test)))
@@ -43,5 +42,6 @@ for which the encoding and validation functions become generic
 (and interchangeable).")
  (depends
   (ocaml (>= 5.2.0))
+  (kohai-prelude (= :version))
   fmt
   (mdx :with-test)))

@@ -94,7 +94,8 @@ let%expect_test "pretty print kind an other regular list" =
 let%expect_test "pretty print kind an irregular list" =
   let expr = hlist [ int 1; int 2; int 3; float 32.5; int64 4L; bool false ] in
   dump expr;
-  [%expect {|
+  [%expect
+    {|
     list<int & float & int64 &
      bool>
     |}]

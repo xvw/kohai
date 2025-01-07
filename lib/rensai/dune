@@ -1,7 +1,7 @@
 (library
  (name rensai)
  (public_name rensai)
- (libraries fmt))
+ (libraries fmt kohai-prelude))
 
 (mdx
  (files *.mli)

@@ -1,0 +1,7 @@
+(library
+ (name prelude_test)
+ (package kohai-prelude)
+ (inline_tests)
+ (libraries kohai-prelude)
+ (preprocess
+  (pps ppx_expect)))

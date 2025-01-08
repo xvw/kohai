@@ -30,3 +30,9 @@ let%expect_test "cons - 1" =
   expr |> dump Format.pp_print_int;
   [%expect {| nel[1; 2] |}]
 ;;
+
+let%expect_test "rev - 1" =
+  let expr = Nel.(1 :: 2 :: 3 :: [ 4 ] |> rev) in
+  expr |> dump Format.pp_print_int;
+  [%expect {| nel[4; 3; 2; 1] |}]
+;;

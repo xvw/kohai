@@ -1,3 +1,5 @@
+open Prelude
+
 type value_error =
   | Unexpected_kind of
       { expected : Kind.t
@@ -6,6 +8,11 @@ type value_error =
       }
   | Unexpected_pair of
       { error : pair_error
+      ; value : Ast.t
+      ; given : Kind.t
+      }
+  | Unexpected_list of
+      { errors : (int * value_error) Nel.t
       ; value : Ast.t
       ; given : Kind.t
       }
@@ -38,6 +45,19 @@ let rec pp_value_error st = function
         ]
       st
       ("unexpected pair", given, value, error)
+  | Unexpected_list { errors; value; given } ->
+    pp_record
+      Fmt.
+        [ field "message" (fun (x, _, _, _) -> x) Dump.string
+        ; field "where" (fun (_, _, _, x) -> x) (Dump.list pp_indexed_error)
+        ; field "given" (fun (_, x, _, _) -> x) Kind.pp
+        ; field "value" (fun (_, _, x, _) -> x) Ast.pp
+        ]
+      st
+      ("unexpected list", given, value, Nel.to_list errors)
+
+and pp_indexed_error st (index, error) =
+  Fmt.pf st "%02d:@,@[<h>%a@]" index pp_value_error error
 
 and pp_pair_error st = function
   | Invalid_fst err ->
@@ -68,6 +88,7 @@ type ('a, 'b) v = 'a -> 'b checked
 type 'a t = (Ast.t, 'a) v
 
 module Infix = struct
+  let ( <$> ) = Result.map
   let ( $ ) l f x = Result.map f (l x)
   let ( & ) l r x = Result.bind (l x) r
   let ( / ) l r x = Result.fold ~ok:Result.ok ~error:(fun _ -> r x) (l x)
@@ -100,6 +121,11 @@ let replace_expected_kind new_kind = function
   | Error (Unexpected_kind { given; value; _ }) ->
     Error (Unexpected_kind { expected = new_kind; given; value })
   | value -> value
+;;
+
+let unexpected_list value errors =
+  let given = Kind.classify value in
+  Unexpected_list { value; given; errors = Nel.rev errors }
 ;;
 
 let unexpected_pair value error =
@@ -267,7 +293,69 @@ let list = function
   | value -> unexpected_kind Kind.(List Any) value
 ;;
 
-let list_of _v = function
-  | Ast.List _list -> assert false
+let list_of v = function
+  | Ast.List list as value ->
+    List.rev
+    <$> snd
+        @@ List.fold_left
+             (fun (i, acc) value ->
+                let acc =
+                  match acc, v value with
+                  | Ok xs, Ok x -> Ok (x :: xs)
+                  | Error xs, Error x -> Error (Nel.cons (i, x) xs)
+                  | Error e, _ -> Error e
+                  | _, Error e -> Error (Nel.singleton (i, e))
+                in
+                i + 1, acc)
+             (0, Ok [])
+             list
+    |> Result.map_error (unexpected_list value)
   | value -> unexpected_kind Kind.(List Any) value
+;;
+
+let find_assoc ?(normalize = true) key assoc =
+  List.find_map
+    (fun (k, v) ->
+       let eq =
+         if normalize
+         then String.equal (strim key) (strim k)
+         else String.equal key k
+       in
+       if eq then Some v else None)
+    assoc
+;;
+
+let sum ctors expr =
+  let kind =
+    ctors
+    |> List.map (fun (ctor, _) -> Kind.Constr (strim ctor, Any))
+    |> Kind.from_list
+  in
+  let rec aux = function
+    | Ast.Constr (ctor, expr) as value ->
+      ctors
+      |> find_assoc ctor
+      |> Option.fold ~none:(unexpected_kind kind value) ~some:(fun validator ->
+        validator expr)
+    | Pair (String ctor, expr) | List [ String ctor; expr ] ->
+      aux (Ast.constr (fun _ -> ctor, expr) ())
+    | Record _record ->
+      (* TODO: use record validation here. *)
+      assert false
+    | value -> unexpected_kind kind value
+  in
+  aux expr
+;;
+
+let option some = function
+  | Ast.Null -> Ok None
+  | value -> Option.some <$> some value
+;;
+
+let either left right =
+  sum [ "left", left $ Either.left; "right", right $ Either.right ]
+;;
+
+let result ok error =
+  sum [ "ok", ok $ Result.ok; "error", error $ Result.error ]
 ;;

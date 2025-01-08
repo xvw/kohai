@@ -1,6 +1,8 @@
 (** Allows the description of precise validation schemes for data
     described in Rensai format. *)
 
+open Prelude
+
 (** {1 Types} *)
 
 (** Describes the type of possible validation errors. *)
@@ -12,6 +14,11 @@ type value_error =
       }
   | Unexpected_pair of
       { error : pair_error
+      ; value : Ast.t
+      ; given : Kind.t
+      }
+  | Unexpected_list of
+      { errors : (int * value_error) Nel.t
       ; value : Ast.t
       ; given : Kind.t
       }
@@ -38,6 +45,9 @@ type 'a t = (Ast.t, 'a) v
 (** {2 Infix operators} *)
 
 module Infix : sig
+  (** [f <$> v] is an infix version of [Result.map f v]. *)
+  val ( <$> ) : ('a -> 'b) -> 'a checked -> 'b checked
+
   (** [validator $ f] apply [f] (and wrap it into a success) on the
       result of [validator]. *)
   val ( $ ) : ('a, 'b) v -> ('b -> 'c) -> ('a, 'c) v
@@ -145,6 +155,18 @@ val list : Ast.t list t
 (** [list_of v] is a validator that extract a list of values validated
     by [v]. *)
 val list_of : 'a t -> 'a list t
+
+(** [sum list_of_ctor] is a validator for arbitrary sum types. *)
+val sum : (string * 'a t) list -> 'a t
+
+(** [option v] is a validator for optional value validated by [v]. *)
+val option : 'a t -> 'a option t
+
+(** [either l r] is a validator for [Either.t]. *)
+val either : 'a t -> 'b t -> ('a, 'b) Either.t t
+
+(** [result okv errv] is a validator for [result]. *)
+val result : 'a t -> 'b t -> ('a, 'b) result t
 
 (** {1 Misc} *)
 

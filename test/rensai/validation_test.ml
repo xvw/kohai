@@ -14,7 +14,7 @@ let dump_int32 = Fmt.int32
 let dump_int64 = Fmt.int64
 let dump_float = Fmt.float
 let dump_string = Fmt.Dump.string
-let dump_pair a b = Fmt.Dump.pair a b
+let dump_pair = Fmt.Dump.pair
 
 let dump_triple a b c =
   let p = Fmt.Dump.(pair a (pair b c)) in
@@ -25,6 +25,16 @@ let dump_quad a b c d =
   let p = Fmt.Dump.(pair a (pair b (pair c d))) in
   Fmt.using (fun (w, x, y, z) -> w, (x, (y, z))) p
 ;;
+
+let dump_list = Fmt.Dump.list
+let dump_result ok error = Fmt.Dump.result ~ok ~error
+
+let dump_either left right st = function
+  | Either.Left v -> Fmt.pf st "@[<2>Left@ @[%a@]@]" left v
+  | Either.Right v -> Fmt.pf st "@[<2>Right@ @[%a@]@]" right v
+;;
+
+let dump_option = Fmt.Dump.option
 
 open Rensai
 
@@ -1095,5 +1105,132 @@ let%expect_test "validate an invalid quad using a list - 2" =
          value: (true, ("Hello", 32.21))}};
      given: (int, (bool, (string, float)));
      value: (1, (true, ("Hello", 32.21)))}
+    |}]
+;;
+
+let%expect_test "list_of with an empty list" =
+  let expr = Ast.(list int) [] in
+  let check = Validation.(list_of int) in
+  expr |> check |> print @@ dump_list dump_int;
+  [%expect {| [] |}]
+;;
+
+let%expect_test "list_of with a valid list" =
+  let expr = Ast.(list int) [ 1; 2; 3; 4 ] in
+  let check = Validation.(list_of int) in
+  expr |> check |> print @@ dump_list dump_int;
+  [%expect {| [1; 2; 3; 4] |}]
+;;
+
+let%expect_test "list_of with not a list" =
+  let expr = Ast.int 1 in
+  let check = Validation.(list_of int) in
+  expr |> check |> print @@ dump_list dump_int;
+  [%expect
+    {|
+    {message: "unexpected kind";
+     expected: list<?any>;
+     given: int;
+     value: 1}
+    |}]
+;;
+
+let%expect_test "list_of with an invalid list - 1" =
+  let expr = Ast.(list string) [ "foo"; "bar"; "baz" ] in
+  let check = Validation.(list_of int) in
+  expr |> check |> print @@ dump_list dump_int;
+  [%expect
+    {|
+    {message: "unexpected list";
+     where:
+      [00:{message: "unexpected kind";
+           expected: int;
+           given: string;
+           value: "foo"};
+       01:{message: "unexpected kind";
+           expected: int;
+           given: string;
+           value: "bar"};
+       02:{message: "unexpected kind";
+           expected: int;
+           given: string;
+           value: "baz"}];
+     given: list<string>;
+     value: ["foo"; "bar"; "baz"]}
+    |}]
+;;
+
+let%expect_test "list_of with an invalid list - 2" =
+  let expr = Ast.(list string) [ "foo"; "22"; "baz" ] in
+  let check = Validation.(list_of int) in
+  expr |> check |> print @@ dump_list dump_int;
+  [%expect
+    {|
+    {message: "unexpected list";
+     where:
+      [00:{message: "unexpected kind";
+           expected: int;
+           given: string;
+           value: "foo"};
+       02:{message: "unexpected kind";
+           expected: int;
+           given: string;
+           value: "baz"}];
+     given: list<string>;
+     value: ["foo"; "22"; "baz"]}
+    |}]
+;;
+
+let%expect_test "validate result - 1" =
+  let expr = Ast.(result int string) (Ok 1) in
+  let check = Validation.(result int string) in
+  expr |> check |> print @@ dump_result dump_int dump_string;
+  [%expect {| Ok 1 |}]
+;;
+
+let%expect_test "validate result - 2" =
+  let expr = Ast.(result int string) (Error "Foo bar") in
+  let check = Validation.(result int string) in
+  expr |> check |> print @@ dump_result dump_int dump_string;
+  [%expect {| Error "Foo bar" |}]
+;;
+
+let%expect_test "validate result - 3" =
+  let expr = Ast.(hlist [ string "OK"; int 45 ]) in
+  let check = Validation.(result int string) in
+  expr |> check |> print @@ dump_result dump_int dump_string;
+  [%expect {| Ok 45 |}]
+;;
+
+let%expect_test "validate result - 4" =
+  let expr = Ast.(pair' string int "  oK" 22) in
+  let check = Validation.(result int string) in
+  expr |> check |> print @@ dump_result dump_int dump_string;
+  [%expect {| Ok 22 |}]
+;;
+
+let%expect_test "try to validate an invalid result - 1" =
+  let expr = Ast.(int 12) in
+  let check = Validation.(result int string) in
+  expr |> check |> print @@ dump_result dump_int dump_string;
+  [%expect
+    {|
+    {message: "unexpected kind";
+     expected: error(?any) | ok(?any);
+     given: int;
+     value: 12}
+    |}]
+;;
+
+let%expect_test "try to validate an invalid result- 3" =
+  let expr = Ast.(either int string) (Either.Left 23) in
+  let check = Validation.(result int string) in
+  expr |> check |> print @@ dump_result dump_int dump_string;
+  [%expect
+    {|
+    {message: "unexpected kind";
+     expected: error(?any) | ok(?any);
+     given: left(int);
+     value: left(23)}
     |}]
 ;;

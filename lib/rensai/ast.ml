@@ -72,7 +72,7 @@ let hlist l = List l
 
 let constr f x =
   let k, value = f x in
-  Constr (k, value)
+  Constr (String.trim @@ String.lowercase_ascii k, value)
 ;;
 
 let option some = Option.fold ~none:(null ()) ~some

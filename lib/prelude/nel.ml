@@ -10,6 +10,16 @@ let init len f =
   else f 0 :: List.init (len - 1) (fun i -> f @@ (i + 1))
 ;;
 
+let to_list (x :: xs) = List.cons x xs
+
+let rev (x :: xs) =
+  let rec aux acc first = function
+    | List.[] -> first :: acc
+    | List.(x :: xs) -> aux (first :: acc) x xs
+  in
+  aux [] x xs
+;;
+
 let equal eq (x :: xs) (y :: ys) = eq x y && List.equal eq xs ys
 
 let pp ?(pp_sep = fun st () -> Format.fprintf st "; @,") pp st (x :: xs) =

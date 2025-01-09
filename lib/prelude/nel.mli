@@ -20,6 +20,9 @@ val to_list : 'a t -> 'a list
 (** [rev nel] reverse [nel]. *)
 val rev : 'a t -> 'a t
 
+(** [append xs ys] concat [xs] and [ys]. *)
+val append : 'a t -> 'a t -> 'a t
+
 (** [cons x xs] constructs a non-empty list whose head is [x] and whose tail is
     [xs]. *)
 val cons : 'a -> 'a t -> 'a t

@@ -274,8 +274,8 @@ val record_to_assoc : record -> (string * t) list
     {mdx@ocaml[
       # conv_user @@ user "A" "B" Male ;;
       - : t =
-      {crowd = [];first_name = "A";gender = male(<unit>);is_active = true;
-       last_name = "B"}
+      {crowd = []; first_name = "A"; gender = male(<unit>); is_active = true;
+        last_name = "B"}
     ]mdx}
 
     {mdx@ocaml[
@@ -284,9 +284,10 @@ val record_to_assoc : record -> (string * t) list
            ~is_active:false "A" "B" Female);;
       - : t =
       {crowd =
-        [{crowd = [];first_name = "C";gender = male(<unit>);is_active = true;
-          last_name = "D"};
-         {crowd = [];first_name = "E";gender = male(<unit>);is_active = true;
-          last_name = "F"}];
-       first_name = "A";gender = female(<unit>);is_active = false;last_name = "B"}
+        [{crowd = []; first_name = "C"; gender = male(<unit>); is_active = true;
+           last_name = "D"};
+         {crowd = []; first_name = "E"; gender = male(<unit>); is_active = true;
+           last_name = "F"}];
+        first_name = "A"; gender = female(<unit>); is_active = false;
+        last_name = "B"}
     ]mdx} *)

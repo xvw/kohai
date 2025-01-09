@@ -16,11 +16,22 @@ type value_error =
       ; value : Ast.t
       ; given : Kind.t
       }
+  | Unexpected_record of
+      { errors : record_error Nel.t
+      ; value : Ast.t
+      }
 
 and pair_error =
   | Invalid_fst of value_error
   | Invalid_snd of value_error
   | Invalid_both of value_error * value_error
+
+and record_error =
+  | Invalid_field of
+      { field : string
+      ; error : value_error
+      }
+  | Missing_field of string
 
 let pp_record l = Fmt.braces (Fmt.record ~sep:(Fmt.any ";@,") l)
 
@@ -55,6 +66,31 @@ let rec pp_value_error st = function
         ]
       st
       ("unexpected list", given, value, Nel.to_list errors)
+  | Unexpected_record { value; errors } ->
+    pp_record
+      Fmt.
+        [ field "message" (fun (x, _, _) -> x) Dump.string
+        ; field "where" (fun (_, _, x) -> x) (Dump.list pp_record_error)
+        ; field "value" (fun (_, x, _) -> x) Ast.pp
+        ]
+      st
+      ("unexpected record", value, Nel.to_list errors)
+
+and pp_record_error st = function
+  | Missing_field field ->
+    pp_record
+      Fmt.[ field "message" fst Dump.string; field "field" snd Dump.string ]
+      st
+      ("missing field", field)
+  | Invalid_field { field; error } ->
+    pp_record
+      Fmt.
+        [ field "message" (fun (x, _, _) -> x) Dump.string
+        ; field "field" (fun (_, x, _) -> x) Dump.string
+        ; field "where" (fun (_, _, x) -> x) pp_value_error
+        ]
+      st
+      ("invalid field", field, error)
 
 and pp_indexed_error st (index, error) =
   Fmt.pf st "%02d:@,@[<h>%a@]" index pp_value_error error
@@ -84,8 +120,10 @@ and pp_pair_error st = function
 let pp_checked pp = Fmt.result ~ok:pp ~error:pp_value_error
 
 type 'a checked = ('a, value_error) result
+type 'a checked_record = ('a, record_error Nel.t) result
 type ('a, 'b) v = 'a -> 'b checked
 type 'a t = (Ast.t, 'a) v
+type 'a record_validator = (string * Ast.t) list -> 'a checked_record
 
 module Infix = struct
   let ( <$> ) = Result.map
@@ -132,6 +170,10 @@ let unexpected_pair value error =
   let given = Kind.classify value in
   Error (Unexpected_pair { error; given; value })
 ;;
+
+let invalid_field field error = Nel.singleton @@ Invalid_field { field; error }
+let missing_field field _discard_error = Nel.singleton @@ Missing_field field
+let unexpected_record value errors = Unexpected_record { value; errors }
 
 let null = function
   | Ast.Null -> Ok ()
@@ -258,7 +300,7 @@ let string ?(strict = false) = function
   | value -> unexpected_kind Kind.String value
 ;;
 
-let pair fst snd = function
+let temp_pair fst snd = function
   | (Ast.Pair (a, b) | Ast.List [ a; b ]) as value ->
     (match fst a, snd b with
      | Ok x, Ok y -> Ok (x, y)
@@ -266,26 +308,6 @@ let pair fst snd = function
      | Ok _, Error x -> unexpected_pair value (Invalid_snd x)
      | Error x, Error y -> unexpected_pair value (Invalid_both (x, y)))
   | value -> unexpected_kind Kind.(Pair (Any, Any)) value
-;;
-
-let triple fst snd trd x =
-  let rec aux = function
-    (* Be more lax on tuple treatement. *)
-    | Ast.List [ a; b; c ] -> aux Ast.(lpair a (lpair b c))
-    | value -> (pair fst (pair snd trd) $ fun (x, (y, z)) -> x, y, z) value
-  in
-  aux x
-;;
-
-let quad fst snd trd frd x =
-  let rec aux = function
-    (* Be more lax on tuple treatement. *)
-    | Ast.List [ a; b; c; d ] -> aux Ast.(lpair a (lpair b (lpair c d)))
-    | value ->
-      (pair fst (pair snd (pair trd frd)) $ fun (w, (x, (y, z))) -> w, x, y, z)
-        value
-  in
-  aux x
 ;;
 
 let list = function
@@ -325,7 +347,102 @@ let find_assoc ?(normalize = true) key assoc =
     assoc
 ;;
 
-let sum ctors expr =
+let record ?(strict = false) validator expr =
+  let rec aux = function
+    | Ast.Record fields as value ->
+      fields
+      |> Ast.record_to_assoc
+      |> validator
+      |> Result.map_error (unexpected_record value)
+    | Pair (String k, expr) when not strict -> aux (Ast.record [ k, expr ])
+    | value ->
+      (match strict, list_of (temp_pair string (fun x -> Ok x)) value with
+       | false, Ok xs -> aux (Ast.record xs)
+       | _, _ -> unexpected_kind Kind.Record value)
+  in
+  aux expr
+;;
+
+module Record = struct
+  let optional fields key validator =
+    match find_assoc ~normalize:false key fields with
+    | None | Some Ast.Null -> Ok None
+    | Some field_value ->
+      field_value
+      |> (validator $ Option.some)
+      |> Result.map_error (invalid_field key)
+  ;;
+
+  let required fields key validator =
+    let* as_optional = optional fields key validator in
+    match as_optional with
+    | Some x -> Ok x
+    | None ->
+      (* Handle the case where the validator deal with an optional
+         one (without relaying on [optional]) *)
+      Ast.null () |> validator |> Result.map_error (missing_field key)
+  ;;
+
+  let optional_or ~default fields key validator =
+    let+ x = validator |> optional fields key in
+    Option.value ~default x
+  ;;
+
+  module Syntax = struct
+    let ( let+ ) v f = Result.map f v
+    let ( let* ) v f = Result.bind v f
+
+    let ( and+ ) a b =
+      match a, b with
+      | Ok x, Ok y -> Ok (x, y)
+      | Error a, Error b -> Error (Nel.append a b)
+      | Error a, _ | _, Error a -> Error a
+    ;;
+
+    let ( and* ) = ( and+ )
+  end
+
+  include Syntax
+end
+
+let pair fst snd = function
+  | Ast.Record _ as value ->
+    (record (fun fields ->
+       let open Record in
+       let+ fst = required fields "fst" fst
+       and+ snd = required fields "snd" snd in
+       fst, snd)
+     / record (fun fields ->
+       let open Record in
+       let+ fst = required fields "first" fst
+       and+ snd = required fields "second" snd in
+       fst, snd))
+      value
+  | value -> temp_pair fst snd value
+;;
+
+let triple fst snd trd x =
+  let rec aux = function
+    (* Be more lax on tuple treatement. *)
+    | Ast.List [ a; b; c ] -> aux Ast.(lpair a (lpair b c))
+    | value -> (pair fst (pair snd trd) $ fun (x, (y, z)) -> x, y, z) value
+  in
+  aux x
+;;
+
+let quad fst snd trd frd x =
+  let rec aux = function
+    (* Be more lax on tuple treatement. *)
+    | Ast.List [ a; b; c; d ] -> aux Ast.(lpair a (lpair b (lpair c d)))
+    | value ->
+      (temp_pair fst (pair snd (pair trd frd))
+       $ fun (w, (x, (y, z))) -> w, x, y, z)
+        value
+  in
+  aux x
+;;
+
+let sum ?(strict = false) ctors expr =
   let kind =
     ctors
     |> List.map (fun (ctor, _) -> Kind.Constr (strim ctor, Any))
@@ -337,11 +454,21 @@ let sum ctors expr =
       |> find_assoc ctor
       |> Option.fold ~none:(unexpected_kind kind value) ~some:(fun validator ->
         validator expr)
-    | Pair (String ctor, expr) | List [ String ctor; expr ] ->
+    | (Pair (String ctor, expr) | List [ String ctor; expr ]) when not strict ->
       aux (Ast.constr (fun _ -> ctor, expr) ())
-    | Record _record ->
-      (* TODO: use record validation here. *)
-      assert false
+    | Record _ as value when not strict ->
+      let* ctor, value =
+        record
+          (fun fields ->
+             let open Record in
+             let+ ctor = required fields "ctor" string
+             and+ value =
+               optional_or ~default:(Ast.null ()) fields "value" Result.ok
+             in
+             ctor, value)
+          value
+      in
+      aux @@ Ast.constr (fun _ -> ctor, value) ()
     | value -> unexpected_kind kind value
   in
   aux expr
@@ -352,10 +479,10 @@ let option some = function
   | value -> Option.some <$> some value
 ;;
 
-let either left right =
-  sum [ "left", left $ Either.left; "right", right $ Either.right ]
+let either ?strict left right =
+  sum ?strict [ "left", left $ Either.left; "right", right $ Either.right ]
 ;;
 
-let result ok error =
-  sum [ "ok", ok $ Result.ok; "error", error $ Result.error ]
+let result ?strict ok error =
+  sum ?strict [ "ok", ok $ Result.ok; "error", error $ Result.error ]
 ;;

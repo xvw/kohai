@@ -36,3 +36,15 @@ let%expect_test "rev - 1" =
   expr |> dump Format.pp_print_int;
   [%expect {| nel[4; 3; 2; 1] |}]
 ;;
+
+let%expect_test "append - 1" =
+  let expr = Nel.(1 :: 2 :: 3 :: [ 4 ] |> append (0 :: [])) in
+  expr |> dump Format.pp_print_int;
+  [%expect {| nel[0; 1; 2; 3; 4] |}]
+;;
+
+let%expect_test "append - 2" =
+  let expr = Nel.(1 :: 2 :: 3 :: [ 4 ] |> append (-2 :: -1 :: [ 0 ])) in
+  expr |> dump Format.pp_print_int;
+  [%expect {| nel[-2; -1; 0; 1; 2; 3; 4] |}]
+;;

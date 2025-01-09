@@ -20,6 +20,7 @@ let rev (x :: xs) =
   aux [] x xs
 ;;
 
+let append (x :: xs) ys = x :: List.append xs (to_list ys)
 let equal eq (x :: xs) (y :: ys) = eq x y && List.equal eq xs ys
 
 let pp ?(pp_sep = fun st () -> Format.fprintf st "; @,") pp st (x :: xs) =

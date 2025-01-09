@@ -3,6 +3,68 @@
 
 open Prelude
 
+(**/**)
+
+(**  {@ocaml[
+       # open Rensai ;;
+       # #install_printer Rensai.Ast.pp ;;
+     ]} *)
+
+(**/**)
+
+(** The main aim of the Validation module is to build validation
+    sequences capable of arbitrarily validating data described by
+    {!module:Rensai.Ast}. For example:
+
+    Let's imagine the following expression:
+
+    {@ocaml[
+      # let a_person =
+           let open Ast in
+           record [
+             "first_name", string "Xavier"
+           ; "last_name", string "MyLastName"
+           ; "age", int 35
+           ]
+        ;;
+      val a_person : Ast.t =
+        {age = 35; first_name = "Xavier"; last_name = "MyLastName"}
+    ]}
+
+    This type of representation can be validated as follows:
+
+    {@ocaml[
+      # let validate_person =
+         let open Validation in
+         record (fun fields ->
+            let open Record in
+            let+ first_name = required fields "first_name" string
+            and+ last_name = required fields "last_name" string
+            and+ age = optional fields "age" int
+            in (first_name, last_name, age)
+         ) ;;
+      val validate_person : (string * string * int option) Validation.t = <fun>
+    ]}
+
+    And we can use it for a valid person:
+
+    {@ocaml[
+      # let x = validate_person a_person ;;
+      val x : (string * string * int option) Validation.checked =
+        Ok ("Xavier", "MyLastName", Some 35)
+    ]}
+
+    Or for an invalid person:
+
+    {rr@ocaml[
+      # let y = validate_person
+           Ast.(record ["first_name", list int [1; 2; 3]]) ;;
+      val y : (string * string * int option) Validation.checked =
+        Error
+         (Rensai.Validation.Unexpected_record
+           {Rensai.Validation.errors = <abstr>; value = {first_name = [1; 2; 3]}})
+    ]rr} *)
+
 (** {1 Types} *)
 
 (** Describes the type of possible validation errors. *)
@@ -22,6 +84,10 @@ type value_error =
       ; value : Ast.t
       ; given : Kind.t
       }
+  | Unexpected_record of
+      { errors : record_error Nel.t
+      ; value : Ast.t
+      }
 
 (** Dedicated error for Pair. *)
 and pair_error =
@@ -29,14 +95,28 @@ and pair_error =
   | Invalid_snd of value_error
   | Invalid_both of value_error * value_error
 
+(** Dedicated error for Record. *)
+and record_error =
+  | Invalid_field of
+      { field : string
+      ; error : value_error
+      }
+  | Missing_field of string
+
 (** Describes a value passed through a validation phase. *)
 type 'a checked = ('a, value_error) result
+
+(** Describes a record passed through a validation phase. *)
+type 'a checked_record = ('a, record_error Nel.t) result
 
 (** Describes a validation function. *)
 type ('a, 'b) v = 'a -> 'b checked
 
 (** Describes a validation function from an AST fragment. *)
 type 'a t = (Ast.t, 'a) v
+
+(** Describes a validation function for a record. *)
+type 'a record_validator = (string * Ast.t) list -> 'a checked_record
 
 (** {1 Combinators}
 
@@ -62,7 +142,7 @@ end
 
 include module type of Infix (** @inline *)
 
-(** {2 Infix operators} *)
+(** {2 Bindings operators} *)
 
 module Syntax : sig
   (** [let+ x = y in f x] is [Result.map (fun x -> f x) y]. *)
@@ -88,6 +168,8 @@ include module type of Syntax (** @inline *)
     {!type:Rensai.Ast.t}. Some validators are relaxed (using
     [?strict]. By default, the value of [strict] is [false]) *)
 
+(** {2 Null and unit} *)
+
 (** [null] ensures that the fragment is a [Null]. *)
 val null : unit t
 
@@ -97,6 +179,8 @@ val unit : unit t
 (** [unitish] accept [null] or [unit]. *)
 val unitish : unit t
 
+(** {2 Simples} *)
+
 (** [bool] ensure that the fragment is a [bool]. (or a string if
     [strict] is [false]). *)
 val bool : ?strict:bool -> bool t
@@ -104,6 +188,13 @@ val bool : ?strict:bool -> bool t
 (** [char] ensure that the fragment is a [char] (or a string of length
     [1] if [strict] is [false]). *)
 val char : ?strict:bool -> char t
+
+(** [string ?strict] ensure that the fragment is a [string]. If the
+    flag [strict] is [false], the validation is relaxed accepting
+    [bool] and [number]. *)
+val string : ?strict:bool -> string t
+
+(** {2 Numbers} *)
 
 (** [int ?strict] ensure that the fragment is a [int]. If the flag
     [strict] is [false], the validation is relaxed accepting [int32],
@@ -133,10 +224,7 @@ val integer : ?strict:bool -> int64 t
     [strict] is [false], the validation is relaxed accepting [string]. *)
 val number : ?strict:bool -> float t
 
-(** [string ?strict] ensure that the fragment is a [string]. If the
-    flag [strict] is [false], the validation is relaxed accepting
-    [bool] and [number]. *)
-val string : ?strict:bool -> string t
+(** {2 Product} *)
 
 (** [pair v1 v2] use [v2] and [v2] to validate a [pair]. *)
 val pair : 'a t -> 'b t -> ('a * 'b) t
@@ -149,6 +237,8 @@ val triple : 'a t -> 'b t -> 'c t -> ('a * 'b * 'c) t
     [pair v1 (pair v2 (pair v3 v4)) $ fun (w, (x, (y, z))) -> w, x, y, z]. *)
 val quad : 'a t -> 'b t -> 'c t -> 'd t -> ('a * 'b * 'c * 'd) t
 
+(** {2 List} *)
+
 (** [list] is a validator that extract a list (to perform manual validation). *)
 val list : Ast.t list t
 
@@ -156,17 +246,79 @@ val list : Ast.t list t
     by [v]. *)
 val list_of : 'a t -> 'a list t
 
-(** [sum list_of_ctor] is a validator for arbitrary sum types. *)
-val sum : (string * 'a t) list -> 'a t
+(** {2 Sum} *)
+
+(** [sum list_of_ctor] is a validator for arbitrary sum types. If
+    [strict] is [false] the validator also consider [pair] and [list]
+    as potential sum types. *)
+val sum : ?strict:bool -> (string * 'a t) list -> 'a t
 
 (** [option v] is a validator for optional value validated by [v]. *)
 val option : 'a t -> 'a option t
 
 (** [either l r] is a validator for [Either.t]. *)
-val either : 'a t -> 'b t -> ('a, 'b) Either.t t
+val either : ?strict:bool -> 'a t -> 'b t -> ('a, 'b) Either.t t
 
 (** [result okv errv] is a validator for [result]. *)
-val result : 'a t -> 'b t -> ('a, 'b) result t
+val result : ?strict:bool -> 'a t -> 'b t -> ('a, 'b) result t
+
+(** {2 Record} *)
+
+val record : ?strict:bool -> 'a record_validator -> 'a t
+
+module Record : sig
+  (** Functions for validating records fields. *)
+
+  (** [optional fields field_name validator] optional [field] in
+      [fields] validated by [validator]. *)
+  val optional
+    :  (string * Ast.t) list
+    -> string
+    -> 'a t
+    -> 'a option checked_record
+
+  (** [required fields field_name validator] required [field] in
+      [fields] validated by [validator]. *)
+  val required : (string * Ast.t) list -> string -> 'a t -> 'a checked_record
+
+  (** [optional_or ~default fields field_name validator] optional
+      [field] in [fields] validated by [validator] or [default]. *)
+  val optional_or
+    :  default:'a
+    -> (string * Ast.t) list
+    -> string
+    -> 'a t
+    -> 'a checked_record
+
+  (** {2 Bindings operators} *)
+
+  module Syntax : sig
+    (** [let+ x = y in f x] is [Result.map (fun x -> f x) y]. *)
+    val ( let+ ) : 'a checked_record -> ('a -> 'b) -> 'b checked_record
+
+    (** [let* x = y in f x] is [Result.bind y (fun x -> f x)]. *)
+    val ( let* )
+      :  'a checked_record
+      -> ('a -> 'b checked_record)
+      -> 'b checked_record
+
+    (** [let+ a = x and+ b = y in f x y] create a tuple from [x] and
+        [y]. *)
+    val ( and+ )
+      :  'a checked_record
+      -> 'b checked_record
+      -> ('a * 'b) checked_record
+
+    (** [let* a = x and* b = y in f x y] create a tuple from [x] and
+        [y]. *)
+    val ( and* )
+      :  'a checked_record
+      -> 'b checked_record
+      -> ('a * 'b) checked_record
+  end
+
+  include module type of Syntax (** @inline *)
+end
 
 (** {1 Misc} *)
 

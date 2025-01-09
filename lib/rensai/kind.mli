@@ -45,7 +45,7 @@ val pp : Format.formatter -> t -> unit
 (** Equality between kinds. *)
 val equal : t -> t -> bool
 
-(** {2 Infix}
+(** {1 Infix operators}
 
     Infix operators for easy creation of kinds composition. *)
 

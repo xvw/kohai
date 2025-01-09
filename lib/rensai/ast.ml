@@ -115,7 +115,7 @@ let rec pp st = function
   | Constr (constr, value) -> Fmt.pf st "%s%a" constr (Fmt.parens pp) value
   | Record record ->
     let fields =
-      Fmt.list ~sep:(Fmt.any ";@,") (fun st (k, v) ->
+      Fmt.list ~sep:(Fmt.any ";@, ") (fun st (k, v) ->
         Fmt.pf st "@[<1>%s =@ %a@]" k pp v)
     in
     let fields = Fmt.using record_to_assoc fields in

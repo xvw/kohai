@@ -226,64 +226,66 @@ let%expect_test "pretty-print a simple record" =
        285; 286; 287; 288; 289; 290; 291; 292; 293; 294; 295; 296; 297; 298;
        299; 300; 301; 302; 303; 304; 305; 306; 307; 308; 309; 310; 311; 312;
        313; 314; 315; 316; 317; 318; 319];
-     activated = left("foo");age = 42;
-     sub =
-      {a_long_string =
-        "Vivamus quis felis sit amet nunc pretium aliquet. Suspendisse a magna ut nisl sodales blandit sed et mi. Quisque fermentum hendrerit lectus ac pulvinar. Duis euismod magna et magna convallis viverra. Pellentesque laoreet luctus pellentesque. Sed sagittis viverra leo, quis auctor nisi cursus ac. Nam cursus urna et tincidunt gravida. Ut eget ipsum in massa sagittis vestibulum eget at est. Vestibulum bibendum mattis quam, sit amet tincidunt ligula. Aliquam at tempus augue. Aenean ac est urna. Nullam iaculis, dolor i";
-       another_random_list =
-        [{up = "";x = ""}; {up = "A";x = "a"}; {up = "AA";x = "aa"};
-         {up = "AAA";x = "aaa"}; {up = "AAAA";x = "aaaa"};
-         {up = "AAAAA";x = "aaaaa"}; {up = "AAAAAA";x = "aaaaaa"};
-         {up = "AAAAAAA";x = "aaaaaaa"}; {up = "AAAAAAAA";x = "aaaaaaaa"};
-         {up = "AAAAAAAAA";x = "aaaaaaaaa"};
-         {up = "AAAAAAAAAA";x = "aaaaaaaaaa"};
-         {up = "AAAAAAAAAAA";x = "aaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAA";x = "aaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAA";x = "aaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAA";x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
-         {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-          x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}];
-       is_valid = error(false)}}
+      activated = left("foo"); age = 42;
+      sub =
+       {a_long_string =
+         "Vivamus quis felis sit amet nunc pretium aliquet. Suspendisse a magna ut nisl sodales blandit sed et mi. Quisque fermentum hendrerit lectus ac pulvinar. Duis euismod magna et magna convallis viverra. Pellentesque laoreet luctus pellentesque. Sed sagittis viverra leo, quis auctor nisi cursus ac. Nam cursus urna et tincidunt gravida. Ut eget ipsum in massa sagittis vestibulum eget at est. Vestibulum bibendum mattis quam, sit amet tincidunt ligula. Aliquam at tempus augue. Aenean ac est urna. Nullam iaculis, dolor i";
+         another_random_list =
+          [{up = ""; x = ""}; {up = "A"; x = "a"}; {up = "AA"; x = "aa"};
+           {up = "AAA"; x = "aaa"}; {up = "AAAA"; x = "aaaa"};
+           {up = "AAAAA"; x = "aaaaa"}; {up = "AAAAAA"; x = "aaaaaa"};
+           {up = "AAAAAAA"; x = "aaaaaaa"}; {up = "AAAAAAAA"; x = "aaaaaaaa"};
+           {up = "AAAAAAAAA"; x = "aaaaaaaaa"};
+           {up = "AAAAAAAAAA"; x = "aaaaaaaaaa"};
+           {up = "AAAAAAAAAAA"; x = "aaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAA"; x = "aaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAA"; x = "aaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAA"; x = "aaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+           {up = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+             x = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}];
+         is_valid = error(false)}}
     |}]
 ;;
 
@@ -326,8 +328,8 @@ let%expect_test "test creating an user - 1" =
   dump expr;
   [%expect
     {|
-    {crowd = [];first_name = "A";gender = male(<unit>);is_active = true;
-     last_name = "B"}
+    {crowd = []; first_name = "A"; gender = male(<unit>); is_active = true;
+      last_name = "B"}
     |}]
 ;;
 
@@ -345,10 +347,11 @@ let%expect_test "test creating an user - 2" =
   [%expect
     {|
     {crowd =
-      [{crowd = [];first_name = "C";gender = male(<unit>);is_active = true;
-        last_name = "D"};
-       {crowd = [];first_name = "E";gender = male(<unit>);is_active = true;
-        last_name = "F"}];
-     first_name = "A";gender = female(<unit>);is_active = false;last_name = "B"}
+      [{crowd = []; first_name = "C"; gender = male(<unit>); is_active = true;
+         last_name = "D"};
+       {crowd = []; first_name = "E"; gender = male(<unit>); is_active = true;
+         last_name = "F"}];
+      first_name = "A"; gender = female(<unit>); is_active = false;
+      last_name = "B"}
     |}]
 ;;

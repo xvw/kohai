@@ -20,6 +20,7 @@ type value_error =
       { errors : record_error Nel.t
       ; value : Ast.t
       }
+  | Unexpected_value of string
 
 and pair_error =
   | Invalid_fst of value_error
@@ -36,6 +37,11 @@ and record_error =
 let pp_record l = Fmt.braces (Fmt.record ~sep:(Fmt.any ";@,") l)
 
 let rec pp_value_error st = function
+  | Unexpected_value message ->
+    pp_record
+      Fmt.[ field "message" fst Dump.string; field "error" snd Dump.string ]
+      st
+      ("unexpected value", message)
   | Unexpected_kind { expected; given; value } ->
     pp_record
       Fmt.
@@ -174,6 +180,118 @@ let unexpected_pair value error =
 let invalid_field field error = Nel.singleton @@ Invalid_field { field; error }
 let missing_field field _discard_error = Nel.singleton @@ Missing_field field
 let unexpected_record value errors = Unexpected_record { value; errors }
+
+let unexpected_value message subject =
+  Error (Unexpected_value (message subject))
+;;
+
+let const x _discarded = Ok x
+let default_pp x = Fmt.any "?value" x
+
+let where
+      ?(pp = default_pp)
+      ?(message = Fmt.str "unsatisfied predicate on %a")
+      predicate
+      subject
+  =
+  if predicate subject
+  then Ok subject
+  else unexpected_value (message pp) subject
+;;
+
+let unless
+      ?(pp = default_pp)
+      ?(message = Fmt.str "satisfied predicate on %a")
+      predicate
+      subject
+  =
+  if not (predicate subject)
+  then Ok subject
+  else unexpected_value (message pp) subject
+;;
+
+let refute
+      ?(pp = default_pp)
+      ?(message = Fmt.str "refuted validator on %a")
+      validator
+      x
+  =
+  match validator x with
+  | Error _ -> Ok x
+  | Ok _ -> unexpected_value (message pp) x
+;;
+
+let equal ?(pp = default_pp) ?(eq = ( = )) a =
+  let message pp = Fmt.str "`a` (%a) is not equal to `b` (%a)" pp a pp in
+  where ~pp ~message (eq a)
+;;
+
+let not_equal ?(pp = default_pp) ?(eq = ( = )) a =
+  let message pp = Fmt.str "`a` (%a) is equal to `b` (%a)" pp a pp in
+  where ~pp ~message (fun b -> not (eq a b))
+;;
+
+let greater ?(pp = default_pp) ?(compare = Stdlib.compare) ~than =
+  let message pp = Fmt.str "`a` (%a) is not greater than `b` (%a)" pp than pp in
+  where ~pp ~message (fun b -> compare b than > 0)
+;;
+
+let greater_or_equal ?(pp = default_pp) ?(compare = Stdlib.compare) ~than =
+  let message pp =
+    Fmt.str "`a` (%a) is not greater or equal to `b` (%a)" pp than pp
+  in
+  where ~pp ~message (fun b -> compare b than >= 0)
+;;
+
+let less ?(pp = default_pp) ?(compare = Stdlib.compare) ~than =
+  let message pp = Fmt.str "`a` (%a) is not less than `b` (%a)" pp than pp in
+  where ~pp ~message (fun b -> compare b than < 0)
+;;
+
+let less_or_equal ?(pp = default_pp) ?(compare = Stdlib.compare) ~than =
+  let message pp =
+    Fmt.str "`a` (%a) is not less or equal to `b` (%a)" pp than pp
+  in
+  where ~pp ~message (fun b -> compare b than <= 0)
+;;
+
+let in_range ?(pp = default_pp) ?(compare = Stdlib.compare) ~min ~max =
+  let message pp x =
+    Fmt.str
+      "`a` (%a) is not included into [`min` (%a); `max` (%a)]"
+      pp
+      x
+      pp
+      min
+      pp
+      max
+  in
+  where ~pp ~message (fun x -> compare x min >= 0 && compare x max <= 0)
+;;
+
+let outside_range ?(pp = default_pp) ?(compare = Stdlib.compare) ~min ~max =
+  let message pp x =
+    Fmt.str
+      "`a` (%a) is included into [`min` (%a); `max` (%a)]"
+      pp
+      x
+      pp
+      min
+      pp
+      max
+  in
+  where ~pp ~message (fun x -> compare x min < 0 || compare x max > 0)
+;;
+
+let one_of ?(pp = default_pp) ?(eq = ( = )) cases value =
+  match Stdlib.List.find_opt (eq value) cases with
+  | Some _ -> Ok value
+  | None ->
+    let message pp value =
+      Fmt.str "%a is not in the list %a" pp value (Fmt.Dump.list pp) cases
+    in
+    unexpected_value (message pp) value
+;;
 
 let null = function
   | Ast.Null -> Ok ()

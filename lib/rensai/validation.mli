@@ -88,6 +88,7 @@ type value_error =
       { errors : record_error Nel.t
       ; value : Ast.t
       }
+  | Unexpected_value of string
 
 (** Dedicated error for Pair. *)
 and pair_error =
@@ -319,6 +320,100 @@ module Record : sig
 
   include module type of Syntax (** @inline *)
 end
+
+(** {2 Generic validators} *)
+
+(** [const k r] wrap [k] as valid and discard [r]. *)
+val const : 'a -> ('b, 'a) v
+
+(** [where ?message predicate x] ensure that [x] is satisfying
+    [predicate]. [message] and [pp] are used for error-reporting. *)
+val where
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?message:((Format.formatter -> 'a -> unit) -> 'a -> string)
+  -> ('a -> bool)
+  -> ('a, 'a) v
+
+(** [unless ?message predicate x] ensure that [x] is not satisfying
+    [predicate]. [message] and [pp] are used for error-reporting. *)
+val unless
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?message:((Format.formatter -> 'a -> unit) -> 'a -> string)
+  -> ('a -> bool)
+  -> ('a, 'a) v
+
+(** [refute ?message validator] invalid a validator. *)
+val refute
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?message:((Format.formatter -> 'a -> unit) -> 'a -> string)
+  -> ('a, 'a) v
+  -> ('a, 'a) v
+
+(** [equal ?pp ?eq a b] ensure that [a] = [b]. *)
+val equal
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?eq:('a -> 'a -> bool)
+  -> 'a
+  -> ('a, 'a) v
+
+(** [not_equal ?pp ?eq a b] ensure that [a] <> [b]. *)
+val not_equal
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?eq:('a -> 'a -> bool)
+  -> 'a
+  -> ('a, 'a) v
+
+(** [greater ?pp ?compare ~than:a b] ensure that [a < b]. *)
+val greater
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?compare:('a -> 'a -> int)
+  -> than:'a
+  -> ('a, 'a) v
+
+(** [greater ?pp ?compare ~than:a b] ensure that [a <= b]. *)
+val greater_or_equal
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?compare:('a -> 'a -> int)
+  -> than:'a
+  -> ('a, 'a) v
+
+(** [less ?pp ?compare ~than:a b] ensure that [a > b]. *)
+val less
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?compare:('a -> 'a -> int)
+  -> than:'a
+  -> ('a, 'a) v
+
+(** [less_or_equal ?pp ?compare ~than:a b] ensure that [a >= b]. *)
+val less_or_equal
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?compare:('a -> 'a -> int)
+  -> than:'a
+  -> ('a, 'a) v
+
+(** [in_range ?pp ?compare ~min ~max a] ensure that [a >= min] and
+    [a < max], [a <- [min; max]]. *)
+val in_range
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?compare:('a -> 'a -> int)
+  -> min:'a
+  -> max:'a
+  -> ('a, 'a) v
+
+(** [outside_range ?pp ?compare ~min ~max a] ensure that [a < min] or
+    [a > max]. *)
+val outside_range
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?compare:('a -> 'a -> int)
+  -> min:'a
+  -> max:'a
+  -> ('a, 'a) v
+
+val one_of
+  :  ?pp:(Format.formatter -> 'a -> unit)
+  -> ?eq:('a -> 'a -> bool)
+  -> 'a list
+  -> ('a, 'a) v
 
 (** {1 Misc} *)
 

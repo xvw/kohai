@@ -476,9 +476,25 @@ module Char : sig
   (** [is_hex_digit] ensure that the given char is an hexadecimal digit. *)
   val is_hex_digit : (char, char) v
 
-  (** [as_hex_digit] if the given char is an hex digit, it lift it into an int.
-  *)
+  (** [as_hex_digit] if the given char is an hex digit, it lift it
+      into an int. *)
   val as_hex_digit : (char, int) v
+end
+
+(** Validators specific to boolean. *)
+module Bool : sig
+  (** @online *)
+  include
+    Sigs.COMPLETE_VALIDATOR with type t := bool and type error := value_error
+
+  (** [is_true] ensure that the given value is [true]. *)
+  val is_true : (bool, bool) v
+
+  (** [is_false] ensure that the given value is [false]. *)
+  val is_false : (bool, bool) v
+
+  (** [negate] negate the given value. *)
+  val negate : (bool, bool) v
 end
 
 (** {1 Misc} *)

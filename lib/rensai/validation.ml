@@ -772,3 +772,19 @@ module Char = struct
         | _ -> false)
   ;;
 end
+
+module Bool = struct
+  module B = struct
+    include Bool
+
+    let pp = Fmt.bool
+  end
+
+  include From_dumpable (B)
+  include From_equatable (B)
+  include From_comparable (B)
+
+  let is_true = equal true
+  let is_false = equal false
+  let negate x = Ok (not x)
+end

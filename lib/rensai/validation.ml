@@ -684,3 +684,91 @@ module Float = For_number (struct
 
     let pp = Fmt.float
   end)
+
+module Char = struct
+  module C = struct
+    include Char
+
+    let pp = Fmt.char
+  end
+
+  include From_dumpable (C)
+  include From_equatable (C)
+  include From_comparable (C)
+
+  let is_digit =
+    where
+      ~message:(fun pp c -> Fmt.str "`%a` is not a '0' .. '9'" pp c)
+      (function
+        | '0' .. '9' -> true
+        | _ -> false)
+  ;;
+
+  let as_digit = is_digit $ fun x -> Char.(code x - code '0')
+
+  let is_hex_digit =
+    where
+      ~message:(fun pp c ->
+        Fmt.str "`%a` is not a '0' .. '9' or 'a' .. 'f'" pp c)
+      (function
+        | '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' -> true
+        | _ -> false)
+  ;;
+
+  let as_hex_digit =
+    is_hex_digit
+    $ function
+    | '0' .. '9' as x -> Char.(code x - code '0')
+    | 'a' .. 'f' as x -> Char.(code x - code 'a') + 10
+    | 'A' .. 'F' as x -> Char.(code x - code 'A') + 10
+    | _ -> 0 (* unreachable *)
+  ;;
+
+  let is_alpha =
+    where
+      ~message:(fun pp c -> Fmt.str "`%a` is not a letter" pp c)
+      (function
+        | 'a' .. 'z' | 'A' .. 'Z' -> true
+        | _ -> false)
+  ;;
+
+  let is_alphanumeric =
+    where
+      ~message:(fun pp c -> Fmt.str "`%a` is not a letter" pp c)
+      (function
+        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' -> true
+        | _ -> false)
+  ;;
+
+  let is_lowercase =
+    where
+      ~message:(fun pp c -> Fmt.str "`%a` is not a lowercased letter" pp c)
+      (function
+        | 'a' .. 'z' -> true
+        | _ -> false)
+  ;;
+
+  let is_uppercase =
+    where
+      ~message:(fun pp c -> Fmt.str "`%a` is not a uppercased letter" pp c)
+      (function
+        | 'A' .. 'Z' -> true
+        | _ -> false)
+  ;;
+
+  let is_whitespace =
+    where
+      ~message:(fun pp c -> Fmt.str "`%a` is not a whitespace" pp c)
+      (function
+        | ' ' | '\t' | '\n' | '\011' | '\012' | '\r' -> true
+        | _ -> false)
+  ;;
+
+  let is_newline =
+    where
+      ~message:(fun pp c -> Fmt.str "`%a` is not a newline" pp c)
+      (function
+        | '\n' -> true
+        | _ -> false)
+  ;;
+end

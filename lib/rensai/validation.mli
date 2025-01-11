@@ -416,31 +416,70 @@ val one_of
   -> 'a list
   -> ('a, 'a) v
 
-(** {2 Specific validators validators} *)
+(** {2 Specific validators} *)
 
-(** Validator specific to int *)
+(** Validators specific to int. *)
 module Int :
   Sigs.COMPLETE_NUMBER_VALIDATOR
   with type t := int
    and type error := value_error
 
-(** Validator specific to int32 *)
+(** Validators specific to int32. *)
 module Int32 :
   Sigs.COMPLETE_NUMBER_VALIDATOR
   with type t := int32
    and type error := value_error
 
-(** Validator specific to int64 *)
+(** Validators specific to int64. *)
 module Int64 :
   Sigs.COMPLETE_NUMBER_VALIDATOR
   with type t := int64
    and type error := value_error
 
-(** Validator specific to float *)
+(** Validators specific to float. *)
 module Float :
   Sigs.COMPLETE_NUMBER_VALIDATOR
   with type t := float
    and type error := value_error
+
+(** Validators specific to char. *)
+module Char : sig
+  (** @inline *)
+  include
+    Sigs.COMPLETE_VALIDATOR with type t := char and type error := value_error
+
+  (** [is_digit] ensure that the given char is a digit. *)
+  val is_digit : (char, char) v
+
+  (** [as_digit] if the given char is a digit, it lift it into an int. *)
+  val as_digit : (char, int) v
+
+  (** [is_digit] ensure that the given char is 'a' .. 'z' | 'A' .. 'Z'. *)
+  val is_alpha : (char, char) v
+
+  (** [is_lowercase] ensure that the given char is 'a' .. 'z'. *)
+  val is_lowercase : (char, char) v
+
+  (** [is_uppercase] ensure that the given char is 'A' .. 'Z'. *)
+  val is_uppercase : (char, char) v
+
+  (** [is_whitespace] ensure that the given char is a whitespace. *)
+  val is_whitespace : (char, char) v
+
+  (** [is_newline] ensure that the given char is a newline. *)
+  val is_newline : (char, char) v
+
+  (** [is_alpha] ensure that the given char is 'a' .. 'z' | 'A' .. 'Z'
+      | is_digit. *)
+  val is_alphanumeric : (char, char) v
+
+  (** [is_hex_digit] ensure that the given char is an hexadecimal digit. *)
+  val is_hex_digit : (char, char) v
+
+  (** [as_hex_digit] if the given char is an hex digit, it lift it into an int.
+  *)
+  val as_hex_digit : (char, int) v
+end
 
 (** {1 Misc} *)
 

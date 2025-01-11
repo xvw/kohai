@@ -113,6 +113,20 @@ module type NUMBER_VALIDATOR = sig
   val is_negative : t -> (t, error) result
 end
 
+module type COMPLETE_VALIDATOR = sig
+  type t
+  type error
+
+  (** @inline *)
+  include SIMPLE_VALIDATOR with type t := t and type error := error
+
+  (** @inline *)
+  include EQUATABLE_VALIDATOR with type t := t and type error := error
+
+  (** @inline *)
+  include COMPARABLE_VALIDATOR with type t := t and type error := error
+end
+
 module type COMPLETE_NUMBER_VALIDATOR = sig
   type t
   type error

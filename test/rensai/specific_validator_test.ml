@@ -337,8 +337,156 @@ let%expect_test "ensure that pp are properly reported in specific validator - 2"
   let subject = Ast.int 180
   and checker = Validation.(int & Int.greater ~than:190) in
   subject |> checker |> print Fmt.int;
-  [%expect {|
+  [%expect
+    {|
     {message: "unexpected value";
      error: "`a` (190) is not greater than `b` (180)"}
+    |}]
+;;
+
+let%expect_test "char is_digit - 1" =
+  let subject = Ast.char '1'
+  and checker = Validation.(char & Char.is_digit) in
+  subject |> checker |> print Fmt.char;
+  [%expect {| 1 |}]
+;;
+
+let%expect_test "char is_digit - 2" =
+  let subject = Ast.char 'a'
+  and checker = Validation.(char & Char.is_digit) in
+  subject |> checker |> print Fmt.char;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`a` is not a '0' .. '9'"}
+    |}]
+;;
+
+let%expect_test "char as_digit - 1" =
+  let subject = Ast.(list char) [ '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9' ]
+  and checker = Validation.(list_of (char & Char.is_digit)) in
+  subject |> checker |> print (Fmt.Dump.list Fmt.char);
+  [%expect {| [1; 2; 3; 4; 5; 6; 7; 8; 9] |}]
+;;
+
+let%expect_test "char as_digit - 2" =
+  let subject =
+    Ast.(list char)
+      [ '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; 'a'; 'B'; 'f'; 'z' ]
+  and checker = Validation.(list_of (char & Char.is_digit)) in
+  subject |> checker |> print (Fmt.Dump.list Fmt.char);
+  [%expect
+    {|
+    {message: "unexpected list";
+     where:
+      [09:{message: "unexpected value";
+           error: "`a` is not a '0' .. '9'"};
+       10:{message: "unexpected value";
+           error: "`B` is not a '0' .. '9'"};
+       11:{message: "unexpected value";
+           error: "`f` is not a '0' .. '9'"};
+       12:{message: "unexpected value";
+           error: "`z` is not a '0' .. '9'"}];
+     given: list<char>;
+     value: ['1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; 'a'; 'B'; 'f'; 'z']}
+    |}]
+;;
+
+let%expect_test "char is_hex digit - 1" =
+  let subject = Ast.char 'F'
+  and checker = Validation.(char & Char.is_hex_digit) in
+  subject |> checker |> print Fmt.char;
+  [%expect {| F |}]
+;;
+
+let%expect_test "char is_hex digit - 2" =
+  let subject = Ast.char 'z'
+  and checker = Validation.(char & Char.is_hex_digit) in
+  subject |> checker |> print Fmt.char;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`z` is not a '0' .. '9' or 'a' .. 'f'"}
+    |}]
+;;
+
+let%expect_test "char as_hex_digit - 1" =
+  let subject =
+    Ast.(list char)
+      [ '1'
+      ; '2'
+      ; '3'
+      ; '4'
+      ; '5'
+      ; '6'
+      ; '7'
+      ; '8'
+      ; '9'
+      ; 'a'
+      ; 'b'
+      ; 'c'
+      ; 'd'
+      ; 'e'
+      ; 'f'
+      ; 'A'
+      ; 'B'
+      ; 'C'
+      ; 'D'
+      ; 'E'
+      ; 'F'
+      ]
+  and checker = Validation.(list_of (char & Char.as_hex_digit)) in
+  subject |> checker |> print (Fmt.Dump.list Fmt.int);
+  [%expect
+    {| [1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 10; 11; 12; 13; 14; 15] |}]
+;;
+
+let%expect_test "char as_hex_digit - 2" =
+  let subject =
+    Ast.(list char)
+      [ '1'
+      ; '2'
+      ; '3'
+      ; '4'
+      ; '5'
+      ; '6'
+      ; '7'
+      ; '8'
+      ; '9'
+      ; 'a'
+      ; 'b'
+      ; 'c'
+      ; 'd'
+      ; 'e'
+      ; 'f'
+      ; 'A'
+      ; 'B'
+      ; 'C'
+      ; 'D'
+      ; 'E'
+      ; 'F'
+      ; 'g'
+      ; 'G'
+      ; 'H'
+      ]
+  and checker = Validation.(list_of (char & Char.as_hex_digit)) in
+  subject |> checker |> print (Fmt.Dump.list Fmt.int);
+  [%expect
+    {|
+    {message: "unexpected list";
+     where:
+      [21:
+       {message: "unexpected value";
+        error: "`g` is not a '0' .. '9' or 'a' .. 'f'"};
+       22:
+       {message: "unexpected value";
+        error: "`G` is not a '0' .. '9' or 'a' .. 'f'"};
+       23:
+       {message: "unexpected value";
+        error: "`H` is not a '0' .. '9' or 'a' .. 'f'"}];
+     given: list<char>;
+     value:
+      ['1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; 'a'; 'b'; 'c'; 'd'; 'e';
+       'f'; 'A'; 'B'; 'C'; 'D'; 'E'; 'F'; 'g'; 'G'; 'H']}
     |}]
 ;;

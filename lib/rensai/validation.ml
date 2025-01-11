@@ -136,6 +136,7 @@ module Infix = struct
   let ( $ ) l f x = Result.map f (l x)
   let ( & ) l r x = Result.bind (l x) r
   let ( / ) l r x = Result.fold ~ok:Result.ok ~error:(fun _ -> r x) (l x)
+  let ( % ) f g x = f (g x)
 end
 
 module Syntax = struct
@@ -183,6 +184,11 @@ let unexpected_record value errors = Unexpected_record { value; errors }
 
 let unexpected_value message subject =
   Error (Unexpected_value (message subject))
+;;
+
+let force_error_message message = function
+  | Ok x -> Ok x
+  | Error _ -> Error (Unexpected_value message)
 ;;
 
 let const x _discarded = Ok x
@@ -787,4 +793,54 @@ module Bool = struct
   let is_true = equal true
   let is_false = equal false
   let negate x = Ok (not x)
+end
+
+module String = struct
+  module S = struct
+    include String
+
+    let pp = Fmt.Dump.string
+  end
+
+  include From_dumpable (S)
+  include From_equatable (S)
+  include From_comparable (S)
+
+  let trim x = Ok (String.trim x)
+  let downcase x = Ok (String.lowercase_ascii x)
+  let upcase x = Ok (String.uppercase_ascii x)
+  let capitalize x = Ok (String.capitalize_ascii x)
+  let uncapitalize x = Ok (String.uncapitalize_ascii x)
+
+  let is_empty x =
+    ((force_error_message @@ Fmt.str "`%s` is not empty" x) % equal "") x
+  ;;
+
+  let is_not_empty x =
+    ((force_error_message @@ Fmt.str "`%s` is empty" x) % not_equal "") x
+  ;;
+
+  let is_blank x =
+    ((force_error_message @@ Fmt.str "`%s` is not blank" x)
+     % (trim & is_empty & const x))
+      x
+  ;;
+
+  let is_not_blank x =
+    ((force_error_message @@ Fmt.str "`%s` is blank" x)
+     % (trim & is_not_empty & const x))
+      x
+  ;;
+
+  let start_with x =
+    where
+      ~message:(fun pp s -> Fmt.str "`%a` is not starting by `%a`" pp s pp x)
+      (String.starts_with ~prefix:x)
+  ;;
+
+  let ends_with x =
+    where
+      ~message:(fun pp s -> Fmt.str "`%a` is not ending by `%a`" pp s pp x)
+      (String.ends_with ~suffix:x)
+  ;;
 end

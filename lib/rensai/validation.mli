@@ -483,7 +483,7 @@ end
 
 (** Validators specific to boolean. *)
 module Bool : sig
-  (** @online *)
+  (** @inline *)
   include
     Sigs.COMPLETE_VALIDATOR with type t := bool and type error := value_error
 
@@ -495,6 +495,46 @@ module Bool : sig
 
   (** [negate] negate the given value. *)
   val negate : (bool, bool) v
+end
+
+(** Validators specific to string. *)
+module String : sig
+  (** @inline *)
+  include
+    Sigs.COMPLETE_VALIDATOR with type t := string and type error := value_error
+
+  (** [trim] trim the given string. *)
+  val trim : (string, string) v
+
+  (** [downcase] downcase the given string. *)
+  val downcase : (string, string) v
+
+  (** [upcase] upcase the given string. *)
+  val upcase : (string, string) v
+
+  (** [capitalize] capitalize the given string. *)
+  val capitalize : (string, string) v
+
+  (** [uncapitalize] uncapitalize the given string. *)
+  val uncapitalize : (string, string) v
+
+  (** [is_empty] ensure the given string is empty. *)
+  val is_empty : (string, string) v
+
+  (** [is_not_empty] ensure the given string is not empty. *)
+  val is_not_empty : (string, string) v
+
+  (** [is_blank] ensure the given string is blank. *)
+  val is_blank : (string, string) v
+
+  (** [is_not_blank] ensure the given string is not blank. *)
+  val is_not_blank : (string, string) v
+
+  (** [start_with prefix] ensure that the given string start with [prefix]. *)
+  val start_with : string -> (string, string) v
+
+  (** [ends_with suffix] ensure that the given string ends with [suffix]. *)
+  val ends_with : string -> (string, string) v
 end
 
 (** {1 Misc} *)

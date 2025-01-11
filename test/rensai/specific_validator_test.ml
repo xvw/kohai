@@ -490,3 +490,82 @@ let%expect_test "char as_hex_digit - 2" =
        'f'; 'A'; 'B'; 'C'; 'D'; 'E'; 'F'; 'g'; 'G'; 'H']}
     |}]
 ;;
+
+let%expect_test "trim - 1" =
+  let subject = Ast.string "   foo  "
+  and checker = Validation.(string & String.trim) in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "foo" |}]
+;;
+
+let%expect_test "is_blank - 1" =
+  let subject = Ast.string "     "
+  and checker = Validation.(string & String.is_blank) in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "     " |}]
+;;
+
+let%expect_test "is_blank - 2" =
+  let subject = Ast.string "  k   "
+  and checker = Validation.(string & String.is_blank) in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`  k   ` is not blank"}
+    |}]
+;;
+
+let%expect_test "is_not_blank - 1" =
+  let subject = Ast.string "  ff   "
+  and checker = Validation.(string & String.is_not_blank) in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "  ff   " |}]
+;;
+
+let%expect_test "is_not_blank - 2" =
+  let subject = Ast.string "     "
+  and checker = Validation.(string & String.is_not_blank) in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`     ` is blank"}
+    |}]
+;;
+
+let%expect_test "start_with - 1" =
+  let subject = Ast.string "foo_bar"
+  and checker = Validation.(string & String.start_with "foo_") in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "foo_bar" |}]
+;;
+
+let%expect_test "start_with - 2" =
+  let subject = Ast.string "foo_bar"
+  and checker = Validation.(string & String.start_with "bar_") in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`\"foo_bar\"` is not starting by `\"bar_\"`"}
+    |}]
+;;
+
+let%expect_test "ends_with - 1" =
+  let subject = Ast.string "foo_bar"
+  and checker = Validation.(string & String.ends_with "_bar") in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "foo_bar" |}]
+;;
+
+let%expect_test "start_with - 2" =
+  let subject = Ast.string "foo_bar"
+  and checker = Validation.(string & String.ends_with "_bor") in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`\"foo_bar\"` is not ending by `\"_bor\"`"}
+    |}]
+;;

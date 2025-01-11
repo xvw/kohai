@@ -326,7 +326,7 @@ end
 (** [const k r] wrap [k] as valid and discard [r]. *)
 val const : 'a -> ('b, 'a) v
 
-(** [where ?message predicate x] ensure that [x] is satisfying
+(** [where ?pp ?message predicate x] ensure that [x] is satisfying
     [predicate]. [message] and [pp] are used for error-reporting. *)
 val where
   :  ?pp:(Format.formatter -> 'a -> unit)
@@ -334,7 +334,7 @@ val where
   -> ('a -> bool)
   -> ('a, 'a) v
 
-(** [unless ?message predicate x] ensure that [x] is not satisfying
+(** [unless ?pp ?message predicate x] ensure that [x] is not satisfying
     [predicate]. [message] and [pp] are used for error-reporting. *)
 val unless
   :  ?pp:(Format.formatter -> 'a -> unit)
@@ -342,7 +342,7 @@ val unless
   -> ('a -> bool)
   -> ('a, 'a) v
 
-(** [refute ?message validator] invalid a validator. *)
+(** [refute ?pp ?message validator] invalid a validator. *)
 val refute
   :  ?pp:(Format.formatter -> 'a -> unit)
   -> ?message:((Format.formatter -> 'a -> unit) -> 'a -> string)
@@ -409,11 +409,38 @@ val outside_range
   -> max:'a
   -> ('a, 'a) v
 
+(** [one_of ?pp ?eq list x] ensure that [x] is present in [list]. *)
 val one_of
   :  ?pp:(Format.formatter -> 'a -> unit)
   -> ?eq:('a -> 'a -> bool)
   -> 'a list
   -> ('a, 'a) v
+
+(** {2 Specific validators validators} *)
+
+(** Validator specific to int *)
+module Int :
+  Sigs.COMPLETE_NUMBER_VALIDATOR
+  with type t := int
+   and type error := value_error
+
+(** Validator specific to int32 *)
+module Int32 :
+  Sigs.COMPLETE_NUMBER_VALIDATOR
+  with type t := int32
+   and type error := value_error
+
+(** Validator specific to int64 *)
+module Int64 :
+  Sigs.COMPLETE_NUMBER_VALIDATOR
+  with type t := int64
+   and type error := value_error
+
+(** Validator specific to float *)
+module Float :
+  Sigs.COMPLETE_NUMBER_VALIDATOR
+  with type t := float
+   and type error := value_error
 
 (** {1 Misc} *)
 

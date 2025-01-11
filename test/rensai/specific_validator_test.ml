@@ -317,8 +317,28 @@ let%expect_test "one_of - 2" =
     Validation.(string ~strict:true & one_of ~pp:Fmt.string [ "foo"; "bar" ])
   in
   subject |> checker |> print Fmt.string;
-  [%expect {|
+  [%expect
+    {|
     {message: "unexpected value";
      error: "baz is not in the list [foo; bar]"}
+    |}]
+;;
+
+let%expect_test "ensure that pp are properly reported in specific validator - 1"
+  =
+  let subject = Ast.int 180
+  and checker = Validation.(int & Int.greater ~than:160) in
+  subject |> checker |> print Fmt.int;
+  [%expect {| 180 |}]
+;;
+
+let%expect_test "ensure that pp are properly reported in specific validator - 2"
+  =
+  let subject = Ast.int 180
+  and checker = Validation.(int & Int.greater ~than:190) in
+  subject |> checker |> print Fmt.int;
+  [%expect {|
+    {message: "unexpected value";
+     error: "`a` (190) is not greater than `b` (180)"}
     |}]
 ;;

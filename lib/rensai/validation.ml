@@ -293,6 +293,51 @@ let one_of ?(pp = default_pp) ?(eq = ( = )) cases value =
     unexpected_value (message pp) value
 ;;
 
+module From_dumpable (D : Sigs.DUMPABLE) :
+  Sigs.SIMPLE_VALIDATOR with type t := D.t and type error := value_error =
+struct
+  include D
+
+  let where = where ~pp
+  let unless = unless ~pp
+  let refute = refute ~pp
+end
+
+module From_equatable (E : Sigs.EQUATABLE) :
+  Sigs.EQUATABLE_VALIDATOR with type t := E.t and type error := value_error =
+struct
+  let eq = E.equal
+  let pp = E.pp
+  let equal = equal ~pp ~eq
+  let not_equal = not_equal ~pp ~eq
+  let one_of = one_of ~pp ~eq
+end
+
+module From_comparable (C : Sigs.COMPARABLE) :
+  Sigs.COMPARABLE_VALIDATOR with type t := C.t and type error := value_error =
+struct
+  include C
+
+  let greater = greater ~pp ~compare
+  let greater_or_equal = greater_or_equal ~pp ~compare
+  let less = less ~pp ~compare
+  let less_or_equal = less_or_equal ~pp ~compare
+  let in_range = in_range ~pp ~compare
+  let outside_range = outside_range ~pp ~compare
+end
+
+module From_number (N : Sigs.NUMBER) :
+  Sigs.NUMBER_VALIDATOR with type t := N.t and type error := value_error =
+struct
+  include N
+
+  let eq a b = Int.equal 0 (compare a b)
+  let is_null = equal ~pp ~eq zero
+  let is_not_null = not_equal ~pp ~eq zero
+  let is_positive = greater_or_equal ~pp ~compare ~than:zero
+  let is_negative = less ~pp ~compare ~than:zero
+end
+
 let null = function
   | Ast.Null -> Ok ()
   | value -> unexpected_kind Kind.Null value
@@ -604,3 +649,38 @@ let either ?strict left right =
 let result ?strict ok error =
   sum ?strict [ "ok", ok $ Result.ok; "error", error $ Result.error ]
 ;;
+
+module For_number (N : sig
+    include Sigs.EQUATABLE
+    include Sigs.NUMBER with type t := t
+  end) =
+struct
+  include From_dumpable (N)
+  include From_equatable (N)
+  include From_comparable (N)
+  include From_number (N)
+end
+
+module Int = For_number (struct
+    include Int
+
+    let pp = Fmt.int
+  end)
+
+module Int32 = For_number (struct
+    include Int32
+
+    let pp = Fmt.int32
+  end)
+
+module Int64 = For_number (struct
+    include Int64
+
+    let pp = Fmt.int64
+  end)
+
+module Float = For_number (struct
+    include Float
+
+    let pp = Fmt.float
+  end)

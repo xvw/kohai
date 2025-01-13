@@ -843,4 +843,13 @@ module String = struct
       ~message:(fun pp s -> Fmt.str "`%a` is not ending by `%a`" pp s pp x)
       (String.ends_with ~suffix:x)
   ;;
+
+  let is_slug ?(accept_capital = false) ?(unknown = '-') ?(separator = '-') =
+    where
+      ~message:(Fmt.str "`%a` looks not like a slug")
+      (String.for_all (function
+         | '0' .. '9' | 'a' .. 'z' -> true
+         | 'A' .. 'Z' when accept_capital -> true
+         | c -> Stdlib.Char.(equal separator c || equal unknown c)))
+  ;;
 end

@@ -535,6 +535,14 @@ module String : sig
 
   (** [ends_with suffix] ensure that the given string ends with [suffix]. *)
   val ends_with : string -> (string, string) v
+
+  (** [is_slug ?accept_capital ?unknown ?separator] ensure that a string
+      look like a slug.*)
+  val is_slug
+    :  ?accept_capital:bool
+    -> ?unknown:char
+    -> ?separator:char
+    -> (string, string) v
 end
 
 (** {1 Misc} *)

@@ -569,3 +569,54 @@ let%expect_test "start_with - 2" =
      error: "`\"foo_bar\"` is not ending by `\"_bor\"`"}
     |}]
 ;;
+
+let%expect_test "is_slug - 1" =
+  let subject = Ast.string "foo-bar-baz"
+  and checker = Validation.(string & String.is_slug) in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "foo-bar-baz" |}]
+;;
+
+let%expect_test "is_slug - 2" =
+  let subject = Ast.string "foo-bar baz"
+  and checker = Validation.(string & String.is_slug) in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`\"foo-bar baz\"` looks not like a slug"}
+    |}]
+;;
+
+let%expect_test "is_slug - 3" =
+  let subject = Ast.string "foo@bar*baz"
+  and checker =
+    Validation.(string & String.is_slug ~separator:'*' ~unknown:'@')
+  in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "foo@bar*baz" |}]
+;;
+
+let%expect_test "is_slug - 4" =
+  let subject = Ast.string "foO@bAr*baz"
+  and checker =
+    Validation.(string & String.is_slug ~separator:'*' ~unknown:'@')
+  in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`\"foO@bAr*baz\"` looks not like a slug"}
+    |}]
+;;
+
+let%expect_test "is_slug - 5" =
+  let subject = Ast.string "foO@bAr*baz"
+  and checker =
+    Validation.(
+      string & String.is_slug ~separator:'*' ~unknown:'@' ~accept_capital:true)
+  in
+  subject |> checker |> print Fmt.Dump.string;
+  [%expect
+    {| "foO@bAr*baz" |}]
+;;

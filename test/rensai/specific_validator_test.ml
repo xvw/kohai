@@ -617,6 +617,94 @@ let%expect_test "is_slug - 5" =
       string & String.is_slug ~separator:'*' ~unknown:'@' ~accept_capital:true)
   in
   subject |> checker |> print Fmt.Dump.string;
+  [%expect {| "foO@bAr*baz" |}]
+;;
+
+let%expect_test "is_empty - 1" =
+  let subject = Ast.(list string) []
+  and checker = Validation.(list_of string & List.is_empty) in
+  subject |> checker |> print Fmt.Dump.(list string);
+  [%expect {| [] |}]
+;;
+
+let%expect_test "is_empty - 2" =
+  let subject = Ast.(list string) [ "foo" ]
+  and checker =
+    Validation.(list_of string & List.is_empty ~pp:Fmt.Dump.string)
+  in
+  subject |> checker |> print Fmt.Dump.(list string);
   [%expect
-    {| "foO@bAr*baz" |}]
+    {|
+    {message: "unexpected value";
+     error: "`[\"foo\"]` is not empty"}
+    |}]
+;;
+
+let%expect_test "is_not_empty - 1" =
+  let subject = Ast.(list string) [ "foo" ]
+  and checker =
+    Validation.(list_of string & List.is_not_empty ~pp:Fmt.Dump.string)
+  in
+  subject |> checker |> print Fmt.Dump.(list string);
+  [%expect {| ["foo"] |}]
+;;
+
+let%expect_test "is_not_empty - 2" =
+  let subject = Ast.(list string) []
+  and checker =
+    Validation.(list_of string & List.is_not_empty ~pp:Fmt.Dump.string)
+  in
+  subject |> checker |> print Fmt.Dump.(list string);
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`[]` is empty"}
+    |}]
+;;
+
+let%expect_test "has_length - 1" =
+  let subject = Ast.(list string) [ "foo" ]
+  and checker =
+    Validation.(list_of string & List.has_length 1 ~pp:Fmt.Dump.string)
+  in
+  subject |> checker |> print Fmt.Dump.(list string);
+  [%expect {| ["foo"] |}]
+;;
+
+let%expect_test "has_length - 2" =
+  let subject = Ast.(list string) [ "foo" ]
+  and checker =
+    Validation.(list_of string & List.has_length 2 ~pp:Fmt.Dump.string)
+  in
+  subject |> checker |> print Fmt.Dump.(list string);
+  [%expect
+    {|
+    {message: "unexpected value";
+     error: "`[\"foo\"]` didnt has the length 2 "}
+    |}]
+;;
+
+let%expect_test "for_all - 1" =
+  let subject = Ast.(list string) [ "foo"; "foo"; "foo" ]
+  and checker =
+    Validation.(
+      list_of string
+      & List.for_all ~pp:Fmt.Dump.string (Stdlib.String.equal "foo"))
+  in
+  subject |> checker |> print Fmt.Dump.(list string);
+  [%expect {| ["foo"; "foo"; "foo"] |}]
+;;
+
+let%expect_test "for_all - 2" =
+  let subject = Ast.(list string) [ "foo"; "bar"; "foo" ]
+  and checker =
+    Validation.(
+      list_of string
+      & List.for_all ~pp:Fmt.Dump.string (Stdlib.String.equal "foo"))
+  in
+  subject |> checker |> print Fmt.Dump.(list string);
+  [%expect {|
+    {message: "unexpected value";
+     error: "`[\"foo\"; \"bar\"; \"foo\"]` didnt satisfie the given prediacte"}
+    |}]
 ;;

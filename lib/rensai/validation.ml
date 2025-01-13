@@ -853,3 +853,48 @@ module String = struct
          | c -> Stdlib.Char.(equal separator c || equal unknown c)))
   ;;
 end
+
+module List = struct
+  let where ?pp ?message predicate =
+    where ?pp:(Option.map Fmt.Dump.list pp) ?message predicate
+  ;;
+
+  let unless ?pp ?message predicate =
+    unless ?pp:(Option.map Fmt.Dump.list pp) ?message predicate
+  ;;
+
+  let refute ?pp ?message validator =
+    refute ?pp:(Option.map Fmt.Dump.list pp) ?message validator
+  ;;
+
+  let is_empty ?pp =
+    where ?pp ~message:(Fmt.str "`%a` is not empty") (function
+      | [] -> true
+      | _ -> false)
+  ;;
+
+  let is_not_empty ?pp =
+    where ?pp ~message:(Fmt.str "`%a` is empty") (function
+      | _ :: _ -> true
+      | [] -> false)
+  ;;
+
+  let as_nel = function
+    | x :: xs -> Ok (Nel.make x xs)
+    | [] -> unexpected_value (fun _ -> "`[]` is empty") ()
+  ;;
+
+  let has_length ?pp x =
+    where
+      ?pp
+      ~message:(fun pp l -> Fmt.str "`%a` didnt has the length %d " pp l x)
+      (fun l -> Stdlib.Int.equal x (Stdlib.List.length l))
+  ;;
+
+  let for_all ?pp p =
+    where
+      ?pp
+      ~message:(Fmt.str "`%a` didnt satisfie the given prediacte")
+      (List.for_all p)
+  ;;
+end

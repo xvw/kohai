@@ -545,6 +545,54 @@ module String : sig
     -> (string, string) v
 end
 
+(** Validators specific to list. *)
+module List : sig
+  (** [where ?pp ?message predicate x] ensure that [x] is satisfying
+      [predicate]. [message] and [pp] are used for error-reporting. *)
+  val where
+    :  ?pp:(Format.formatter -> 'a -> unit)
+    -> ?message:((Format.formatter -> 'a list -> unit) -> 'a list -> string)
+    -> ('a list -> bool)
+    -> ('a list, 'a list) v
+
+  (** [unless ?pp ?message predicate x] ensure that [x] is not satisfying
+      [predicate]. [message] and [pp] are used for error-reporting. *)
+  val unless
+    :  ?pp:(Format.formatter -> 'a -> unit)
+    -> ?message:((Format.formatter -> 'a list -> unit) -> 'a list -> string)
+    -> ('a list -> bool)
+    -> ('a list, 'a list) v
+
+  (** [refute ?pp ?message validator] invalid a validator. *)
+  val refute
+    :  ?pp:(Format.formatter -> 'a -> unit)
+    -> ?message:((Format.formatter -> 'a list -> unit) -> 'a list -> string)
+    -> ('a list, 'a list) v
+    -> ('a list, 'a list) v
+
+  (** [is_empty ?pp] ensure that the given list is empty. *)
+  val is_empty : ?pp:(Format.formatter -> 'a -> unit) -> ('a list, 'a list) v
+
+  (** [is_not_empty ?pp] ensure that the given list is not empty. *)
+  val is_not_empty
+    :  ?pp:(Format.formatter -> 'a -> unit)
+    -> ('a list, 'a list) v
+
+  (** [as_nel ?pp] ensure that the given list is a non-empty list. *)
+  val as_nel : ('a list, 'a Nel.t) v
+
+  (** [has_length l] ensure that the given list has the length [l]. *)
+  val has_length
+    :  ?pp:(Format.formatter -> 'a -> unit)
+    -> int
+    -> ('a list, 'a list) v
+
+  val for_all
+    :  ?pp:(Format.formatter -> 'a -> unit)
+    -> ('a -> bool)
+    -> ('a list, 'a list) v
+end
+
 (** {1 Misc} *)
 
 (** Pretty Printers for value error. *)

@@ -17,11 +17,12 @@
  (description "Some tools for easing Kohai foundational development")
  (depends
   (ocaml (>= 5.2.0))
-  (ppx_expect :with-test)))
+  (ppx_expect :with-test)
+  (mdx :with-test)))
 
 (package
  (name rensai)
- (synopsis "Rensai can be used to describe generic encoders and decoders ")
+ (synopsis "Rensai can be used to describe generic encoders and decoders")
  (description "By lifting heterogeneous data into a finite set of constructors,
 it is possible to describe languages similar to JSON, TOML or S-Expression,
 for which the encoding and validation functions become generic
@@ -30,6 +31,19 @@ for which the encoding and validation functions become generic
   (ocaml (>= 5.2.0))
   (kohai-prelude (= :version))
   (fmt (>= 0.9.0))
+  (ppx_expect :with-test)
+  (mdx :with-test)))
+
+(package
+ (name kohai-core)
+ (synopsis "Tools from the heart of Kohai")
+ (description "Set of concrete data structures and tools needed to
+ model data in Kohai")
+ (depends
+  (ocaml (>= 5.2.0))
+  (kohai-prelude (= :version))
+  (rensai (= :version))
+  (ppx_expect :with-test)
   (mdx :with-test)))
  
 (package

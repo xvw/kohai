@@ -21,7 +21,7 @@ let run
       ?(backlog = 128)
       ?(reuse_addr = true)
       ?(reuse_port = true)
-      ?(log_level = Logs.Debug)
+      ?(log_level = Logs.App)
       ~port
       env
   =

@@ -1,0 +1,5 @@
+(executable
+ (name kohai)
+ (public_name kohai)
+ (package kohai)
+ (libraries eio eio_main kohai.server))

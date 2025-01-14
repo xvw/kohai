@@ -19,7 +19,6 @@
   (ocaml (>= 5.2.0))
   (ppx_expect :with-test)))
 
-
 (package
  (name rensai)
  (synopsis "Rensai can be used to describe generic encoders and decoders ")
@@ -45,6 +44,7 @@ for which the encoding and validation functions become generic
   (yojson (>= 2.2.2))
   (fmt (>= 0.9.0))
   (logs (>= 0.7.0))
+  (cmdliner (>= 1.3.0))
   (eio_main (>= 1.2))
   (cohttp-eio (>= 6.0.0))
   (ocamlformat :with-dev-setup)

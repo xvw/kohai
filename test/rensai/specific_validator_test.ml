@@ -703,7 +703,8 @@ let%expect_test "for_all - 2" =
       & List.for_all ~pp:Fmt.Dump.string (Stdlib.String.equal "foo"))
   in
   subject |> checker |> print Fmt.Dump.(list string);
-  [%expect {|
+  [%expect
+    {|
     {message: "unexpected value";
      error: "`[\"foo\"; \"bar\"; \"foo\"]` didnt satisfie the given prediacte"}
     |}]

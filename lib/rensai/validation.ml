@@ -176,6 +176,8 @@ type ('a, 'b) v = 'a -> 'b checked
 type 'a t = (Ast.t, 'a) v
 type 'a record_validator = (string * Ast.t) list -> 'a checked_record
 
+let ast x = Ok x
+
 module Infix = struct
   let ( <$> ) = Result.map
   let ( $ ) l f x = Result.map f (l x)
@@ -596,6 +598,8 @@ module Record = struct
          one (without relaying on [optional]) *)
       Ast.null () |> validator |> Result.map_error (missing_field key)
   ;;
+
+  let ensure fields key validator = required fields key (validator & const ())
 
   let optional_or ~default fields key validator =
     let+ x = validator |> optional fields key in

@@ -1,0 +1,4 @@
+(library
+ (name jsonrpc)
+ (public_name kohai.jsonrpc)
+ (libraries yojson rensai))

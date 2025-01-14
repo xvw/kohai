@@ -13,6 +13,12 @@ bug-reports: "https://github.com/xvw/kohai/issues"
 depends: [
   "dune" {>= "3.17"}
   "ocaml" {>= "5.2.0"}
+  "rensai" {= version}
+  "yojson" {>= "2.2.2"}
+  "fmt" {>= "0.9.0"}
+  "logs" {>= "0.7.0"}
+  "eio_main" {>= "1.2"}
+  "cohttp-eio" {>= "6.0.0"}
   "ocamlformat" {with-dev-setup}
   "ocp-indent" {with-dev-setup}
   "merlin" {with-dev-setup}

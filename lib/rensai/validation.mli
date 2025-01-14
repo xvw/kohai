@@ -171,6 +171,9 @@ include module type of Syntax (** @inline *)
 
 (** {2 Null and unit} *)
 
+(** [ast] preserve the value as an AST (for delayed computation). *)
+val ast : Ast.t t
+
 (** [null] ensures that the fragment is a [Null]. *)
 val null : unit t
 
@@ -290,6 +293,10 @@ module Record : sig
     -> string
     -> 'a t
     -> 'a checked_record
+
+  (** [ensure] validate a field (like [required] but discard the
+      result). *)
+  val ensure : (string * Ast.t) list -> string -> 'a t -> unit checked_record
 
   (** {2 Bindings operators} *)
 

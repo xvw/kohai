@@ -1,0 +1,14 @@
+(library
+ (name server)
+ (public_name kohai.server)
+ (libraries
+  logs
+  logs.fmt
+  fmt
+  fmt.tty
+  rensai
+  yojson
+  eio
+  eio_main
+  cohttp
+  cohttp-eio))

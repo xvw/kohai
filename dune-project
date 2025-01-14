@@ -19,19 +19,6 @@
   (ocaml (>= 5.2.0))
   (ppx_expect :with-test)))
 
-(package
- (name kohai)
- (allow_empty)
- (synopsis "A small hand-crafted tool for entering activities")
- (description "A tool for collecting personal activity reports
-(and an excuse to write OCaml and reinvent the wheel)")
- (depends
-  (ocaml (>= 5.2.0))
-  (ocamlformat :with-dev-setup)
-  (ocp-indent :with-dev-setup)
-  (merlin :with-dev-setup)
-  (ocaml-lsp-server :with-dev-setup)
-  (utop :with-dev-setup)))
 
 (package
  (name rensai)
@@ -43,5 +30,25 @@ for which the encoding and validation functions become generic
  (depends
   (ocaml (>= 5.2.0))
   (kohai-prelude (= :version))
-  fmt
+  (fmt (>= 0.9.0))
   (mdx :with-test)))
+ 
+(package
+ (name kohai)
+ (allow_empty)
+ (synopsis "A small hand-crafted tool for entering activities")
+ (description "A tool for collecting personal activity reports
+(and an excuse to write OCaml and reinvent the wheel)")
+ (depends
+  (ocaml (>= 5.2.0))
+  (rensai (= :version))
+  (yojson (>= 2.2.2))
+  (fmt (>= 0.9.0))
+  (logs (>= 0.7.0))
+  (eio_main (>= 1.2))
+  (cohttp-eio (>= 6.0.0))
+  (ocamlformat :with-dev-setup)
+  (ocp-indent :with-dev-setup)
+  (merlin :with-dev-setup)
+  (ocaml-lsp-server :with-dev-setup)
+  (utop :with-dev-setup)))

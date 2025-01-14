@@ -604,3 +604,9 @@ val pp_checked
   -> Format.formatter
   -> 'a checked
   -> unit
+
+(** Equality between [value_eror]. *)
+val equal_value_error : value_error -> value_error -> bool
+
+(** Equality for checked values. *)
+val equal_checked : ('a -> 'a -> bool) -> 'a checked -> 'a checked -> bool

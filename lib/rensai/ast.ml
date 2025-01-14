@@ -75,6 +75,7 @@ let constr f x =
   Constr (String.trim @@ String.lowercase_ascii k, value)
 ;;
 
+let sum f x = constr f x
 let option some = Option.fold ~none:(null ()) ~some
 
 let either left right =

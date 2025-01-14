@@ -34,6 +34,51 @@ and record_error =
       }
   | Missing_field of string
 
+let rec equal_value_error a b =
+  match a, b with
+  | Unexpected_value a, Unexpected_value b -> String.equal a b
+  | Unexpected_kind { expected; given; value }, Unexpected_kind other ->
+    Kind.equal expected other.expected
+    && Kind.equal given other.given
+    && Ast.equal value other.value
+  | Unexpected_pair { error; given; value }, Unexpected_pair other ->
+    equal_pair_error error other.error
+    && Kind.equal given other.given
+    && Ast.equal value other.value
+  | Unexpected_list { errors; value; given }, Unexpected_list other ->
+    Nel.equal
+      (fun (a, err_a) (b, err_b) ->
+         Int.equal a b && equal_value_error err_a err_b)
+      errors
+      other.errors
+    && Kind.equal given other.given
+    && Ast.equal value other.value
+  | Unexpected_record { errors; value }, Unexpected_record other ->
+    Nel.equal equal_record_error errors other.errors
+    && Ast.equal value other.value
+  | Unexpected_kind _, _
+  | Unexpected_pair _, _
+  | Unexpected_list _, _
+  | Unexpected_record _, _
+  | Unexpected_value _, _ -> true
+
+and equal_pair_error a b =
+  match a, b with
+  | Invalid_fst a, Invalid_fst b | Invalid_snd a, Invalid_snd b ->
+    equal_value_error a b
+  | Invalid_both (a, x), Invalid_both (b, y) ->
+    equal_value_error a b && equal_value_error x y
+  | Invalid_fst _, _ | Invalid_snd _, _ | Invalid_both (_, _), _ -> false
+
+and equal_record_error a b =
+  match a, b with
+  | Missing_field a, Missing_field b -> String.equal a b
+  | Invalid_field { field; error }, Invalid_field other ->
+    String.equal field other.field && equal_value_error error other.error
+  | Invalid_field _, _ | Missing_field _, _ -> false
+;;
+
+let equal_checked ok = Result.equal ~ok ~error:equal_value_error
 let pp_record l = Fmt.braces (Fmt.record ~sep:(Fmt.any ";@,") l)
 
 let rec pp_value_error st = function

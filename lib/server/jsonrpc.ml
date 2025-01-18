@@ -1,6 +1,6 @@
 type input =
   { meth : string
-  ; params : Rensai.Ast.t option
+  ; params : Rensai.Ast.t
   ; id : int option
   }
 
@@ -14,8 +14,7 @@ type error =
 
 type handler =
   | Handler :
-      (Rensai.Ast.t option -> 'a Rensai.Validation.checked)
-      * (?id:int -> 'a -> (Rensai.Ast.t, error) result)
+      'a Rensai.Validation.t * (?id:int -> 'a -> (Rensai.Ast.t, error) result)
       -> handler
 
 let error_to_rensai error =
@@ -62,7 +61,7 @@ let validate_input =
     let+ () = ensure f "jsonrpc" (string & String.equal "2.0")
     and+ meth = required f "method" string
     and+ id = optional f "id" int
-    and+ params = optional f "params" ast in
+    and+ params = optional_or ~default:(Rensai.Ast.null ()) f "params" ast in
     { id; meth; params })
 ;;
 

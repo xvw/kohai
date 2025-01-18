@@ -6,3 +6,4 @@ type t = string * Jsonrpc.handler
 
 val ping : t
 val ensure_supervised_directory : Core.Path.t option ref -> t
+val set_supervised_directory : Core.Path.t option ref -> t

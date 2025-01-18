@@ -53,3 +53,21 @@ let extension_opt path =
   let ext = extension path in
   if String.equal "" ext then None else Some ext
 ;;
+
+let from_rensai =
+  let open Rensai.Validation in
+  (string $ Stdlib.String.split_on_char '/') / list_of string
+  $ function
+  | "" :: xs -> Absolute (Stdlib.List.rev xs)
+  | xs -> Relative (Stdlib.List.rev xs)
+;;
+
+let is_absolute = function
+  | Absolute _ -> true
+  | _ -> false
+;;
+
+let is_relative = function
+  | Relative _ -> true
+  | _ -> false
+;;

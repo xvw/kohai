@@ -14,7 +14,13 @@ let handler supervised _socket request body =
     let () = Logs.app (fun f -> f "Received `%s`" body) in
     let status, result =
       let open Jsonrpc in
-      services Handler.[ ping; ensure_supervised_directory supervised ] body
+      services
+        Handler.
+          [ ping
+          ; ensure_supervised_directory supervised
+          ; set_supervised_directory supervised
+          ]
+        body
     in
     json ~status result
   | _ ->

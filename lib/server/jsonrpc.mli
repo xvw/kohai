@@ -48,7 +48,7 @@ val result
 
 val handler
   :  string
-  -> params:(Rensai.Ast.t option -> 'a Rensai.Validation.checked)
+  -> params:'a Rensai.Validation.t
   -> (?id:int -> 'a -> (Rensai.Ast.t, error) result)
   -> string * handler
 

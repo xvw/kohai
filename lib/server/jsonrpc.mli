@@ -14,9 +14,21 @@ type handler
 (** {1 Build errors} *)
 
 val parse_error : unit -> error
-val invalid_request : ?id:int -> unit -> error
+
+val invalid_request
+  :  ?data:Rensai.Validation.value_error
+  -> ?id:int
+  -> unit
+  -> error
+
 val method_not_found : ?id:int -> unit -> error
-val invalid_params : ?id:int -> unit -> error
+
+val invalid_params
+  :  ?data:Rensai.Validation.value_error
+  -> ?id:int
+  -> unit
+  -> error
+
 val internal_error : ?id:int -> unit -> error
 val no_supervised_directory : ?id:int -> unit -> error
 val custom_error : ?id:int -> code:int -> message:string -> unit -> error

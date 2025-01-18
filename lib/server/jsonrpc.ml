@@ -6,9 +6,9 @@ type input =
 
 type error =
   | Parse_error
-  | Invalid_request of int option
+  | Invalid_request of int option * Rensai.Validation.value_error option
   | Method_not_found of int option
-  | Invalid_params of int option
+  | Invalid_params of int option * Rensai.Validation.value_error option
   | Internal_error of int option
   | Custom_error of int option * int * string
 
@@ -19,29 +19,35 @@ type handler =
       -> handler
 
 let error_to_rensai error =
-  let res id code message =
+  let res ?data id code message =
     let open Rensai.Ast in
     record
       [ "jsonrpc", string "2.0"
       ; "id", option int id
       ; ( "error"
-        , record [ "code", int (0 - abs code); "message", string message ] )
+        , record
+            [ "code", int (0 - abs code)
+            ; "message", string message
+            ; "data", option Rensai.Validation.value_error_ast data
+            ] )
       ]
   in
   match error with
   | Parse_error -> `Bad_request, res None 32700 "Parse error"
-  | Invalid_request id -> `Bad_request, res id 32600 "Invalid Request"
+  | Invalid_request (id, data) ->
+    `Bad_request, res ?data id 32600 "Invalid Request"
   | Method_not_found id -> `Not_found, res id 32601 "Method not found"
-  | Invalid_params id -> `Internal_server_error, res id 32602 "Invalid params"
+  | Invalid_params (id, data) ->
+    `Internal_server_error, res ?data id 32602 "Invalid params"
   | Internal_error id -> `Internal_server_error, res id 32603 "Internal error"
   | Custom_error (id, code, message) ->
     `Internal_server_error, res id code message
 ;;
 
 let parse_error () = Parse_error
-let invalid_request ?id () = Invalid_request id
+let invalid_request ?data ?id () = Invalid_request (id, data)
 let method_not_found ?id () = Method_not_found id
-let invalid_params ?id () = Invalid_params id
+let invalid_params ?data ?id () = Invalid_params (id, data)
 let internal_error ?id () = Internal_error id
 let custom_error ?id ~code ~message () = Custom_error (id, code, message)
 
@@ -66,7 +72,7 @@ let from_response input =
     |> Yojson.Safe.from_string
     |> Rensai.Json.from_yojson
     |> validate_input
-    |> Result.map_error (Fun.const (invalid_request ()))
+    |> Result.map_error (fun data -> invalid_request ~data ())
   with
   | _ -> Error (parse_error ())
 ;;
@@ -100,6 +106,6 @@ let services list input =
       Result.bind
         (params
          |> validator
-         |> Result.map_error (Fun.const (invalid_params ?id ())))
+         |> Result.map_error (fun data -> invalid_params ~data ?id ()))
         (handler ?id))
 ;;

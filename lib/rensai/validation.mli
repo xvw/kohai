@@ -602,6 +602,9 @@ end
 
 (** {1 Misc} *)
 
+(** Transforme [value_error] into a valid representation. *)
+val value_error_ast : value_error -> Ast.t
+
 (** Pretty Printers for value error. *)
 val pp_value_error : Format.formatter -> value_error -> unit
 

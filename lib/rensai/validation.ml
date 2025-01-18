@@ -168,6 +168,49 @@ and pp_pair_error st = function
       ("both", errf, errs)
 ;;
 
+let value_error_ast err =
+  let rec aux = function
+    | Unexpected_value message ->
+      Ast.(record [ "unexpected_value", string message ])
+    | Unexpected_kind { expected; given; value } ->
+      Ast.(
+        record
+          [ "unexpected_kind", string (Format.asprintf "%a" Kind.pp expected)
+          ; "given", string (Format.asprintf "%a" Kind.pp given)
+          ; "value", value
+          ])
+    | Unexpected_pair { error; value; given } ->
+      Ast.(
+        record
+          [ "unexpected_pair", pair_error_ast error
+          ; "given", string (Format.asprintf "%a" Kind.pp given)
+          ; "value", value
+          ])
+    | Unexpected_list { errors; value; given } ->
+      Ast.(
+        record
+          [ "unexpected_list", list (fun (_, x) -> aux x) (Nel.to_list errors)
+          ; "given", string (Format.asprintf "%a" Kind.pp given)
+          ; "value", value
+          ])
+    | Unexpected_record { errors; value } ->
+      Ast.(
+        record
+          [ "unexpected_record", list record_error_ast (Nel.to_list errors)
+          ; "value", value
+          ])
+  and record_error_ast = function
+    | Invalid_field { field; error } -> Ast.(record [ field, aux error ])
+    | Missing_field field -> Ast.(record [ field, string "Missing" ])
+  and pair_error_ast = function
+    | Invalid_fst err -> Ast.(record [ "invalid_fst", aux err ])
+    | Invalid_snd err -> Ast.(record [ "invalid_snd", aux err ])
+    | Invalid_both (a, b) ->
+      Ast.(record [ "invalid_fst", aux a; "invalid_snd", aux b ])
+  in
+  aux err
+;;
+
 let pp_checked pp = Fmt.result ~ok:pp ~error:pp_value_error
 
 type 'a checked = ('a, value_error) result

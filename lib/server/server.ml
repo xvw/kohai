@@ -6,8 +6,21 @@ let json ?(status = `OK) obj =
 
 let rensai ?status obj = obj |> Rensai.Json.to_yojson |> json ?status
 
-let handler _socket _request _body =
-  rensai Rensai.Ast.(record [ "message", string "Hello World" ])
+let handler supervised _socket request body =
+  let meth = request |> Cohttp.Request.meth in
+  match meth with
+  | `POST ->
+    let body = Eio.Flow.read_all body in
+    let () = Logs.app (fun f -> f "Received `%s`" body) in
+    let status, result =
+      let open Jsonrpc in
+      services Handler.[ ping; ensure_supervised_directory supervised ] body
+    in
+    json ~status result
+  | _ ->
+    rensai
+      ~status:`Method_not_allowed
+      (Jsonrpc.internal_error () |> Jsonrpc.error)
 ;;
 
 let setup_logger log_level =
@@ -27,15 +40,20 @@ let run
   =
   Eio.Switch.run (fun sw ->
     let resource = env#net in
-    let loopback = Eio.Net.Ipaddr.V4.loopback in
-    let stream = `Tcp (loopback, port) in
-    let socket =
-      Eio.Net.listen ~reuse_addr ~reuse_port ~sw ~backlog resource stream
+    let supervised_directory = ref None in
+    let server =
+      Cohttp_eio.Server.make ~callback:(handler supervised_directory) ()
     in
-    let server = Cohttp_eio.Server.make ~callback:handler () in
     let () = setup_logger log_level in
+    let () = Logs.app (fun f -> f "Start server on `%d`" port) in
     Cohttp_eio.Server.run
       ~on_error:(fun exn -> Logs.err (fun f -> f "%a" Eio.Exn.pp exn))
-      socket
+      (Eio.Net.listen
+         ~reuse_addr
+         ~reuse_port
+         ~sw
+         ~backlog
+         resource
+         (`Tcp (Eio.Net.Ipaddr.V4.loopback, port)))
       server)
 ;;

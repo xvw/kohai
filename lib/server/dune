@@ -1,5 +1,5 @@
 (library
- (name server)
+ (name kohai_server)
  (public_name kohai.server)
  (libraries
   logs

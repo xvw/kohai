@@ -16,7 +16,7 @@
  (synopsis "A small standard library extension")
  (description "Some tools for easing Kohai foundational development")
  (depends
-  (ocaml (>= 5.2.0))
+  (ocaml (>= 5.3.0))
   (ppx_expect :with-test)
   (mdx :with-test)))
 
@@ -28,7 +28,7 @@ it is possible to describe languages similar to JSON, TOML or S-Expression,
 for which the encoding and validation functions become generic
 (and interchangeable).")
  (depends
-  (ocaml (>= 5.2.0))
+  (ocaml (>= 5.3.0))
   (kohai-prelude (= :version))
   (fmt (>= 0.9.0))
   (ppx_expect :with-test)
@@ -40,7 +40,7 @@ for which the encoding and validation functions become generic
  (description "Set of concrete data structures and tools needed to
  model data in Kohai")
  (depends
-  (ocaml (>= 5.2.0))
+  (ocaml (>= 5.3.0))
   (kohai-prelude (= :version))
   (rensai (= :version))
   (ppx_expect :with-test)
@@ -53,7 +53,7 @@ for which the encoding and validation functions become generic
  (description "A tool for collecting personal activity reports
 (and an excuse to write OCaml and reinvent the wheel)")
  (depends
-  (ocaml (>= 5.2.0))
+  (ocaml (>= 5.3.0))
   (rensai (= :version))
   (yojson (>= 2.2.2))
   (fmt (>= 0.9.0))

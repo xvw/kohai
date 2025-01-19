@@ -4,30 +4,29 @@ let json ?(status = `OK) obj =
   Cohttp_eio.Server.respond_string ~status ~headers ~body ()
 ;;
 
-let rensai ?status obj = obj |> Rensai.Json.to_yojson |> json ?status
+(* let rensai ?status obj = obj |> Rensai.Json.to_yojson |> json ?status *)
+let handler _supervised _socket _request _body = json `Null
 
-let handler supervised _socket request body =
-  let meth = request |> Cohttp.Request.meth in
-  match meth with
-  | `POST ->
-    let body = Eio.Flow.read_all body in
-    let () = Logs.app (fun f -> f "Received `%s`" body) in
-    let status, result =
-      let open Jsonrpc in
-      services
-        Handler.
-          [ ping
-          ; ensure_supervised_directory supervised
-          ; set_supervised_directory supervised
-          ]
-        body
-    in
-    json ~status result
-  | _ ->
-    rensai
-      ~status:`Method_not_allowed
-      (Jsonrpc.internal_error () |> Jsonrpc.error)
-;;
+(* let meth = request |> Cohttp.Request.meth in *)
+(* match meth with *)
+(* | `POST -> *)
+(*   let body = Eio.Flow.read_all body in *)
+(*   let () = Logs.app (fun f -> f "Received `%s`" body) in *)
+(*   let status, result = *)
+(*     let open Jsonrpc in *)
+(*     services *)
+(*       Handler. *)
+(*         [ ping *)
+(*         ; ensure_supervised_directory supervised *)
+(*         ; set_supervised_directory supervised *)
+(*         ] *)
+(*       body *)
+(*   in *)
+(*   json ~status result *)
+(* | _ -> *)
+(*   rensai *)
+(*     ~status:`Method_not_allowed *)
+(*     (Jsonrpc.internal_error () |> Jsonrpc.error) *)
 
 let setup_logger log_level =
   let header = Logs_fmt.pp_header in

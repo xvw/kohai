@@ -12,6 +12,5 @@ val handler
 
 val services
   :  (string * handler) list
-  -> (Rensai.Ast.t -> 'a)
   -> string
-  -> ('a, Error.t) result Eff.t
+  -> (Rensai.Ast.t, Error.t) result

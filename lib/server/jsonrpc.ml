@@ -49,11 +49,11 @@ let handle input handler =
 ;;
 
 let eliminate_error p =
-  try Ok p with
+  try Ok (p ()) with
   | effect Eff.K_fail_with err, _k -> Error err
 ;;
 
-let services list handler input =
+let services list input =
   let open Core.IO in
   let program =
     handle input (fun meth params id ->
@@ -68,5 +68,5 @@ let services list handler input =
         let+ result = handler ?id params in
         return_success id (finalizer result))
   in
-  compose eliminate_error handler program
+  eliminate_error program
 ;;

@@ -1,6 +1,6 @@
 (** A very simple IO monad. *)
 
-type 'a t
+type 'a t = unit -> 'a
 
 val return : 'a -> 'a t
 val bind : 'a t -> ('a -> 'b t) -> 'b t

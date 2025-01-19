@@ -4,7 +4,7 @@ let dump result =
   Format.asprintf
     "%a"
     Rensai.Ast.pp
-    (match result with
+    (match result () with
      | Error xs -> Error.to_rensai xs
      | Ok x -> x)
   |> print_endline
@@ -32,7 +32,8 @@ let%expect_test "reacting to an input - 2" =
   let input = {json| {"jsonrpc": "2.0", "method": "pung", "id": 1} |json} in
   let endpoints = Jsonrpc.services handlers in
   input |> endpoints |> dump;
-  [%expect {|
+  [%expect
+    {|
     {error = {code = -32601; data = "pung"; message = "Method not found"};
       id = 1; jsonrpc = "2.0"}
     |}]

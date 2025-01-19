@@ -53,7 +53,7 @@ let eliminate_error p =
   | effect Eff.K_fail_with err, _k -> Error err
 ;;
 
-let services list input =
+let services list input () =
   let open Core.IO in
   let program =
     handle input (fun meth params id ->

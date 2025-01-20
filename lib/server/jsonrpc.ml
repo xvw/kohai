@@ -55,18 +55,22 @@ let eliminate_error p =
 
 let services list input () =
   let open Core.IO in
-  let program =
-    handle input (fun meth params id ->
-      match List.assoc_opt meth list with
-      | None -> Eff.method_not_found ?id meth ()
-      | Some (Handler (validator, finalizer, handler)) ->
-        let* params =
-          params
-          |> validator
-          |> Eff.from_validated (fun data -> Error.invalid_params ~data ?id ())
-        in
-        let+ result = handler ?id params in
-        return_success id (finalizer result))
+  let program () =
+    handle
+      input
+      (fun meth params id ->
+         match List.assoc_opt meth list with
+         | None -> Eff.method_not_found ?id meth ()
+         | Some (Handler (validator, finalizer, handler)) ->
+           let* params =
+             params
+             |> validator
+             |> Eff.from_validated (fun data ->
+               Error.invalid_params ~data ?id ())
+           in
+           let+ result = handler ?id params in
+           return_success id (finalizer result))
+      ()
   in
   eliminate_error program
 ;;

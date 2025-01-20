@@ -3,7 +3,7 @@ open Core
 type 'a t = 'a IO.t
 type _ Effect.t += K_fail_with : Error.t -> 'a Effect.t
 
-let fail_with err = IO.perform @@ K_fail_with err
+let fail_with err = IO.perform (K_fail_with err)
 
 let from_validated to_err = function
   | Ok x -> IO.return x

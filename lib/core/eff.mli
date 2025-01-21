@@ -21,7 +21,13 @@
 
     A Handler is described using a functor. *)
 
-module Handler (_ : Sigs.EFFECT_REQUIREMENT) : Sigs.EFFECT_HANDLER
+module type HANDLER = Sigs.EFFECT_HANDLER
+
+(** A shortcut to define function that should be handled. *)
+type handler = (module HANDLER)
+
+(** Build an handler on top of a set of requirement. *)
+module Handler (_ : Sigs.EFFECT_REQUIREMENT) : HANDLER
 
 (** {1 Public API}
 
@@ -29,9 +35,15 @@ module Handler (_ : Sigs.EFFECT_REQUIREMENT) : Sigs.EFFECT_HANDLER
     functions that take handlers as arguments. This is generally
     possible because a handler does not introduce parameterized types. *)
 
-(** [handle program] Interprets the [program] with the given
+(** [raise (module Handler) error] throws [error] as an exception. *)
+val raise : handler -> Sigs.jsonrpc_error -> 'a
+
+(** [from_result (module Handler) callback res] handle error using
+    effect from a result. *)
+val from_result : handler -> ('b -> Sigs.jsonrpc_error) -> ('a, 'b) result -> 'a
+
+(** {1 Program Handler} *)
+
+(** [handle (module Handler) program] Interprets the [program] with the given
     handler.*)
-val handle
-  :  (module Sigs.EFFECT_HANDLER)
-  -> ((module Sigs.EFFECT_HANDLER) -> unit -> 'a)
-  -> ('a, Sigs.jsonrpc_error) result
+val handle : handler -> (handler -> 'a) -> ('a, Sigs.jsonrpc_error) result

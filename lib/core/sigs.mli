@@ -39,6 +39,9 @@ module type EFFECT_REQUIREMENT = sig end
 module type EFFECT_HANDLER = sig
   exception Jsonrpc_exn of jsonrpc_error
 
+  (** [raise error] throws a fixed-error. *)
+  val raise : jsonrpc_error -> 'a
+
   (** [handle_with_error program], handle [program ()] with
       exception. *)
   val handle_with_error : (unit -> 'a) -> ('a, jsonrpc_error) result

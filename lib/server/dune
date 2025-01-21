@@ -1,6 +1,9 @@
 (library
  (name kohai_server)
  (public_name kohai.server)
+ (flags
+  (:standard)
+   -open Kohai_core)
  (libraries
   logs
   logs.fmt

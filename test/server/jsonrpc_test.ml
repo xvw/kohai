@@ -1,6 +1,11 @@
 open Kohai_core
 open Kohai_server
-module Handler = Eff.Handler (struct end)
+
+module Handler = Eff.Handler (struct
+    let exists _ = true
+    let is_file _ = true
+    let is_dir _ = true
+  end)
 
 let dump = function
   | Ok value -> Fmt.str "%a" Rensai.Ast.pp value
@@ -250,7 +255,8 @@ let%expect_test "plus - 3" =
   |> Eff.handle (module Handler)
   |> dump
   |> print_endline;
-  [%expect {|
+  [%expect
+    {|
     {error =
       {code = -32602;
         data =

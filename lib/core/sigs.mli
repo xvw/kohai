@@ -31,7 +31,11 @@ type jsonrpc_error =
 
 (** Describes all the effects a program can propagate. This module
     serves as a requirement for building a Handler. *)
-module type EFFECT_REQUIREMENT = sig end
+module type EFFECT_REQUIREMENT = sig
+  val exists : Path.t -> bool
+  val is_file : Path.t -> bool
+  val is_dir : Path.t -> bool
+end
 
 (** An effect handler is built around a
     {!module-type:EFFECT_REQUIREMENT} to propagate platform-specific

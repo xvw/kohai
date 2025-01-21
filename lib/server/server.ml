@@ -1,5 +1,3 @@
-let services = []
-
 let json ?(status = `OK) obj =
   let headers = Http.Header.of_list [ "content-type", "application/json" ] in
   let body = Yojson.Safe.to_string obj in
@@ -14,7 +12,7 @@ let server_handler (module H : Eff.HANDLER) _supervised _socket request body =
   | `POST ->
     let body = Eio.Flow.read_all body in
     let () = Logs.app (fun f -> f "Received `%s`" body) in
-    (match Eff.handle (module H) (Jsonrpc.run ~services body) with
+    (match Eff.handle (module H) (Jsonrpc.run ~services:Services.all body) with
      | Ok result -> rensai ~status:`OK result
      | Error err ->
        rensai ~status:`Internal_server_error (err |> Error.to_rensai))

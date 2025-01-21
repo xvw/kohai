@@ -1,4 +1,5 @@
 (library
  (name core)
  (public_name kohai-core)
+ (modules_without_implementation sigs)
  (libraries kohai-prelude rensai))

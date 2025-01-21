@@ -1,5 +1,3 @@
-(** Some shared interfaces *)
-
 (** {1 Inputs} *)
 
 module type DUMPABLE = sig

@@ -14,6 +14,9 @@ val pwd : t
 (** Return the root path. *)
 val root : t
 
+(** [from_string s] convert a string into a path. *)
+val from_string : string -> t
+
 (** [from x ~into:s] build a path of [s] into [x]. *)
 val from : t -> into:string -> t
 

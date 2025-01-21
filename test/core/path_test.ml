@@ -81,3 +81,33 @@ let%expect_test "extension_opt - 5" =
   dump_opt s;
   [%expect {| Some ".mli" |}]
 ;;
+
+let%expect_test "from_string - 1" =
+  let p = Path.from_string "./" in
+  dump_path p;
+  [%expect {| "./" |}]
+;;
+
+let%expect_test "from_string - 2" =
+  let p = Path.from_string "./foo/bar/baz" in
+  dump_path p;
+  [%expect {| "./foo/bar/baz" |}]
+;;
+
+let%expect_test "from_string - 3" =
+  let p = Path.from_string "foo/bar/baz" in
+  dump_path p;
+  [%expect {| "./foo/bar/baz" |}]
+;;
+
+let%expect_test "from_string - 4" =
+  let p = Path.from_string "/" in
+  dump_path p;
+  [%expect {| "/" |}]
+;;
+
+let%expect_test "from_string - 5" =
+  let p = Path.from_string "/foo/bar/baz" in
+  dump_path p;
+  [%expect {| "/foo/bar/baz" |}]
+;;

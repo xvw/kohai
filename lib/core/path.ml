@@ -59,7 +59,7 @@ let from_rensai =
   (string $ Stdlib.String.split_on_char '/') / list_of string
   $ function
   | "" :: xs -> Absolute (Stdlib.List.rev xs)
-  | xs -> Relative (Stdlib.List.rev xs)
+  | "." :: xs | xs -> Relative (Stdlib.List.rev xs)
 ;;
 
 let is_absolute = function
@@ -70,4 +70,10 @@ let is_absolute = function
 let is_relative = function
   | Relative _ -> true
   | _ -> false
+;;
+
+let from_string x =
+  match String.split_on_char '/' x with
+  | "" :: xs -> Absolute (List.rev xs)
+  | "." :: xs | xs -> Relative (List.rev xs)
 ;;

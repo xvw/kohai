@@ -26,11 +26,11 @@ let from_response (module H : Eff.HANDLER) body =
     |> Yojson.Safe.from_string
     |> Rensai.Json.from_yojson
     |> validate_request_body
-    |> function
-    | Ok x -> x
-    | Error error ->
-      Eff.raise (module H) (Error.invalid_request ~body ~error ())
+    |> Eff.from_result
+         (module H)
+         (fun error -> Error.invalid_request ~body ~error ())
   with
+  | H.Jsonrpc_exn err -> Eff.raise (module H) err
   | _ -> Eff.raise (module H) (Error.parse_error ~body ())
 ;;
 

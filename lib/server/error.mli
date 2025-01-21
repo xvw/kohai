@@ -37,9 +37,14 @@ val internal_error
   -> Sigs.jsonrpc_error
 
 val custom_error
-  :  body:string
+  :  ?with_offset:bool
+  -> body:string
   -> ?id:int
   -> code:int
   -> ?message:string
   -> unit
   -> Sigs.jsonrpc_error
+
+(** {1 Rensai} *)
+
+val to_rensai : t -> Rensai.Ast.t

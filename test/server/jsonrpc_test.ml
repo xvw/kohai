@@ -35,9 +35,7 @@ let services =
     ]
 ;;
 
-let run ?(services = []) input (module H : Eff.HANDLER) =
-  Jsonrpc.run (module H) ~services input
-;;
+let run ?(services = []) input = Jsonrpc.run ~services input
 
 let%expect_test "reacting to an input - 1" =
   let input = {json||json} in
@@ -124,8 +122,7 @@ let%expect_test "reacting to an input - 7" =
     {json|{"jsonrpc": "2.0", "method": "test/echo", "id": 333, "params": "foo"}|json}
   in
   input |> run ~services |> Eff.handle (module Handler) |> dump |> print_endline;
-  [%expect
-    {| {id = 333; jsonrpc = "2.0"; result = "foo"} |}]
+  [%expect {| {id = 333; jsonrpc = "2.0"; result = "foo"} |}]
 ;;
 
 let%expect_test "reacting to an input - 8" =
@@ -133,6 +130,5 @@ let%expect_test "reacting to an input - 8" =
     {json|{"jsonrpc": "2.0", "method": "test/rev", "id": 333, "params": "bar"}|json}
   in
   input |> run ~services |> Eff.handle (module Handler) |> dump |> print_endline;
-  [%expect
-    {| {id = 333; jsonrpc = "2.0"; result = "rab"} |}]
+  [%expect {| {id = 333; jsonrpc = "2.0"; result = "rab"} |}]
 ;;

@@ -39,7 +39,7 @@ let succeed ?id value =
   record [ "jsonrpc", string "2.0"; "id", option int id; "result", value ]
 ;;
 
-let run (module H : Eff.HANDLER) ~services body =
+let run ~services body (module H : Eff.HANDLER) =
   let meth, id, params = from_response (module H) body in
   match List.assoc_opt meth services with
   | None -> Eff.raise (module H) (Error.method_not_found ~body ?id ~meth ())

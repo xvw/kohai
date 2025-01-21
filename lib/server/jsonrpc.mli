@@ -21,10 +21,10 @@ val service
 
 (** {1 Run} *)
 
-(** [run (module Handler) ~services body] tries to transform the
+(** [run ~services body (module Handler)] tries to transform the
     request body through the various services described. *)
 val run
-  :  Eff.handler
-  -> services:(string * service) list
+  :  services:(string * service) list
   -> string
+  -> Eff.handler
   -> Rensai.Ast.t

@@ -1,7 +1,8 @@
-(** A simple handler to launch the Kohai server. *)
+(** A simple server to handle Kohai JSONRpc method. *)
 
 val run
-  :  ?backlog:int
+  :  Eff.handler
+  -> ?backlog:int
   -> ?reuse_addr:bool
   -> ?reuse_port:bool
   -> ?log_level:Logs.level

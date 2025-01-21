@@ -2,6 +2,6 @@
  (name server_test)
  (package kohai)
  (inline_tests)
- (libraries rensai fmt kohai.server)
+ (libraries rensai fmt kohai-core kohai.server)
  (preprocess
   (pps ppx_expect)))

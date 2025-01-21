@@ -1,16 +1,30 @@
-(** A very naïve way to deal with JSONRPC. *)
+(** A very naive approach to describing compliant services/methods
+    with JSONRPC 2.0.
 
-type input
-type handler
+    There are already many libraries that do this very well... but as
+    mentioned, I really like the principle of reinventing the wheel,
+    gradually adding the necessary functionality. *)
 
-val handler
+(** {1 Services} *)
+
+(** The type that describes a service/method. *)
+type service
+
+(** [service ~meth ~with_params ~finalizer callback] describe a pair
+    [meth/service]. *)
+val service
   :  meth:string
   -> with_params:'a Rensai.Validation.t
   -> finalizer:('b -> Rensai.Ast.t)
-  -> (?id:int -> 'a -> 'b Eff.t)
-  -> string * handler
+  -> (?id:int -> Eff.handler -> 'a -> 'b)
+  -> string * service
 
-val services
-  :  (string * handler) list
+(** {1 Run} *)
+
+(** [run ~services body (module Handler)] tries to transform the
+    request body through the various services described. *)
+val run
+  :  services:(string * service) list
   -> string
-  -> (Rensai.Ast.t, Error.t) result Eff.t
+  -> Eff.handler
+  -> Rensai.Ast.t

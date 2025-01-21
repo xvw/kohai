@@ -1,16 +1,33 @@
-type t =
-  | Parse_error
-  | Invalid_request of int option * Rensai.Validation.value_error option
-  | Method_not_found of int option * string option
-  | Invalid_params of int option * Rensai.Validation.value_error option
-  | Internal_error of int option
-  | Custom_error of int option * int * string
+type t = Sigs.jsonrpc_error
 
-let as_value_error = Option.map Rensai.Validation.value_error_ast
-let as_string = Option.map Rensai.Ast.string
+let parse_error ~body () = Sigs.Parse_error { body }
 
-let to_rensai error =
-  let res ?data id code message =
+let invalid_request ~body ?id ?error () =
+  Sigs.Invalid_request { body; id; error }
+;;
+
+let method_not_found ~body ?id ~meth () =
+  Sigs.Method_not_found { body; id; meth }
+;;
+
+let invalid_params ~body ?id ~error () = Sigs.Invalid_params { body; id; error }
+
+let internal_error ~body ?id ?message () =
+  Sigs.Internal_error { body; id; message }
+;;
+
+let custom_error ?(with_offset = true) ~body ?id ~code ?message () =
+  let id = if with_offset then Option.map (fun x -> x + 32000) id else id in
+  Sigs.Custom_error { body; id; code; message }
+;;
+
+let mk_error = Rensai.Validation.value_error_ast
+let opt_error = Option.map mk_error
+let mk_string = Rensai.Ast.string
+let opt_string = Option.map mk_string
+
+let to_rensai err =
+  let res ?id ?data ~body ~code message =
     let open Rensai.Ast in
     record
       [ "jsonrpc", string "2.0"
@@ -20,28 +37,20 @@ let to_rensai error =
             [ "code", int (0 - abs code)
             ; "message", string message
             ; "data", option Fun.id data
+            ; "input", string body
             ] )
       ]
   in
-  match error with
-  | Parse_error -> res None 32700 "Parse error"
-  | Invalid_request (id, data) ->
-    res ?data:(as_value_error data) id 32600 "Invalid Request"
-  | Method_not_found (id, data) ->
-    res ?data:(as_string data) id 32601 "Method not found"
-  | Invalid_params (id, data) ->
-    res ?data:(as_value_error data) id 32602 "Invalid params"
-  | Internal_error id -> res id 32603 "Internal error"
-  | Custom_error (id, code, message) -> res id code message
-;;
-
-let parse_error () = Parse_error
-let invalid_request ?data ?id () = Invalid_request (id, data)
-let method_not_found ?data ?id () = Method_not_found (id, data)
-let invalid_params ?data ?id () = Invalid_params (id, data)
-let internal_error ?id () = Internal_error id
-let custom_error ?id ~code ~message () = Custom_error (id, code, message)
-
-let no_supervised_directory ?id () =
-  custom_error ?id ~code:32000 ~message:"No supervised directory" ()
+  match err with
+  | Sigs.Parse_error { body } -> res ~body ~code:32700 "Parse error"
+  | Sigs.Invalid_request { body; id; error } ->
+    res ~body ?id ~code:32600 ?data:(opt_error error) "Invalid Request"
+  | Sigs.Method_not_found { body; id; meth } ->
+    res ~body ?id ~code:32601 ~data:(mk_string meth) "Method not found"
+  | Sigs.Invalid_params { body; id; error } ->
+    res ~body ?id ~code:32602 ~data:(mk_error error) "Invalid params"
+  | Sigs.Internal_error { body; id; message } ->
+    res ~body ?id ~code:32603 ?data:(opt_string message) "Internal error"
+  | Sigs.Custom_error { body; id; code; message } ->
+    res ~body ?id ~code ?data:(opt_string message) "Server error"
 ;;

@@ -1,32 +1,28 @@
+let services = []
+
 let json ?(status = `OK) obj =
   let headers = Http.Header.of_list [ "content-type", "application/json" ] in
   let body = Yojson.Safe.to_string obj in
   Cohttp_eio.Server.respond_string ~status ~headers ~body ()
 ;;
 
-(* let rensai ?status obj = obj |> Rensai.Json.to_yojson |> json ?status *)
-let handler _supervised _socket _request _body = json `Null
+let rensai ?status obj = obj |> Rensai.Json.to_yojson |> json ?status
 
-(* let meth = request |> Cohttp.Request.meth in *)
-(* match meth with *)
-(* | `POST -> *)
-(*   let body = Eio.Flow.read_all body in *)
-(*   let () = Logs.app (fun f -> f "Received `%s`" body) in *)
-(*   let status, result = *)
-(*     let open Jsonrpc in *)
-(*     services *)
-(*       Handler. *)
-(*         [ ping *)
-(*         ; ensure_supervised_directory supervised *)
-(*         ; set_supervised_directory supervised *)
-(*         ] *)
-(*       body *)
-(*   in *)
-(*   json ~status result *)
-(* | _ -> *)
-(*   rensai *)
-(*     ~status:`Method_not_allowed *)
-(*     (Jsonrpc.internal_error () |> Jsonrpc.error) *)
+let server_handler (module H : Eff.HANDLER) _supervised _socket request body =
+  let meth = request |> Cohttp.Request.meth in
+  match meth with
+  | `POST ->
+    let body = Eio.Flow.read_all body in
+    let () = Logs.app (fun f -> f "Received `%s`" body) in
+    (match Eff.handle (module H) (Jsonrpc.run ~services body) with
+     | Ok result -> rensai ~status:`OK result
+     | Error err ->
+       rensai ~status:`Internal_server_error (err |> Error.to_rensai))
+  | _ ->
+    let result = Error.internal_error ~body:"" ()
+    and status = `Method_not_allowed in
+    rensai ~status (result |> Error.to_rensai)
+;;
 
 let setup_logger log_level =
   let header = Logs_fmt.pp_header in
@@ -36,6 +32,7 @@ let setup_logger log_level =
 ;;
 
 let run
+      (module H : Eff.HANDLER)
       ?(backlog = 128)
       ?(reuse_addr = true)
       ?(reuse_port = true)
@@ -47,7 +44,9 @@ let run
     let resource = env#net in
     let supervised_directory = ref None in
     let server =
-      Cohttp_eio.Server.make ~callback:(handler supervised_directory) ()
+      Cohttp_eio.Server.make
+        ~callback:(server_handler (module H) supervised_directory)
+        ()
     in
     let () = setup_logger log_level in
     let () = Logs.app (fun f -> f "Start server on `%d`" port) in

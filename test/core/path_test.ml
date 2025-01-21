@@ -1,4 +1,4 @@
-open Core
+open Kohai_core
 
 let dump_str s = s |> Fmt.str "%a" Fmt.Dump.string |> print_endline
 let dump_path p = p |> Path.to_string |> dump_str

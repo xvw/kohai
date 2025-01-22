@@ -17,8 +17,17 @@ let internal_error ~body ?id ?message () =
 ;;
 
 let custom_error ?(with_offset = true) ~body ?id ~code ?message () =
-  let id = if with_offset then Option.map (fun x -> x + 32000) id else id in
+  let code = if with_offset then code + 32000 else code in
   Sigs.Custom_error { body; id; code; message }
+;;
+
+let no_supervised_directory ~body ?id () =
+  custom_error
+    ~code:0
+    ~message:"No supervised directory for the current session"
+    ~body
+    ?id
+    ()
 ;;
 
 let mk_error = Rensai.Validation.value_error_ast

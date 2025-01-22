@@ -5,6 +5,8 @@ module Handler = Eff.Handler (struct
     let exists _ = true
     let is_file _ = true
     let is_dir _ = true
+    let set_supervised_directory _ = ()
+    let get_supervised_directory () = None
   end)
 
 let dump = function
@@ -14,7 +16,7 @@ let dump = function
 
 let nop = Rensai.Validation.const ()
 
-let services =
+let services _body =
   Jsonrpc.
     [ service
         ~meth:"test/ping"
@@ -40,7 +42,7 @@ let services =
     ]
 ;;
 
-let run ?(services = []) input = Jsonrpc.run ~services input
+let run ?(services = fun _ -> []) input = Jsonrpc.run ~services input
 
 let%expect_test "reacting to an input - 1" =
   let input = {json||json} in
@@ -152,7 +154,7 @@ let%expect_test "List of methods - without prefix" =
     {id = 1; jsonrpc = "2.0";
       result =
        ["admin/methods"; "experimental/ping"; "experimental/echo";
-        "experimental/plus"]}
+        "experimental/plus"; "kohai/ensure_supervision"]}
     |}]
 ;;
 

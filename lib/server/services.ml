@@ -13,7 +13,7 @@ module Experimental = struct
       ~meth:(prefix "ping")
       ~with_params:discard
       ~finalizer:A.string
-      (fun ?id:_ (module _ : Eff.HANDLER) () -> "pong")
+      (fun ?id:_ (module _) () -> "pong")
   ;;
 
   let echo =
@@ -21,7 +21,7 @@ module Experimental = struct
       ~meth:(prefix "echo")
       ~with_params:V.string
       ~finalizer:A.string
-      (fun ?id:_ (module _ : Eff.HANDLER) input -> input)
+      (fun ?id:_ (module _) input -> input)
   ;;
 
   let plus =
@@ -29,21 +29,39 @@ module Experimental = struct
       ~meth:(prefix "plus")
       ~with_params:V.(pair number number)
       ~finalizer:A.float
-      (fun ?id:_ (module _ : Eff.HANDLER) (a, b) -> a +. b)
+      (fun ?id:_ (module _) (a, b) -> a +. b)
   ;;
 end
 
-let methods = [ Experimental.ping; Experimental.echo; Experimental.plus ]
+module Kohai = struct
+  let prefix = String.cat "kohai/"
 
-let all =
+  let ensure_supervision body =
+    Jsonrpc.service
+      ~meth:(prefix "ensure_supervision")
+      ~with_params:discard
+      ~finalizer:A.unit
+      (Action.ensure_supervision body)
+  ;;
+end
+
+let methods body =
+  [ Experimental.ping
+  ; Experimental.echo
+  ; Experimental.plus
+  ; Kohai.ensure_supervision body
+  ]
+;;
+
+let all body =
   Jsonrpc.service
     ~meth:"admin/methods"
     ~with_params:V.(option string)
     ~finalizer:A.(list string)
-    (fun ?id:_ (module _ : Eff.HANDLER) prefix ->
-       let methods = "admin/methods" :: List.map fst methods in
+    (fun ?id:_ (module _) prefix ->
+       let methods = "admin/methods" :: List.map fst (methods body) in
        match prefix with
        | None -> methods
        | Some prefix -> List.filter (String.starts_with ~prefix) methods)
-  :: methods
+  :: methods body
 ;;

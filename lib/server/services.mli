@@ -4,4 +4,4 @@
 type t = string * Jsonrpc.service
 
 (** List of available methods of the server. *)
-val all : t list
+val all : string -> t list

@@ -38,6 +38,12 @@ module Handler (_ : Sigs.EFFECT_REQUIREMENT) : HANDLER
 (** [raise (module Handler) error] throws [error] as an exception. *)
 val raise : handler -> Sigs.jsonrpc_error -> 'a
 
+(** Set the working directory of the session. *)
+val set_supervised_directory : handler -> Path.t option -> unit
+
+(** Get the working directory of the session. *)
+val get_supervised_directory : handler -> Path.t option
+
 (** [from_result (module Handler) callback res] handle error using
     effect from a result. *)
 val from_result : handler -> ('b -> Sigs.jsonrpc_error) -> ('a, 'b) result -> 'a

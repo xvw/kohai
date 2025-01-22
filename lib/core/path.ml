@@ -77,3 +77,7 @@ let from_string x =
   | "" :: xs -> Absolute (List.rev xs)
   | "." :: xs | xs -> Relative (List.rev xs)
 ;;
+
+let to_list = function
+  | Absolute xs | Relative xs -> List.rev xs
+;;

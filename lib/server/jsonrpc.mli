@@ -24,7 +24,7 @@ val service
 (** [run ~services body (module Handler)] tries to transform the
     request body through the various services described. *)
 val run
-  :  services:(string * service) list
+  :  services:(string -> (string * service) list)
   -> string
   -> Eff.handler
   -> Rensai.Ast.t

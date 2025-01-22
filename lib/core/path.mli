@@ -52,3 +52,4 @@ val to_string : t -> string
 val from_rensai : t Rensai.Validation.t
 val is_relative : t -> bool
 val is_absolute : t -> bool
+val to_list : t -> string list

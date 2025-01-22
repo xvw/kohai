@@ -45,6 +45,8 @@ val custom_error
   -> unit
   -> Sigs.jsonrpc_error
 
+val no_supervised_directory : body:string -> ?id:int -> unit -> t
+
 (** {1 Rensai} *)
 
 val to_rensai : t -> Rensai.Ast.t

@@ -40,6 +40,7 @@ let succeed ?id value =
 ;;
 
 let run ~services body (module H : Eff.HANDLER) =
+  let services = services body in
   let meth, id, params = from_response (module H) body in
   match List.assoc_opt meth services with
   | None -> Eff.raise (module H) (Error.method_not_found ~body ?id ~meth ())

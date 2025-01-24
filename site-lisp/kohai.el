@@ -15,15 +15,34 @@
 
 ;;; Commentary:
 
-;; A client for the Kohai server in order to manage timetracking from emacs
+;; A client for the Kohai server in order to manage timetracking from Emacs
 
 ;;; Code:
 
 (defgroup kohai nil
-  "Interaction from Emacs to a Kohai server"
+  "Interaction from Emacs to a Kohai server."
   :link '(url-link "https://xvw.lol")
   :group 'tool
   :prefix "kohai-")
+
+;;; Custom variables
+
+(defcustom kohai-server-uri nil
+  "The uri for reaching a Kohai server."
+  :group 'kohai
+  :type 'string)
+
+(defcustom kohai-server-port 8888
+  "The port of the kohai server."
+  :group 'kohai
+  :type 'natnum)
+
+;;; Features
+
+(defun kohai--server ()
+  "Compute the uri of the server."
+  (let ((host (or kohai-server-uri "http://localhost")))
+    (concat host ":" kohai-server-port)))
 
 (provide 'kohai)
 ;;; kohai.el ends here

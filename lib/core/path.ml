@@ -62,6 +62,11 @@ let from_rensai =
   | "." :: xs | xs -> Relative (Stdlib.List.rev xs)
 ;;
 
+let to_rensai path =
+  let s = to_string path in
+  Rensai.Ast.string s
+;;
+
 let is_absolute = function
   | Absolute _ -> true
   | _ -> false

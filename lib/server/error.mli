@@ -46,6 +46,7 @@ val custom_error
   -> Sigs.jsonrpc_error
 
 val no_supervised_directory : body:string -> ?id:int -> unit -> t
+val supervised_directory_error : body:string -> ?id:int -> string -> unit -> t
 
 (** {1 Rensai} *)
 

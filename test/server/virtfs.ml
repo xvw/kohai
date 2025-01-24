@@ -98,7 +98,7 @@ struct
 
   let is_dir path =
     match get !fs path with
-    | Some (File _) -> true
+    | Some (Directory _) -> true
     | None | Some _ -> false
   ;;
 

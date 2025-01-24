@@ -48,6 +48,12 @@ val get_supervised_directory : handler -> Path.t option
     effect from a result. *)
 val from_result : handler -> ('b -> Sigs.jsonrpc_error) -> ('a, 'b) result -> 'a
 
+(** {2 File management} *)
+
+val exists : handler -> Path.t -> bool
+val is_file : handler -> Path.t -> bool
+val is_dir : handler -> Path.t -> bool
+
 (** {1 Program Handler} *)
 
 (** [handle (module Handler) program] Interprets the [program] with the given

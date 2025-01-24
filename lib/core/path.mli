@@ -50,6 +50,7 @@ val equal : t -> t -> bool
 val to_string : t -> string
 
 val from_rensai : t Rensai.Validation.t
+val to_rensai : t -> Rensai.Ast.t
 val is_relative : t -> bool
 val is_absolute : t -> bool
 val to_list : t -> string list

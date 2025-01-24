@@ -38,6 +38,10 @@ let from_result (module H : HANDLER) callback = function
   | Error err -> raise (module H) (callback err)
 ;;
 
+let exists (module H : HANDLER) path = H.exists path
+let is_file (module H : HANDLER) path = H.is_file path
+let is_dir (module H : HANDLER) path = H.is_dir path
+
 let handle (module H : HANDLER) program =
   let program () = program (module H : HANDLER) in
   H.handle_with_error program

@@ -34,14 +34,30 @@ module Experimental = struct
 end
 
 module Kohai = struct
-  let prefix = String.cat "kohai/"
+  let supervision = String.cat "kohai/supervision/"
 
   let ensure_supervision body =
     Jsonrpc.service
-      ~meth:(prefix "ensure_supervision")
+      ~meth:(supervision "ensure")
       ~with_params:discard
       ~finalizer:A.unit
       (Action.ensure_supervision body)
+  ;;
+
+  let get_supervised_directory =
+    Jsonrpc.service
+      ~meth:(supervision "get")
+      ~with_params:discard
+      ~finalizer:A.(option Path.to_rensai)
+      Action.get_supervised_directory
+  ;;
+
+  let set_supervised_directory body =
+    Jsonrpc.service
+      ~meth:(supervision "set")
+      ~with_params:Path.from_rensai
+      ~finalizer:A.null
+      (Action.set_supervised_directory body)
   ;;
 end
 
@@ -50,6 +66,8 @@ let methods body =
   ; Experimental.echo
   ; Experimental.plus
   ; Kohai.ensure_supervision body
+  ; Kohai.get_supervised_directory
+  ; Kohai.set_supervised_directory body
   ]
 ;;
 

@@ -154,7 +154,8 @@ let%expect_test "List of methods - without prefix" =
     {id = 1; jsonrpc = "2.0";
       result =
        ["admin/methods"; "experimental/ping"; "experimental/echo";
-        "experimental/plus"; "kohai/supervision/ensure"; "kohai/supervision/get";
+        "experimental/plus"; "kohai/supervision/ensure";
+        "kohai/supervision/is_valid"; "kohai/supervision/get";
         "kohai/supervision/set"]}
     |}]
 ;;

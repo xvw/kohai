@@ -1,6 +1,9 @@
 open Kohai_server
 
-let std_fs = Virtfs.(from_list [ dir "foo" []; dir "bar" [] ])
+let std_fs =
+  Virtfs.(
+    from_list [ dir "foo" []; dir "bar" [ dir "baz" [ dir "foobar" [] ] ] ])
+;;
 
 let dump = function
   | Ok value -> Fmt.str "%a" Rensai.Ast.pp value
@@ -124,35 +127,35 @@ let%expect_test "set supervised dir with valid path" =
   in
   let req0 =
     "kohai/supervision/get"
-    |> input
+    |> input ~id:0
     |> Jsonrpc.run ~services:Services.all
     |> Kohai_core.Eff.handle (module Handler)
     |> dump
   in
   let req1 =
     "kohai/supervision/set"
-    |> input ~params:{|"/foo"|}
+    |> input ~id:1 ~params:{|"/foo"|}
     |> Jsonrpc.run ~services:Services.all
     |> Kohai_core.Eff.handle (module Handler)
     |> dump
   in
   let req2 =
     "kohai/supervision/get"
-    |> input
+    |> input ~id:2
     |> Jsonrpc.run ~services:Services.all
     |> Kohai_core.Eff.handle (module Handler)
     |> dump
   in
   let req3 =
     "kohai/supervision/set"
-    |> input ~params:{|"/oo"|}
+    |> input ~id:3 ~params:{|"/oo"|}
     |> Jsonrpc.run ~services:Services.all
     |> Kohai_core.Eff.handle (module Handler)
     |> dump
   in
   let req4 =
     "kohai/supervision/get"
-    |> input
+    |> input ~id:4
     |> Jsonrpc.run ~services:Services.all
     |> Kohai_core.Eff.handle (module Handler)
     |> dump
@@ -160,15 +163,75 @@ let%expect_test "set supervised dir with valid path" =
   List.iter print_endline [ req0; req1; req2; req3; req4 ];
   [%expect
     {|
+    {id = 0; jsonrpc = "2.0"; result = <null>}
     {id = 1; jsonrpc = "2.0"; result = <null>}
-    {id = 1; jsonrpc = "2.0"; result = <null>}
-    {id = 1; jsonrpc = "2.0"; result = "/foo"}
+    {id = 2; jsonrpc = "2.0"; result = "/foo"}
     {error =
       {code = -32001; data = "The given directory does not exists";
         input =
-         "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 1, \"params\": \"/oo\"}";
+         "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 3, \"params\": \"/oo\"}";
         message = "Server error"};
-      id = 1; jsonrpc = "2.0"}
-    {id = 1; jsonrpc = "2.0"; result = "/foo"}
+      id = 3; jsonrpc = "2.0"}
+    {id = 4; jsonrpc = "2.0"; result = "/foo"}
+    |}]
+;;
+
+let%expect_test "set supervised dir with valid path" =
+  let module Handler =
+    Kohai_core.Eff.Handler (Virtfs.Make (struct
+      let fs = std_fs
+    end))
+  in
+  let req0 =
+    "kohai/supervision/is_valid"
+    |> input ~id:0 ~params:{|"./foo"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req1 =
+    "kohai/supervision/is_valid"
+    |> input ~id:1 ~params:{|"/foo"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req2 =
+    "kohai/supervision/is_valid"
+    |> input ~id:2 ~params:{|"/bar"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req3 =
+    "kohai/supervision/is_valid"
+    |> input ~id:3 ~params:{|"/bar/baz"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req4 =
+    "kohai/supervision/is_valid"
+    |> input ~id:4 ~params:{|"/bar/baz/foobar"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req5 =
+    "kohai/supervision/is_valid"
+    |> input ~id:5 ~params:{|"/bar/foobar"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  List.iter print_endline [ req0; req1; req2; req3; req4; req5 ];
+  [%expect
+    {|
+    {id = 0; jsonrpc = "2.0"; result = false}
+    {id = 1; jsonrpc = "2.0"; result = true}
+    {id = 2; jsonrpc = "2.0"; result = true}
+    {id = 3; jsonrpc = "2.0"; result = true}
+    {id = 4; jsonrpc = "2.0"; result = true}
+    {id = 5; jsonrpc = "2.0"; result = false}
     |}]
 ;;

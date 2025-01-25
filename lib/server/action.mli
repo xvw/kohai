@@ -21,6 +21,12 @@ val get_supervised_directory
   -> unit
   -> Path.t option
 
+val is_valid_supervised_directory
+  :  ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> Path.t
+  -> bool
+
 val set_supervised_directory
   :  string
   -> ?id:int

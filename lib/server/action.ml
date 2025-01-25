@@ -13,6 +13,10 @@ let get_supervised_directory ?id:_ (module H : Eff.HANDLER) () =
   Eff.get_supervised_directory (module H)
 ;;
 
+let is_valid_supervised_directory ?id:_ (module H : Eff.HANDLER) path =
+  Path.is_absolute path && Eff.is_dir (module H) path
+;;
+
 let set_supervised_directory body ?id (module H : Eff.HANDLER) path =
   if Path.is_relative path
   then

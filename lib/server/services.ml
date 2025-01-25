@@ -44,6 +44,14 @@ module Kohai = struct
       (Action.ensure_supervision body)
   ;;
 
+  let is_valid_supervised_directory =
+    Jsonrpc.service
+      ~meth:(supervision "is_valid")
+      ~with_params:Path.from_rensai
+      ~finalizer:A.bool
+      Action.is_valid_supervised_directory
+  ;;
+
   let get_supervised_directory =
     Jsonrpc.service
       ~meth:(supervision "get")
@@ -66,6 +74,7 @@ let methods body =
   ; Experimental.echo
   ; Experimental.plus
   ; Kohai.ensure_supervision body
+  ; Kohai.is_valid_supervised_directory
   ; Kohai.get_supervised_directory
   ; Kohai.set_supervised_directory body
   ]

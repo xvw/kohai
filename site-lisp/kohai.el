@@ -37,12 +37,36 @@
   :group 'kohai
   :type 'natnum)
 
-;;; Features
+;;; Variables
+
+(defvar kohai--request-count 0
+  "Request counter.")
+
+;;; Internal function
 
 (defun kohai--server ()
   "Compute the uri of the server."
   (let ((host (or kohai-server-uri "http://localhost")))
-    (concat host ":" kohai-server-port)))
+    (concat host ":" (number-to-string kohai-server-port))))
+
+;; (defun kohai--make-request (meth &optional param)
+;;   "Perform a request METH on the Kohai server using PARAM."
+;;   (setq kohai--request-count (+ kohai--request-count 1))
+;;   (let ((server (kohai--server))
+;;         (input
+;;          (list :jsonrpc "2.0"
+;;                :id kohai--request-count
+;;                :method meth
+;;                :params (or param :json-null))))
+;;     (request server :type 'POST :data input :sync t :parser 'json-read)))
+
+;; Features
+
+;; (defun kohai-ping ()
+;;   "Launch the ping request."
+;;   (interactive)
+;;   (let ((r (kohai--make-request "experimental/ping")))
+;;     (print r)))
 
 (provide 'kohai)
 ;;; kohai.el ends here

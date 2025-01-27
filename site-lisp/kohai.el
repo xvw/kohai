@@ -19,6 +19,8 @@
 
 ;;; Code:
 
+(require 'jsonrpc)
+
 (defgroup kohai nil
   "Interaction from Emacs to a Kohai server."
   :link '(url-link "https://xvw.lol")
@@ -27,46 +29,42 @@
 
 ;;; Custom variables
 
-(defcustom kohai-server-uri nil
-  "The uri for reaching a Kohai server."
+(defcustom kohai-binary "/home/xvw/Projects/perso/kohai/kohai.exe"
+  "The full path of the Kohai Binary."
   :group 'kohai
   :type 'string)
 
-(defcustom kohai-server-port 8888
-  "The port of the kohai server."
-  :group 'kohai
-  :type 'natnum)
-
 ;;; Variables
 
-(defvar kohai--request-count 0
-  "Request counter.")
+(defvar kohai--connection nil
+  "The Kohai JSONRPC instance.")
 
 ;;; Internal function
 
-(defun kohai--server ()
-  "Compute the uri of the server."
-  (let ((host (or kohai-server-uri "http://localhost")))
-    (concat host ":" (number-to-string kohai-server-port))))
-
-;; (defun kohai--make-request (meth &optional param)
-;;   "Perform a request METH on the Kohai server using PARAM."
-;;   (setq kohai--request-count (+ kohai--request-count 1))
-;;   (let ((server (kohai--server))
-;;         (input
-;;          (list :jsonrpc "2.0"
-;;                :id kohai--request-count
-;;                :method meth
-;;                :params (or param :json-null))))
-;;     (request server :type 'POST :data input :sync t :parser 'json-read)))
+(defun kohai--make-connection ()
+  "A desired documentation."
+  (let ((server (apply
+   #'make-instance #'jsonrpc-process-connection
+   :name "kohai"
+   :on-shutdown (lambda () (setq kohai--connection nil))
+   :process (make-process :name "Kohai process"
+                          :connection-type 'pipe
+                          :coding 'utf-8-emacs-unix
+                          :command (list kohai-binary)
+                          :noquery t
+                          :stderr (get-buffer-create "*Kohai stderr*")))))
+    (print server)
+    (setq kohai--connection server)))
 
 ;; Features
 
-;; (defun kohai-ping ()
-;;   "Launch the ping request."
-;;   (interactive)
-;;   (let ((r (kohai--make-request "experimental/ping")))
-;;     (print r)))
+
+(defun kohai ()
+  "Run a kohai process."
+  (interactive)
+  (when (not kohai--connection)
+    (kohai--make-connection)))
+
 
 (provide 'kohai)
 ;;; kohai.el ends here

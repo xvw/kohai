@@ -21,6 +21,8 @@ let custom_error ?(with_offset = true) ~body ?id ~code ?message () =
   Sigs.Custom_error { body; id; code; message }
 ;;
 
+let unknown_error message () = custom_error ~code:99 ~body:"{}" ~message ()
+
 let no_supervised_directory ~body ?id () =
   custom_error
     ~code:0

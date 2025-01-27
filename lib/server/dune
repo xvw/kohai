@@ -11,6 +11,4 @@
   kohai-core
   yojson
   eio
-  eio_main
-  cohttp
-  cohttp-eio))
+  eio_main))

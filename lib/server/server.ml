@@ -1,61 +1,54 @@
-let json ?(status = `OK) obj =
-  let headers = Http.Header.of_list [ "content-type", "application/json" ] in
-  let body = Yojson.Safe.to_string obj in
-  Cohttp_eio.Server.respond_string ~status ~headers ~body ()
+let rensai obj =
+  let s = obj |> Rensai.Json.to_yojson |> Yojson.Safe.to_string in
+  let len = String.length s in
+  "Content-Length: " ^ string_of_int len ^ "\r\n\r\n" ^ s
 ;;
 
-let rensai ?status obj = obj |> Rensai.Json.to_yojson |> json ?status
-
-let server_handler (module H : Eff.HANDLER) _supervised _socket request body =
-  let meth = request |> Cohttp.Request.meth in
-  match meth with
-  | `POST ->
-    let body = Eio.Flow.read_all body in
-    let () = Logs.app (fun f -> f "Received `%s`" body) in
-    (match Eff.handle (module H) (Jsonrpc.run ~services:Services.all body) with
-     | Ok result -> rensai ~status:`OK result
-     | Error err ->
-       rensai ~status:`Internal_server_error (err |> Error.to_rensai))
-  | _ ->
-    let result = Error.internal_error ~body:"" ()
-    and status = `Method_not_allowed in
-    rensai ~status (result |> Error.to_rensai)
+let rensai_error message =
+  let obj = Error.unknown_error message () in
+  rensai (obj |> Error.to_rensai)
 ;;
 
-let setup_logger log_level =
-  let header = Logs_fmt.pp_header in
-  let () = Fmt_tty.setup_std_outputs () in
-  let () = Logs.set_reporter Logs_fmt.(reporter ~pp_header:header ()) in
-  Logs.set_level (Some log_level)
+let handler (module H : Eff.HANDLER) body =
+  match Eff.handle (module H) (Jsonrpc.run ~services:Services.all body) with
+  | Ok result -> rensai result
+  | Error err -> rensai (err |> Error.to_rensai)
 ;;
 
-let run
-      (module H : Eff.HANDLER)
-      ?(backlog = 128)
-      ?(reuse_addr = true)
-      ?(reuse_port = true)
-      ?(log_level = Logs.App)
-      ~port
-      env
-  =
-  Eio.Switch.run (fun sw ->
-    let resource = env#net in
-    let supervised_directory = ref None in
-    let server =
-      Cohttp_eio.Server.make
-        ~callback:(server_handler (module H) supervised_directory)
-        ()
+let input_parser =
+  let open Eio.Buf_read.Syntax in
+  let* () = Eio.Buf_read.string "Content-Length: " in
+  let* len =
+    Eio.Buf_read.take_while (function
+      | '0' .. '9' -> true
+      | _ -> false)
+  in
+  let len =
+    match int_of_string_opt len with
+    | Some len -> len
+    | None -> failwith ("Invalid length " ^ len)
+  in
+  let* () = Eio.Buf_read.char '\r' in
+  let* () = Eio.Buf_read.char '\n' in
+  let* () = Eio.Buf_read.char '\r' in
+  let* () = Eio.Buf_read.char '\n' in
+  Eio.Buf_read.take len
+;;
+
+let run (module H : Eff.HANDLER) env =
+  let stdin = Eio.Stdenv.stdin env in
+  let stdout = Eio.Stdenv.stdout env in
+  let rec aux () =
+    let () =
+      match Eio.Buf_read.parse ~max_size:1024 input_parser stdin with
+      | Ok res ->
+        let r = handler (module H) res in
+        Eio.Buf_write.with_flow stdout (fun w -> Eio.Buf_write.string w r)
+      | Error (`Msg message) ->
+        let error = rensai_error message in
+        Eio.Buf_write.with_flow stdout (fun w -> Eio.Buf_write.string w error)
     in
-    let () = setup_logger log_level in
-    let () = Logs.app (fun f -> f "Start server on `%d`" port) in
-    Cohttp_eio.Server.run
-      ~on_error:(fun exn -> Logs.err (fun f -> f "%a" Eio.Exn.pp exn))
-      (Eio.Net.listen
-         ~reuse_addr
-         ~reuse_port
-         ~sw
-         ~backlog
-         resource
-         (`Tcp (Eio.Net.Ipaddr.V4.loopback, port)))
-      server)
+    aux ()
+  in
+  aux ()
 ;;

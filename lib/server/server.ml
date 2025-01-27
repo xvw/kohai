@@ -28,10 +28,11 @@ let input_parser =
     | Some len -> len
     | None -> failwith ("Invalid length " ^ len)
   in
-  let* () = Eio.Buf_read.char '\r' in
-  let* () = Eio.Buf_read.char '\n' in
-  let* () = Eio.Buf_read.char '\r' in
-  let* () = Eio.Buf_read.char '\n' in
+  let* _ =
+    Eio.Buf_read.take_while (function
+      | '\r' | '\n' -> true
+      | _ -> false)
+  in
   Eio.Buf_read.take len
 ;;
 

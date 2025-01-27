@@ -42,19 +42,36 @@
 ;;; Internal function
 
 (defun kohai--make-connection ()
-  "A desired documentation."
-  (let ((server (apply
-   #'make-instance #'jsonrpc-process-connection
+  "Initialize the connection with the Kohai server."
+  (let ((server (apply-partially
+   #'make-instance 'jsonrpc-process-connection
    :name "kohai"
    :on-shutdown (lambda () (setq kohai--connection nil))
-   :process (make-process :name "Kohai process"
+   :process (make-process :name "kohai process"
                           :connection-type 'pipe
                           :coding 'utf-8-emacs-unix
                           :command (list kohai-binary)
                           :noquery t
                           :stderr (get-buffer-create "*Kohai stderr*")))))
-    (print server)
-    (setq kohai--connection server)))
+    (setq kohai--connection (funcall server))))
+
+(defun kohai--ensure-connection ()
+  "Ensure that the current session is connected to a Kohai server."
+  (or kohai--connection (jsonrpc-error "Not connected (use M-x kohai)")))
+
+(cl-defun kohai--send (method params &key
+                              timeout
+                              cancel-on-input
+                              cancel-on-input-retval)
+  "Execute the request METHOD with given PARAMS.
+TIMEOUT is a timeout time response.  CANCEL-ON-INPUT and
+CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
+  (kohai--ensure-connection)
+  (let ((server kohai--connection))
+    (jsonrpc-request server method params
+                     :timeout timeout
+                     :cancel-on-input cancel-on-input
+                     :cancel-on-input-retval cancel-on-input-retval)))
 
 ;; Features
 
@@ -63,7 +80,14 @@
   "Run a kohai process."
   (interactive)
   (when (not kohai--connection)
-    (kohai--make-connection)))
+      (kohai--make-connection))
+  (jsonrpc--message "Connected"))
+
+(defun kohai-ping ()
+  "Send the ping request."
+  (interactive)
+  (let ((result (kohai--send :experimental/ping [])))
+    (print result)))
 
 
 (provide 'kohai)

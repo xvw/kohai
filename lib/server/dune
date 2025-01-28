@@ -9,6 +9,7 @@
   fmt.tty
   rensai
   kohai-core
+  kohai-core.model
   yojson
   eio
   eio_main))

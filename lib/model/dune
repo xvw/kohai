@@ -1,0 +1,4 @@
+(library
+ (name kohai_model)
+ (public_name kohai-core.model)
+ (libraries kohai-core rensai))

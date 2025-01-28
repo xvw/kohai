@@ -3,6 +3,7 @@
 %token <int32> INT32
 %token <int64> INT64
 %token <float> FLOAT
+%token <char> CHAR
 %token <string> STRING
 %token <string> ATOM
 %token TRUE
@@ -17,6 +18,7 @@
 %token COLON
 %token SEMICOLON
 %token COMMA
+%token HASH
 %start <Ast.t option> main
 %%
 
@@ -30,6 +32,7 @@ value:
   | i = INT64                               { Ast.int64 i    }
   | i = INT                                 { Ast.int i      }
   | f = FLOAT                               { Ast.float f    }
+  | c = CHAR                                { Ast.char c     }
   | s = STRING                              { Ast.string s   }
   | TRUE                                    { Ast.bool true  }
   | FALSE                                   { Ast.bool false }
@@ -37,6 +40,7 @@ value:
   | OPEN_PARENS; CLOSE_PARENS               { Ast.unit ()    }
   | OPEN_OBJ; obj = obj_fields; CLOSE_OBJ   { Ast.record obj }
   | OPEN_LIST; l = list_fields; CLOSE_LIST  { Ast.hlist l    }
+  | HASH; k = ATOM; OPEN_PARENS v = value; CLOSE_PARENS { Ast.lconstr k v }
   | OPEN_PARENS; a = value; COMMA; b = value; CLOSE_PARENS { Ast.lpair a b }
 ;
 

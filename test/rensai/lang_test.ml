@@ -29,16 +29,26 @@ let%expect_test "Lang.from_string - 4" =
 ;;
 
 let%expect_test "Lang.from_string - 5" =
+  let input = {rs|["foo", 'f']|rs} in
+  input |> Rensai.Lang.from_string |> dump;
+  [%expect {| Some ["foo"; 'f'] |}]
+;;
+
+let%expect_test "Lang.from_string - 5" =
   let input =
     {rs|<
      id: "foo";
      length: 42;
      isActive: true;
+     gender: #Male(());
+     lList: #Cons((true, #Nil(())));
      sub: <hd: [1, 2, 3]; tl:(true, (1, false))>>|rs}
   in
   input |> Rensai.Lang.from_string |> dump;
-  [%expect {|
-    Some {id = "foo"; isActive = true; length = 42;
+  [%expect
+    {|
+    Some {gender = male(<unit>); id = "foo"; isActive = true;
+           lList = cons((true, nil(<unit>))); length = 42;
            sub = {hd = [1; 2; 3]; tl = (true, (1, false))}}
     |}]
 ;;

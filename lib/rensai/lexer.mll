@@ -14,7 +14,7 @@ let id = ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let digit = ['0'-'9']
 let frac = '.' digit*
 let exp = ['e' 'E'] ['-' '+']? digit+
-let float = digit* frac? exp?
+let float = digit* frac? exp? 
 
 rule read = parse
   | white { read lexbuf }
@@ -26,6 +26,7 @@ rule read = parse
   | "null"  { NULL }
   | "true"  { TRUE }
   | "false" { FALSE }
+  | "#"     { HASH }
   | "["     { OPEN_LIST }
   | "]"     { CLOSE_LIST }
   | "("     { OPEN_PARENS }
@@ -35,6 +36,7 @@ rule read = parse
   | ":"     { COLON }
   | ";"     { SEMICOLON }
   | ","     { COMMA }
+  | "'" [^ '\\'] "'" { CHAR (lexeme_char lexbuf 1) }
   | '"'     { read_string (Buffer.create 17) lexbuf }
   | ['a'-'z' 'A'-'Z' '0'-'9' '\'' '_' '.']+ as w { ATOM w }
   | eof     { EOF }

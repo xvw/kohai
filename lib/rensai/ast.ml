@@ -69,6 +69,7 @@ let quad f g h i (a, b, c, d) = pair f (pair g (pair h i)) (a, (b, (c, d)))
 let quad' f g h i a b c d = quad f g h i (a, b, c, d)
 let list f l = List (List.map f l)
 let hlist l = List l
+let lconstr k v = Constr (String.trim @@ String.lowercase_ascii k, v)
 
 let constr f x =
   let k, value = f x in

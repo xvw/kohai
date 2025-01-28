@@ -163,6 +163,9 @@ val constr : ('a -> string * t) -> 'a conv
 (** [sum] is an alias for [constr]. *)
 val sum : ('a -> string * t) -> 'a conv
 
+(** [lconstr] build a literal constructor. *)
+val lconstr : string -> t -> t
+
 (** [option some_conv x] a converter for ['a options]. If the option
     is [None]. The converter will return [Null]. *)
 val option : 'a conv -> 'a option conv

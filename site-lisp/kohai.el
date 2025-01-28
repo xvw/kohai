@@ -39,6 +39,12 @@
   :group 'kohai
   :type 'directory)
 
+
+(defcustom kohai-status-buffer-name "*kohai-status*"
+  "The name of the buffer listing displaying the Kohai status."
+  :group 'kohai :type 'string)
+
+
 ;;; Variables
 
 (defvar kohai--connection nil
@@ -64,6 +70,11 @@
   "Ensure that the current session is connected to a Kohai server."
   (or kohai--connection (jsonrpc-error "Not connected (use M-x kohai)")))
 
+(defun kohai--ensure-supervision ()
+  "Ensure that the current session is properly supervised."
+  (and (kohai--ensure-connection)
+       (or kohai-supervised (jsonrpc-error "No supervised folder"))))
+
 (cl-defun kohai--send (method params &key
                               timeout
                               cancel-on-input
@@ -78,6 +89,18 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                      :cancel-on-input cancel-on-input
                      :cancel-on-input-retval cancel-on-input-retval)))
 
+
+(defun kohai--invoke-status ()
+  "Invoke the Kohai Status Buffer."
+  (let ((status-buffer (get-buffer-create kohai-status-buffer-name)))
+    (with-current-buffer status-buffer
+      (setq buffer-read-only nil)
+      (erase-buffer)
+      (goto-char 1)
+      (insert "foo")
+      (setq buffer-read-only t)
+      (switch-to-buffer-other-window status-buffer))))
+
 ;; Features
 
 
@@ -88,17 +111,20 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
     (kohai--make-connection))
   (jsonrpc--message "Connected")
   (when kohai-supervised
-    (kohai--send :kohai/supervision/set kohai-supervised)))
+    (kohai--send :kohai/supervision/set kohai-supervised))
+  (kohai--invoke-status))
 
 (defun kohai-ping ()
   "Send the ping request (just for testing rpc-server)."
   (interactive)
+  (kohai--ensure-connection)
   (let ((result (kohai--send :experimental/ping nil)))
     (message result)))
 
 (defun kohai-supervised ()
   "Display the current supervised directory."
   (interactive)
+  (kohai--ensure-connection)
   (let ((result (kohai--send :kohai/supervision/get nil)))
     (if (not result)
         (message "No supervised directory")
@@ -107,6 +133,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 (defun kohai-supervised-set ()
   "Set interactively the current supervised directory."
   (interactive)
+  (kohai--ensure-connection)
   (let* ((dir-table (apply-partially #'completion-table-with-predicate
                                      #'completion-file-name-table
                                      #'file-directory-p

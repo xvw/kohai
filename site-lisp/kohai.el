@@ -84,10 +84,10 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (jsonrpc--message "Connected"))
 
 (defun kohai-ping ()
-  "Send the ping request."
+  "Send the ping request (just for testing rpc-server)."
   (interactive)
-  (let ((result (kohai--send :experimental/ping [])))
-    (print result)))
+  (let ((result (kohai--send :experimental/ping nil)))
+    (message result)))
 
 
 (provide 'kohai)

@@ -15,6 +15,11 @@ let handler (module H : Eff.HANDLER) body =
   | Error err -> rensai (err |> Error.to_rensai)
 ;;
 
+let parse p flow ~max_size =
+  let buf = Eio.Buf_read.of_flow flow ~max_size in
+  Eio.Buf_read.format_errors p buf
+;;
+
 let input_parser =
   let open Eio.Buf_read.Syntax in
   let* () = Eio.Buf_read.string "Content-Length: " in
@@ -28,11 +33,10 @@ let input_parser =
     | Some len -> len
     | None -> failwith ("Invalid length " ^ len)
   in
-  let* _ =
-    Eio.Buf_read.take_while (function
-      | '\r' | '\n' -> true
-      | _ -> false)
-  in
+  let* _ = Eio.Buf_read.char '\r' in
+  let* _ = Eio.Buf_read.char '\n' in
+  let* _ = Eio.Buf_read.char '\r' in
+  let* _ = Eio.Buf_read.char '\n' in
   Eio.Buf_read.take len
 ;;
 
@@ -41,7 +45,7 @@ let run (module H : Eff.HANDLER) env =
   let stdout = Eio.Stdenv.stdout env in
   let rec aux () =
     let () =
-      match Eio.Buf_read.parse ~max_size:1024 input_parser stdin with
+      match parse ~max_size:1024 input_parser stdin with
       | Ok res ->
         let r = handler (module H) res in
         Eio.Buf_write.with_flow stdout (fun w -> Eio.Buf_write.string w r)

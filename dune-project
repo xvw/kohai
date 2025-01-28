@@ -4,6 +4,7 @@
 (version dev)
 (generate_opam_files true)
 (executables_implicit_empty_intf)
+(using menhir 3.0)
 (using mdx 0.4)
 
 (source (github xvw/kohai))
@@ -29,6 +30,7 @@ for which the encoding and validation functions become generic
 (and interchangeable).")
  (depends
   (ocaml (>= 5.3.0))
+  menhir
   (kohai-prelude (= :version))
   (fmt (>= 0.9.0))
   (ppx_expect :with-test)

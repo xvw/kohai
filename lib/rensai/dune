@@ -4,6 +4,11 @@
  (modules_without_implementation sigs)
  (libraries fmt kohai-prelude))
 
+(menhir
+ (modules parser))
+
+(ocamllex lexer)
+
 (mdx
  (files *.mli)
  (libraries rensai))

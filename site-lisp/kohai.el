@@ -35,10 +35,14 @@
   :type 'string)
 
 (defcustom kohai-supervised nil
-  "The current path of the supervised directory"
+  "The current path of the supervised directory."
   :group 'kohai
   :type 'directory)
 
+
+(defcustom kohai-stderr-buffer-name "*kohai-stderr*"
+  "The name of the buffer listing displaying the Kohai errors."
+  :group 'kohai :type 'string)
 
 (defcustom kohai-status-buffer-name "*kohai-status*"
   "The name of the buffer listing displaying the Kohai status."
@@ -62,8 +66,10 @@
                                         :connection-type 'pipe
                                         :coding 'utf-8-emacs-unix
                                         :command (list kohai-binary)
-                                        :noquery t
-                                        :stderr (get-buffer-create "*Kohai stderr*")))))
+                                        :stderr
+                                        (get-buffer-create
+                                         kohai-stderr-buffer-name)
+                                        :noquery t))))
     (setq kohai--connection (funcall server))))
 
 (defun kohai--ensure-connection ()
@@ -89,6 +95,25 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                      :cancel-on-input cancel-on-input
                      :cancel-on-input-retval cancel-on-input-retval)))
 
+;; Transient Prefixes
+
+(transient-define-prefix kohai--ask-for-supervision ()
+  "Test as transient."
+  [[:description "Actions"
+                 ("s" "Set supervised directory" kohai-supervised-set)]
+   [("q" "done" transient-quit-one)]])
+
+
+;; Interactives buffers
+
+(defun kohai--status-without-supervision ()
+  "Render the status buffer when there is no supervision."
+  (insert "no supervision")
+  (kohai--ask-for-supervision))
+
+(defun kohai--status-with-supervision ()
+  "Render the status buffer when there is no supervision."
+  (insert "a supervision"))
 
 (defun kohai--invoke-status ()
   "Invoke the Kohai Status Buffer."
@@ -97,12 +122,12 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
       (setq buffer-read-only nil)
       (erase-buffer)
       (goto-char 1)
-      (insert "foo")
-      (setq buffer-read-only t)
-      (switch-to-buffer-other-window status-buffer))))
+      (if kohai-supervised
+          (kohai--status-with-supervision)
+        (kohai--status-without-supervision))
+      (setq buffer-read-only t))))
 
 ;; Features
-
 
 (defun kohai ()
   "Run a kohai process."
@@ -112,7 +137,8 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (jsonrpc--message "Connected")
   (when kohai-supervised
     (kohai--send :kohai/supervision/set kohai-supervised))
-  (kohai--invoke-status))
+  (kohai--invoke-status)
+  (switch-to-buffer-other-window (get-buffer-create kohai-status-buffer-name)))
 
 (defun kohai-ping ()
   "Send the ping request (just for testing rpc-server)."
@@ -142,8 +168,9 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
          (result (completing-read "Foo: " folder-table))
          (absolute (expand-file-name result)))
     (setq kohai-supervised absolute)
-    (let ((supervision (kohai--send :kohai/supervision/set absolute)))
-      (message "%s is now the supervised directory" absolute))))
+    (kohai--send :kohai/supervision/set absolute)
+    (message "%s is now the supervised directory" absolute)
+    (kohai--invoke-status)))
 
 (provide 'kohai)
 ;;; kohai.el ends here

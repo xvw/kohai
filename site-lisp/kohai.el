@@ -34,6 +34,11 @@
   :group 'kohai
   :type 'string)
 
+(defcustom kohai-supervised nil
+  "The current path of the supervised directory"
+  :group 'kohai
+  :type 'directory)
+
 ;;; Variables
 
 (defvar kohai--connection nil
@@ -44,15 +49,15 @@
 (defun kohai--make-connection ()
   "Initialize the connection with the Kohai server."
   (let ((server (apply-partially
-   #'make-instance 'jsonrpc-process-connection
-   :name "kohai"
-   :on-shutdown (lambda () (setq kohai--connection nil))
-   :process (make-process :name "kohai process"
-                          :connection-type 'pipe
-                          :coding 'utf-8-emacs-unix
-                          :command (list kohai-binary)
-                          :noquery t
-                          :stderr (get-buffer-create "*Kohai stderr*")))))
+                 #'make-instance 'jsonrpc-process-connection
+                 :name "kohai"
+                 :on-shutdown (lambda () (setq kohai--connection nil))
+                 :process (make-process :name "kohai process"
+                                        :connection-type 'pipe
+                                        :coding 'utf-8-emacs-unix
+                                        :command (list kohai-binary)
+                                        :noquery t
+                                        :stderr (get-buffer-create "*Kohai stderr*")))))
     (setq kohai--connection (funcall server))))
 
 (defun kohai--ensure-connection ()
@@ -80,8 +85,10 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "Run a kohai process."
   (interactive)
   (when (not kohai--connection)
-      (kohai--make-connection))
-  (jsonrpc--message "Connected"))
+    (kohai--make-connection))
+  (jsonrpc--message "Connected")
+  (when kohai-supervised
+    (kohai--send :kohai/supervision/set kohai-supervised)))
 
 (defun kohai-ping ()
   "Send the ping request (just for testing rpc-server)."
@@ -89,6 +96,27 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (let ((result (kohai--send :experimental/ping nil)))
     (message result)))
 
+(defun kohai-supervised ()
+  "Display the current supervised directory."
+  (interactive)
+  (let ((result (kohai--send :kohai/supervision/get nil)))
+    (if (not result)
+        (message "No supervised directory")
+      (message result))))
+
+(defun kohai-supervised-set ()
+  "Set interactively the current supervised directory."
+  (interactive)
+  (let* ((dir-table (apply-partially #'completion-table-with-predicate
+                                     #'completion-file-name-table
+                                     #'file-directory-p
+                                     'strict))
+         (folder-table (completion-table-in-turn dir-table))
+         (result (completing-read "Foo: " folder-table))
+         (absolute (expand-file-name result)))
+    (setq kohai-supervised absolute)
+    (let ((supervision (kohai--send :kohai/supervision/set absolute)))
+      (message "%s is now the supervised directory" absolute))))
 
 (provide 'kohai)
 ;;; kohai.el ends here

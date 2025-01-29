@@ -5,7 +5,7 @@ val ensure_supervision
   -> ?id:int
   -> (module Sigs.EFFECT_HANDLER)
   -> unit
-  -> unit
+  -> Kohai_core.Path.t
 
 val with_supervision
   :  string
@@ -33,3 +33,10 @@ val set_supervised_directory
   -> (module Sigs.EFFECT_HANDLER)
   -> Path.t
   -> unit
+
+val get_sectors
+  :  string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> unit
+  -> Kohai_model.Sector.t list

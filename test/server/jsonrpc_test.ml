@@ -157,7 +157,7 @@ let%expect_test "List of methods - without prefix" =
        ["admin/methods"; "experimental/ping"; "experimental/echo";
         "experimental/plus"; "kohai/supervision/ensure";
         "kohai/supervision/is_valid"; "kohai/supervision/get";
-        "kohai/supervision/set"]}
+        "kohai/supervision/set"; "kohai/sector/list"]}
     |}]
 ;;
 

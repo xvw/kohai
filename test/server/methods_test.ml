@@ -235,3 +235,74 @@ let%expect_test "set supervised dir with valid path" =
     {id = 5; jsonrpc = "2.0"; result = false}
     |}]
 ;;
+
+let%expect_test "get sectors without files" =
+  let module Handler =
+    Kohai_core.Eff.Handler (Virtfs.Make (struct
+      let fs = Virtfs.(from_list [ dir "supervised" [] ])
+    end))
+  in
+  let req0 =
+    "kohai/supervision/set"
+    |> input ~id:0 ~params:{|"/supervised"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req1 =
+    "kohai/sector/list"
+    |> input ~id:1
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  List.iter print_endline [ req0; req1 ];
+  [%expect
+    {|
+    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 1; jsonrpc = "2.0"; result = []}
+    |}]
+;;
+
+let%expect_test "get sectors with files" =
+  let content =
+    [ {|<name: "programming"; description: "sector about programming">|}
+    ; {|<name: "art">|}
+    ; {|<name: "cooking"; description: "sector about cooking">|}
+    ]
+    |> String.concat "\n"
+  in
+  let module Handler =
+    Kohai_core.Eff.Handler (Virtfs.Make (struct
+      let fs =
+        Virtfs.(
+          from_list
+            [ dir "supervised" [ dir "list" [ file ~content "sectors.rens" ] ] ])
+      ;;
+    end))
+  in
+  let req0 =
+    "kohai/supervision/set"
+    |> input ~id:0 ~params:{|"/supervised"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req1 =
+    "kohai/sector/list"
+    |> input ~id:1
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  List.iter print_endline [ req0; req1 ];
+  [%expect
+    {|
+    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 1; jsonrpc = "2.0";
+      result =
+       [{description = "sector about cooking"; name = "cooking"};
+        {description = <null>; name = "art"};
+        {description = "sector about programming"; name = "programming"}]}
+    |}]
+;;

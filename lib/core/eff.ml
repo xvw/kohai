@@ -41,6 +41,7 @@ let from_result (module H : HANDLER) callback = function
 let exists (module H : HANDLER) path = H.exists path
 let is_file (module H : HANDLER) path = H.is_file path
 let is_dir (module H : HANDLER) path = H.is_dir path
+let read_file (module H : HANDLER) path = H.read_file path
 
 let handle (module H : HANDLER) program =
   let program () = program (module H : HANDLER) in

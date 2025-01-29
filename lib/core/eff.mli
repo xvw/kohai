@@ -53,6 +53,7 @@ val from_result : handler -> ('b -> Sigs.jsonrpc_error) -> ('a, 'b) result -> 'a
 val exists : handler -> Path.t -> bool
 val is_file : handler -> Path.t -> bool
 val is_dir : handler -> Path.t -> bool
+val read_file : handler -> Path.t -> string
 
 (** {1 Program Handler} *)
 

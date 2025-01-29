@@ -71,6 +71,18 @@ module Kohai = struct
         (Action.set_supervised_directory body)
     ;;
   end
+
+  module Sector = struct
+    let prefix = String.cat (prefix "sector/")
+
+    let list body =
+      Jsonrpc.service
+        ~meth:(prefix "list")
+        ~with_params:discard
+        ~finalizer:A.(list Kohai_model.Sector.to_rensai)
+        (Action.get_sectors body)
+    ;;
+  end
 end
 
 let methods body =
@@ -81,6 +93,7 @@ let methods body =
   ; Kohai.Supervision.is_valid
   ; Kohai.Supervision.get
   ; Kohai.Supervision.set body
+  ; Kohai.Sector.list body
   ]
 ;;
 

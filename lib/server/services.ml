@@ -34,49 +34,53 @@ module Experimental = struct
 end
 
 module Kohai = struct
-  let supervision = String.cat "kohai/supervision/"
+  let prefix = String.cat "kohai/"
 
-  let ensure_supervision body =
-    Jsonrpc.service
-      ~meth:(supervision "ensure")
-      ~with_params:discard
-      ~finalizer:A.unit
-      (Action.ensure_supervision body)
-  ;;
+  module Supervision = struct
+    let prefix = String.cat (prefix "supervision/")
 
-  let is_valid_supervised_directory =
-    Jsonrpc.service
-      ~meth:(supervision "is_valid")
-      ~with_params:Path.from_rensai
-      ~finalizer:A.bool
-      Action.is_valid_supervised_directory
-  ;;
+    let ensure body =
+      Jsonrpc.service
+        ~meth:(prefix "ensure")
+        ~with_params:discard
+        ~finalizer:A.unit
+        (Action.ensure_supervision body)
+    ;;
 
-  let get_supervised_directory =
-    Jsonrpc.service
-      ~meth:(supervision "get")
-      ~with_params:discard
-      ~finalizer:A.(option Path.to_rensai)
-      Action.get_supervised_directory
-  ;;
+    let is_valid =
+      Jsonrpc.service
+        ~meth:(prefix "is_valid")
+        ~with_params:Path.from_rensai
+        ~finalizer:A.bool
+        Action.is_valid_supervised_directory
+    ;;
 
-  let set_supervised_directory body =
-    Jsonrpc.service
-      ~meth:(supervision "set")
-      ~with_params:Path.from_rensai
-      ~finalizer:A.null
-      (Action.set_supervised_directory body)
-  ;;
+    let get =
+      Jsonrpc.service
+        ~meth:(prefix "get")
+        ~with_params:discard
+        ~finalizer:A.(option Path.to_rensai)
+        Action.get_supervised_directory
+    ;;
+
+    let set body =
+      Jsonrpc.service
+        ~meth:(prefix "set")
+        ~with_params:Path.from_rensai
+        ~finalizer:A.null
+        (Action.set_supervised_directory body)
+    ;;
+  end
 end
 
 let methods body =
   [ Experimental.ping
   ; Experimental.echo
   ; Experimental.plus
-  ; Kohai.ensure_supervision body
-  ; Kohai.is_valid_supervised_directory
-  ; Kohai.get_supervised_directory
-  ; Kohai.set_supervised_directory body
+  ; Kohai.Supervision.ensure body
+  ; Kohai.Supervision.is_valid
+  ; Kohai.Supervision.get
+  ; Kohai.Supervision.set body
   ]
 ;;
 

@@ -33,6 +33,14 @@ let () =
           Eio.Path.is_file p
         ;;
 
+        let read_file path =
+          let p = path_to_eio path in
+          try Eio.Path.load p with
+          | _ ->
+            (* Maybe improve that case lol. *)
+            ""
+        ;;
+
         let set_supervised_directory v = supervised_directory := v
         let get_supervised_directory () = !supervised_directory
       end)

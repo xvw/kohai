@@ -102,6 +102,12 @@ struct
     | None | Some _ -> false
   ;;
 
+  let read_file path =
+    match get !fs path with
+    | None | Some (Directory _) -> ""
+    | Some (File { content; _ }) -> content
+  ;;
+
   let set_supervised_directory v = supervised_directory := v
   let get_supervised_directory () = !supervised_directory
 end

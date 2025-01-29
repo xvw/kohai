@@ -3,6 +3,21 @@ let from_string str =
   | _ -> None
 ;;
 
+let from_lexingbuf lexing_buf =
+  try lexing_buf |> Parser.main Lexer.read with
+  | _ -> None
+;;
+
+let from_lexingbuf_to_list ?(reverse = false) lexing_buf =
+  let rec aux acc =
+    match from_lexingbuf lexing_buf with
+    | None -> acc
+    | Some x -> aux (x :: acc)
+  in
+  let result = aux [] in
+  if reverse then List.rev result else result
+;;
+
 let surround s1 s2 pp_v ppf v =
   Format.(
     pp_print_string ppf s1;

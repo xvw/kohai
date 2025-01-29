@@ -95,38 +95,6 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                      :cancel-on-input cancel-on-input
                      :cancel-on-input-retval cancel-on-input-retval)))
 
-;; Transient Prefixes
-
-(transient-define-prefix kohai--ask-for-supervision ()
-  "Test as transient."
-  [[:description "Actions"
-                 ("s" "Set supervised directory" kohai-supervised-set)]
-   [("q" "done" transient-quit-one)]])
-
-
-;; Interactives buffers
-
-(defun kohai--status-without-supervision ()
-  "Render the status buffer when there is no supervision."
-  (insert "no supervision")
-  (kohai--ask-for-supervision))
-
-(defun kohai--status-with-supervision ()
-  "Render the status buffer when there is no supervision."
-  (insert "a supervision"))
-
-(defun kohai--invoke-status ()
-  "Invoke the Kohai Status Buffer."
-  (let ((status-buffer (get-buffer-create kohai-status-buffer-name)))
-    (with-current-buffer status-buffer
-      (setq buffer-read-only nil)
-      (erase-buffer)
-      (goto-char 1)
-      (if kohai-supervised
-          (kohai--status-with-supervision)
-        (kohai--status-without-supervision))
-      (setq buffer-read-only t))))
-
 ;; Features
 
 (defun kohai ()
@@ -135,10 +103,10 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (when (not kohai--connection)
     (kohai--make-connection))
   (jsonrpc--message "Connected")
-  (when kohai-supervised
-    (kohai--send :kohai/supervision/set kohai-supervised))
-  (kohai--invoke-status)
-  (switch-to-buffer-other-window (get-buffer-create kohai-status-buffer-name)))
+  (if kohai-supervised
+    (progn (kohai--send :kohai/supervision/set kohai-supervised)
+           (message "%s is supervised" kohai-supervised))
+    (call-interactively #'kohai-supervised-set)))
 
 (defun kohai-ping ()
   "Send the ping request (just for testing rpc-server)."
@@ -168,9 +136,9 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
          (result (completing-read "Foo: " folder-table))
          (absolute (expand-file-name result)))
     (setq kohai-supervised absolute)
+    (customize-save-variable 'kohai-supervised absolute)
     (kohai--send :kohai/supervision/set absolute)
-    (message "%s is now the supervised directory" absolute)
-    (kohai--invoke-status)))
+    (message "%s is now the supervised directory" absolute)))
 
 (provide 'kohai)
 ;;; kohai.el ends here

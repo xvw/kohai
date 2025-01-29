@@ -28,3 +28,6 @@ setup.log
 
 # Local OPAM switch
 _opam/
+
+# Kohai stuff
+.kohai/

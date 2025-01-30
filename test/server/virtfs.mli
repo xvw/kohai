@@ -34,6 +34,12 @@ val get : t -> Path.t -> item option
     hehe). *)
 val cat : t -> Path.t -> string
 
+val update
+  :  t
+  -> Path.t
+  -> (target:string -> ?previous:item -> unit -> item option)
+  -> t
+
 (** {1 Effect handler} *)
 
 module Make (_ : sig

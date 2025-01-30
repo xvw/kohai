@@ -37,6 +37,7 @@ module type EFFECT_REQUIREMENT = sig
   val exists : Path.t -> bool
   val is_file : Path.t -> bool
   val is_dir : Path.t -> bool
+  val create_dir : Path.t -> unit
   val read_file : Path.t -> string
 
   (** {1 Specific function} *)

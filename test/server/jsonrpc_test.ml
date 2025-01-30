@@ -6,6 +6,7 @@ module Handler = Eff.Handler (struct
     let is_file _ = true
     let is_dir _ = true
     let read_file _ = ""
+    let create_dir _ = ()
     let set_supervised_directory _ = ()
     let get_supervised_directory () = None
   end)

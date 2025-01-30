@@ -41,6 +41,14 @@ let () =
             ""
         ;;
 
+        let create_dir path =
+          let p = path_to_eio path in
+          try Eio.Path.mkdir ~perm:0o755 p with
+          | _ ->
+            (* Maybe improve that case lol. *)
+            ()
+        ;;
+
         let set_supervised_directory v = supervised_directory := v
         let get_supervised_directory () = !supervised_directory
       end)

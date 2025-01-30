@@ -66,6 +66,46 @@ let get fs path =
   aux fs (path_to_list path)
 ;;
 
+let extract_target path =
+  path
+  |> Path.as_target
+  |> Option.map (fun (xs, target) ->
+    (if Path.is_relative path then xs else "" :: xs), target)
+;;
+
+let fold_callback acc = function
+  | None -> from_list_aux acc
+  | Some x -> from_list_aux (x :: acc)
+;;
+
+let update fs path callback =
+  match extract_target path with
+  | None -> fs
+  | Some (path, target) ->
+    let rec aux acc fs path =
+      match fs, path with
+      | [], [] -> callback ~target ?previous:None () |> fold_callback acc
+      | item :: fs_xs, [] ->
+        if has_name target item
+        then (
+          let new_acc = acc @ fs_xs in
+          callback ~target ?previous:(Some item) () |> fold_callback new_acc)
+        else aux (item :: acc) fs_xs []
+      | (Directory { name; content; _ } as cdir) :: fs_xs, fragment :: path_xs
+        ->
+        if has_name fragment cdir
+        then (
+          let new_dir = dir name (aux [] content path_xs) in
+          new_dir :: (acc @ fs_xs) |> from_list_aux)
+        else aux (cdir :: acc) fs_xs path
+      | [], fragment :: path_xs ->
+        let new_dir = dir fragment (aux [] [] path_xs) in
+        new_dir :: acc |> from_list_aux
+      | x :: fs_xs, path -> aux (x :: acc) fs_xs path
+    in
+    aux [] fs path
+;;
+
 let cat fs path =
   match get fs path with
   | None ->
@@ -106,6 +146,13 @@ struct
     match get !fs path with
     | None | Some (Directory _) -> ""
     | Some (File { content; _ }) -> content
+  ;;
+
+  let create_dir path =
+    let new_fs =
+      update !fs path (fun ~target ?previous:_ () -> Some (dir target []))
+    in
+    fs := new_fs
   ;;
 
   let set_supervised_directory v = supervised_directory := v

@@ -43,6 +43,23 @@ let is_file (module H : HANDLER) path = H.is_file path
 let is_dir (module H : HANDLER) path = H.is_dir path
 let read_file (module H : HANDLER) path = H.read_file path
 
+let create_dir (module H : HANDLER) path =
+  let rec aux path =
+    if is_file (module H) path
+    then ()
+    else if not (is_dir (module H) path)
+    then (
+      let () =
+        match Path.parent path with
+        | None -> ()
+        | Some parent -> aux parent
+      in
+      H.create_dir path)
+    else ()
+  in
+  aux path
+;;
+
 let handle (module H : HANDLER) program =
   let program () = program (module H : HANDLER) in
   H.handle_with_error program

@@ -29,6 +29,9 @@ val extension : t -> string
 (** [extension_opt] is [extension] but wrap the result into an option. *)
 val extension_opt : t -> string option
 
+(** Get the parent folder. *)
+val parent : t -> t option
+
 (** {1 Infix} *)
 
 module Infix : sig
@@ -54,3 +57,4 @@ val to_rensai : t -> Rensai.Ast.t
 val is_relative : t -> bool
 val is_absolute : t -> bool
 val to_list : t -> string list
+val as_target : t -> (string list * string) option

@@ -54,6 +54,7 @@ val exists : handler -> Path.t -> bool
 val is_file : handler -> Path.t -> bool
 val is_dir : handler -> Path.t -> bool
 val read_file : handler -> Path.t -> string
+val create_dir : handler -> Path.t -> unit
 
 (** {1 Program Handler} *)
 

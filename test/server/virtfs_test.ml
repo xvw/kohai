@@ -25,13 +25,31 @@ let%expect_test "cat - with an other file" =
 ;;
 
 let%expect_test "cat - with a directory" =
-  let result = Virtfs.cat a_fs Path.(root / "foo" / "tmp") in
+  let result = Virtfs.cat a_fs Path.(root / "tmp") in
   print_endline result;
-  [%expect {| cat: /foo/tmp: No such file or directory |}]
+  [%expect {| cat: /tmp: Is a directory |}]
 ;;
 
 let%expect_test "cat - with an inexistant target" =
   let result = Virtfs.cat a_fs Path.(root / "kohai" / "tmp") in
   print_endline result;
   [%expect {| cat: /kohai/tmp: No such file or directory |}]
+;;
+
+let%expect_test "create-dir - 1" =
+  let fs =
+    Virtfs.update
+      a_fs
+      Path.(root / "xvw" / "lol" / "foobar")
+      (fun ~target ?previous:_ () -> Some (Virtfs.dir target []))
+  in
+  let xvw = Virtfs.cat fs Path.(root / "xvw") in
+  let lol = Virtfs.cat fs Path.(root / "xvw" / "lol") in
+  let foobar = Virtfs.cat fs Path.(root / "xvw" / "lol" / "foobar") in
+  List.iter print_endline [ xvw; lol; foobar ];
+  [%expect {|
+    cat: /xvw: Is a directory
+    cat: /xvw/lol: Is a directory
+    cat: /xvw/lol/foobar: Is a directory
+    |}]
 ;;

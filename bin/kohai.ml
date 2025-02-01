@@ -49,6 +49,12 @@ let () =
             ()
         ;;
 
+        (* TODO: Fixme *)
+        let write_file _ _ = ()
+        let append_to_file _ _ = ()
+        let prepend_to_file _ _ = ()
+        (* TODO: Fixme *)
+
         let set_supervised_directory v = supervised_directory := v
         let get_supervised_directory () = !supervised_directory
       end)

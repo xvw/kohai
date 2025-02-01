@@ -55,6 +55,9 @@ val is_file : handler -> Path.t -> bool
 val is_dir : handler -> Path.t -> bool
 val read_file : handler -> Path.t -> string
 val create_dir : handler -> Path.t -> unit
+val write_file : handler -> Path.t -> string -> unit
+val append_to_file : handler -> Path.t -> string -> unit
+val prepend_to_file : handler -> Path.t -> string -> unit
 
 (** {1 Program Handler} *)
 

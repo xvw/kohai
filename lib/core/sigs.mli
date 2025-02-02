@@ -41,7 +41,6 @@ module type EFFECT_REQUIREMENT = sig
   val read_file : Path.t -> string
   val write_file : Path.t -> string -> unit
   val append_to_file : Path.t -> string -> unit
-  val prepend_to_file : Path.t -> string -> unit
 
   (** {1 Specific function} *)
 

@@ -175,18 +175,6 @@ struct
     fs := new_fs
   ;;
 
-  let prepend_to_file path content =
-    let new_fs =
-      update !fs path (fun ~target ?previous () ->
-        match previous with
-        | Some (Directory _) -> None
-        | Some (File { content = x; _ }) ->
-          Some (file ~content:(content ^ x) target)
-        | None -> Some (file ~content target))
-    in
-    fs := new_fs
-  ;;
-
   let set_supervised_directory v = supervised_directory := v
   let get_supervised_directory () = !supervised_directory
 end

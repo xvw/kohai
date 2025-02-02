@@ -49,11 +49,21 @@ let () =
             ()
         ;;
 
-        (* TODO: Fixme *)
-        let write_file _ _ = ()
-        let append_to_file _ _ = ()
-        let prepend_to_file _ _ = ()
-        (* TODO: Fixme *)
+        let write_file path content =
+          let p = path_to_eio path in
+          try
+            Eio.Path.save ~append:false ~create:(`Or_truncate 0o775) p content
+          with
+          | _ -> ()
+        ;;
+
+        let append_to_file path content =
+          let p = path_to_eio path in
+          try
+            Eio.Path.save ~append:true ~create:(`If_missing 0o775) p content
+          with
+          | _ -> ()
+        ;;
 
         let set_supervised_directory v = supervised_directory := v
         let get_supervised_directory () = !supervised_directory

@@ -48,10 +48,6 @@ let append_to_file (module H : HANDLER) path content =
   H.append_to_file path content
 ;;
 
-let prepend_to_file (module H : HANDLER) path content =
-  H.prepend_to_file path content
-;;
-
 let create_dir (module H : HANDLER) path =
   let rec aux path =
     if is_file (module H) path

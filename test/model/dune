@@ -1,0 +1,7 @@
+(library
+ (name model_test)
+ (package kohai-core)
+ (inline_tests)
+ (libraries kohai-prelude rensai kohai-core kohai-core.model)
+ (preprocess
+  (pps ppx_expect)))

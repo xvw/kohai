@@ -44,4 +44,8 @@ val update
 
 module Make (_ : sig
     val fs : t
-  end) : Sigs.EFFECT_REQUIREMENT
+  end) : sig
+  include Sigs.EFFECT_REQUIREMENT
+
+  val get_fs : unit -> t
+end

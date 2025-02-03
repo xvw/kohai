@@ -306,3 +306,77 @@ let%expect_test "get sectors with files" =
         {description = "sector about programming"; name = "programming"}]}
     |}]
 ;;
+
+let%expect_test "store sectors" =
+  let content =
+    [ {|<name: "programming"; description: "sector about programming">|}
+    ; {|<name: "art">|}
+    ; {|<name: "cooking"; description: "sector about cooking">|}
+    ]
+    |> String.concat "\n"
+  in
+  let module V =
+    Virtfs.Make (struct
+      let fs =
+        Virtfs.(
+          from_list
+            [ dir "supervised" [ dir "list" [ file ~content "sectors.rens" ] ] ])
+      ;;
+    end)
+  in
+  let module Handler = Kohai_core.Eff.Handler (V) in
+  let req0 =
+    "kohai/supervision/set"
+    |> input ~id:0 ~params:{|"/supervised"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req1 =
+    "kohai/sector/list"
+    |> input ~id:1
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req2 =
+    "kohai/sector/save"
+    |> input ~id:2 ~params:{|{"name": "learn"}|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req3 =
+    "kohai/sector/save"
+    |> input ~id:3 ~params:{|{"name": "art", "description": "about art"}|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  let req4 =
+    "kohai/sector/list"
+    |> input ~id:4
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module Handler)
+    |> dump
+  in
+  List.iter print_endline [ req0; req1; req2; req3; req4 ];
+  [%expect
+    {|
+    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 1; jsonrpc = "2.0";
+      result =
+       [{description = "sector about cooking"; name = "cooking"};
+        {description = <null>; name = "art"};
+        {description = "sector about programming"; name = "programming"}]}
+    {id = 2; jsonrpc = "2.0";
+      result =
+       [{description = <null>; name = "art"};
+        {description = "sector about cooking"; name = "cooking"};
+        {description = <null>; name = "learn"};
+        {description = "sector about programming"; name = "programming"}]}
+    {id = 3; jsonrpc = "2.0";
+      result = [{description = "about art"; name = "art"}]}
+    {id = 4; jsonrpc = "2.0"; result = []}
+    |}]
+;;

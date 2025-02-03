@@ -47,3 +47,22 @@ let get_sectors body ?id (module H : Eff.HANDLER) () =
   |> List.filter_map (fun ast ->
     ast |> Kohai_model.Sector.from_rensai |> Result.to_option)
 ;;
+
+let save_sector body ?id (module H : Eff.HANDLER) sector =
+  let cwd = ensure_supervision body ?id (module H) () in
+  let file = Kohai_model.Resolver.sectors ~cwd in
+  let sectors = get_sectors body ?id (module H : Eff.HANDLER) () in
+  let sectors = Kohai_model.Sector.push sectors sector in
+  let content =
+    List.map
+      (fun sector ->
+         Format.asprintf
+           "%a"
+           Rensai.Lang.pp
+           (Kohai_model.Sector.to_rensai sector))
+      sectors
+    |> String.concat "\n"
+  in
+  let () = Eff.write_file (module H) file content in
+  sectors
+;;

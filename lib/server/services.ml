@@ -82,6 +82,14 @@ module Kohai = struct
         ~finalizer:A.(list Kohai_model.Sector.to_rensai)
         (Action.get_sectors body)
     ;;
+
+    let save body =
+      Jsonrpc.service
+        ~meth:(prefix "save")
+        ~with_params:Kohai_model.Sector.from_rensai
+        ~finalizer:A.(list Kohai_model.Sector.to_rensai)
+        (Action.save_sector body)
+    ;;
   end
 end
 
@@ -94,6 +102,7 @@ let methods body =
   ; Kohai.Supervision.get
   ; Kohai.Supervision.set body
   ; Kohai.Sector.list body
+  ; Kohai.Sector.save body
   ]
 ;;
 

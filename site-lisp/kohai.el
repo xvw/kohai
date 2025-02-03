@@ -115,6 +115,17 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (let ((result (kohai--send :experimental/ping nil)))
     (message result)))
 
+(defun kohai-save-sector (name description)
+  "Save a new sector with a NAME and a DESCRIPTION."
+  (interactive "sName: \nsDescription of %s: ")
+  (let* ((real-name (string-trim name))
+         (real-desc (string-trim description))
+         (desc (if (string-blank-p real-desc) nil real-desc))
+         (param (list :name real-name
+                      :description desc)))
+    (let ((_result (kohai--send :kohai/sector/save param)))
+      (message "%s has been stored." real-name))))
+
 (defun kohai-supervised ()
   "Display the current supervised directory."
   (interactive)
@@ -133,7 +144,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                                      #'file-directory-p
                                      'strict))
          (folder-table (completion-table-in-turn dir-table))
-         (result (completing-read "Foo: " folder-table))
+         (result (completing-read "Directory: " folder-table))
          (absolute (expand-file-name result)))
     (setq kohai-supervised absolute)
     (customize-save-variable 'kohai-supervised absolute)

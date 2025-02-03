@@ -123,6 +123,7 @@ module Make (H : sig
 struct
   let supervised_directory = ref None
   let fs = ref H.fs
+  let get_fs () = !fs
 
   let exists path =
     match get !fs path with

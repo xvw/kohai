@@ -40,3 +40,10 @@ val get_sectors
   -> (module Sigs.EFFECT_HANDLER)
   -> unit
   -> Kohai_model.Sector.t list
+
+val save_sector
+  :  string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> Kohai_model.Sector.t
+  -> Kohai_model.Sector.t list

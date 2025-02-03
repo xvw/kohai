@@ -42,11 +42,6 @@ let exists (module H : HANDLER) path = H.exists path
 let is_file (module H : HANDLER) path = H.is_file path
 let is_dir (module H : HANDLER) path = H.is_dir path
 let read_file (module H : HANDLER) path = H.read_file path
-let write_file (module H : HANDLER) path content = H.write_file path content
-
-let append_to_file (module H : HANDLER) path content =
-  H.append_to_file path content
-;;
 
 let create_dir (module H : HANDLER) path =
   let rec aux path =
@@ -63,6 +58,22 @@ let create_dir (module H : HANDLER) path =
     else ()
   in
   aux path
+;;
+
+let write_file (module H : HANDLER) path content =
+  match Path.parent path with
+  | Some parent ->
+    let () = create_dir (module H) parent in
+    H.write_file path content
+  | None -> H.write_file path content
+;;
+
+let append_to_file (module H : HANDLER) path content =
+  match Path.parent path with
+  | Some parent ->
+    let () = create_dir (module H) parent in
+    H.append_to_file path content
+  | None -> H.append_to_file path content
 ;;
 
 let handle (module H : HANDLER) program =

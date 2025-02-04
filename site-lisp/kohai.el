@@ -54,6 +54,27 @@
 (defvar kohai--connection nil
   "The Kohai JSONRPC instance.")
 
+;;; Custom modes for syntax highlighting
+
+(defvar rensai-constants
+  '("null" "true" "false")
+  "Constants for the Rensai Language.")
+
+(defvar rensai-font-lock-defaults
+  `((("\"\\.\\*\\?" . font-lock-string-face)
+     ( ,(regexp-opt rensai-constants 'words) . font-lock-builtin-face)))
+  "Default Font Lock for the Rensai Language")
+
+(define-derived-mode rens-mode fundamental-mode "Rensai"
+  "Major mode for highlighting Rensai text buffer."
+  (setq font-lock-defaults rensai-font-lock-defaults))
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.rens\\'" . rens-mode))
+
+(provide 'rens-mode)
+
+
 ;;; Internal function
 
 (defun kohai--make-connection ()
@@ -74,12 +95,12 @@
 
 (defun kohai--ensure-connection ()
   "Ensure that the current session is connected to a Kohai server."
-  (or kohai--connection (jsonrpc-error "Not connected (use M-x kohai)")))
+  (or kohai--connection (error "Not connected (use M-x kohai)")))
 
 (defun kohai--ensure-supervision ()
   "Ensure that the current session is properly supervised."
   (and (kohai--ensure-connection)
-       (or kohai-supervised (jsonrpc-error "No supervised folder"))))
+       (or kohai-supervised (error "No supervised folder"))))
 
 (cl-defun kohai--send (method params &key
                               timeout
@@ -118,6 +139,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 (defun kohai-save-sector (name description)
   "Save a new sector with a NAME and a DESCRIPTION."
   (interactive "sName: \nsDescription of %s: ")
+  (kohai--ensure-supervision)
   (let* ((real-name (string-trim name))
          (real-desc (string-trim description))
          (desc (if (string-blank-p real-desc) nil real-desc))

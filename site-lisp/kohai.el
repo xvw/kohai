@@ -64,7 +64,7 @@
 (defvar rensai-font-lock-defaults
   `((("\"\\.\\*\\?" . font-lock-string-face)
      ( ,(regexp-opt rensai-constants 'words) . font-lock-builtin-face)))
-  "Default Font Lock for the Rensai Language")
+  "Default Font Lock for the Rensai Language.")
 
 (define-derived-mode rens-mode fundamental-mode "Rensai"
   "Major mode for highlighting Rensai text buffer."
@@ -164,14 +164,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
              (message "%s is supervised" kohai-supervised))
     (call-interactively #'kohai-supervised-set)))
 
-(defun kohai-ping ()
-  "Send the ping request (just for testing rpc-server)."
-  (interactive)
-  (kohai--ensure-connection)
-  (let ((result (kohai--send :experimental/ping nil)))
-    (message result)))
-
-(defun kohai-save-sector (name description)
+(defun kohai-sector-save (name description)
   "Save a new sector with a NAME and a DESCRIPTION."
   (interactive "sName: \nsDescription of %s: ")
   (kohai--ensure-supervision)
@@ -184,14 +177,14 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
       (message "%s has been stored." real-name)
       (kohai--get-sectors))))
 
-(defun kohai-sectors ()
+(defun kohai-sector-list ()
   "Get the list of sectors in a dedicated buffer."
   (interactive)
   (kohai--get-sectors)
   (switch-to-buffer-other-window
    (get-buffer-create kohai-sectors-buffer-name)))
 
-(defun kohai-supervised ()
+(defun kohai-supervised-get ()
   "Display the current supervised directory."
   (interactive)
   (kohai--ensure-connection)

@@ -28,6 +28,6 @@ let push list ({ name; description } as sector) =
   in
   list
   |> aux []
-  |> List.sort (fun { name = name_a; _ } { name = name_b; _ } ->
+  |> List.sort_uniq (fun { name = name_a; _ } { name = name_b; _ } ->
     String.compare name_a name_b)
 ;;

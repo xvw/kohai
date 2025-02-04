@@ -43,7 +43,7 @@ let rec pp st = function
   | Ast.Record record ->
     let fields =
       Fmt.list ~sep:(Fmt.any ";@, ") (fun st (k, v) ->
-        Fmt.pf st "@[<1>%s =@ %a@]" k pp v)
+        Fmt.pf st "@[<1>%s:@ %a@]" k pp v)
     in
     let fields = Fmt.using Ast.record_to_assoc fields in
     (Fmt.box ~indent:2 (obj fields)) st record

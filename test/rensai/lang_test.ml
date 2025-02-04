@@ -67,5 +67,5 @@ let%expect_test "Read multiple expressionm from lexing buf - 1" =
   let lexbuf = Lexing.from_string input in
   let result = Rensai.Lang.from_lexingbuf_to_list ~reverse:true lexbuf in
   result |> dump_list;
-  [%expect {| [<bar = true; foo = 1>; <desc = "foo bar baz"; x = #foo(1)>] |}]
+  [%expect {| [<bar: true; foo: 1>; <desc: "foo bar baz"; x: #foo(1)>] |}]
 ;;

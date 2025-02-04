@@ -29,5 +29,5 @@ let push list ({ name; description } as sector) =
   list
   |> aux []
   |> List.sort_uniq (fun { name = name_a; _ } { name = name_b; _ } ->
-    String.compare name_a name_b)
+    String.compare name_b name_a)
 ;;

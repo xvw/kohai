@@ -20,6 +20,7 @@
 ;;; Code:
 
 (require 'jsonrpc)
+(require 'vtable)
 
 (defgroup kohai nil
   "Interaction from Emacs to a Kohai server."
@@ -44,8 +45,8 @@
   "The name of the buffer listing displaying the Kohai errors."
   :group 'kohai :type 'string)
 
-(defcustom kohai-status-buffer-name "*kohai-status*"
-  "The name of the buffer listing displaying the Kohai status."
+(defcustom kohai-sectors-buffer-name "*kohai-sectors*"
+  "The name of the buffer listing displaying the Kohai sectors."
   :group 'kohai :type 'string)
 
 
@@ -116,6 +117,40 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                      :cancel-on-input cancel-on-input
                      :cancel-on-input-retval cancel-on-input-retval)))
 
+(defun kohai--fill-buffer (buffer-name &optional action)
+  "Fill buffer BUFFER-NAME and perform ACTION (if non nil)."
+  (let ((buff (get-buffer-create buffer-name)))
+    (with-current-buffer buff
+      (setq buffer-read-only nil)
+      (erase-buffer)
+      (goto-char 1)
+      (when action
+        (funcall action buff))
+      (setq buffer-read-only t))))
+
+(defun kohai--with-buffer (buffer-name &optional action)
+  "Switch buffer BUFFER-NAME and perform ACTION (if non nil)."
+  (let ((buff (get-buffer-create buffer-name)))
+    (kohai--fill-buffer buffer-name action)
+    (switch-to-buffer-other-window buff)))
+
+(defun kohai--get-sectors ()
+  "Return the list of sectors in a dedicated buffer."
+  (kohai--ensure-supervision)
+  (kohai--fill-buffer
+   kohai-sectors-buffer-name
+   (lambda (_buff)
+     (let* ((sectors (kohai--send :kohai/sector/list nil))
+            (objects (mapcar
+                      (lambda (elt)
+                        (list (cl-getf elt :name)
+                              (or (cl-getf elt :description) "No description")))
+                      sectors)))
+       (make-vtable
+        :divider-width "2px"
+        :columns '("Sector name" "Sector description")
+        :objects objects)))))
+
 ;; Features
 
 (defun kohai ()
@@ -125,8 +160,8 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
     (kohai--make-connection))
   (jsonrpc--message "Connected")
   (if kohai-supervised
-    (progn (kohai--send :kohai/supervision/set kohai-supervised)
-           (message "%s is supervised" kohai-supervised))
+      (progn (kohai--send :kohai/supervision/set kohai-supervised)
+             (message "%s is supervised" kohai-supervised))
     (call-interactively #'kohai-supervised-set)))
 
 (defun kohai-ping ()
@@ -146,7 +181,15 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
          (param (list :name real-name
                       :description desc)))
     (let ((_result (kohai--send :kohai/sector/save param)))
-      (message "%s has been stored." real-name))))
+      (message "%s has been stored." real-name)
+      (kohai--get-sectors))))
+
+(defun kohai-sectors ()
+  "Get the list of sectors in a dedicated buffer."
+  (interactive)
+  (kohai--get-sectors)
+  (switch-to-buffer-other-window
+   (get-buffer-create kohai-sectors-buffer-name)))
 
 (defun kohai-supervised ()
   "Display the current supervised directory."

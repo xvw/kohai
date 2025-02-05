@@ -50,9 +50,9 @@ let%expect_test "Push a new sector - 1" =
   dump_ok result;
   [%expect
     {|
-    <description: null; name: "art">
-    <description: "about learning"; name: "learning">
     <description: null; name: "programming">
+    <description: "about learning"; name: "learning">
+    <description: null; name: "art">
     |}]
 ;;
 
@@ -69,9 +69,9 @@ let%expect_test "Push a new sector - 2" =
   dump_ok result;
   [%expect
     {|
-    <description: "A description"; name: "art">
-    <description: "about learning"; name: "learning">
     <description: null; name: "programming">
+    <description: "about learning"; name: "learning">
+    <description: "A description"; name: "art">
     |}]
 ;;
 
@@ -91,8 +91,8 @@ let%expect_test "Push a new sector - 3" =
   dump_ok result;
   [%expect
     {|
-    <description: "about learning"; name: "learning">
     <description: "A programming description"; name: "programming">
+    <description: "about learning"; name: "learning">
     |}]
 ;;
 
@@ -106,7 +106,7 @@ let%expect_test "Push a new sector - 4" =
   dump_ok result;
   [%expect
     {|
-    <description: "about learning"; name: "learning">
     <description: null; name: "programming">
+    <description: "about learning"; name: "learning">
     |}]
 ;;

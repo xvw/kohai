@@ -88,3 +88,12 @@ let%expect_test "end of month - 1" =
   dump test;
   [%expect {| Fri, 28 Feb 2025 23:59:59 gmt |}]
 ;;
+
+let%expect_test "end of month - 2" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.end_of_month
+  in
+  dump test;
+  [%expect {| Tue, 29 Feb 2028 23:59:59 gmt |}]
+;;

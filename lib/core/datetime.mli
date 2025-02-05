@@ -60,6 +60,18 @@ val unix : t
     pretty naïve) *)
 val day_of_week : t -> day_of_week
 
+(** compute a new date at the begining of the day. *)
+val begin_of_day : t -> t
+
+(** compute a new date at the end of the day. *)
+val end_of_day : t -> t
+
+(** compute a new date at the begining of the month. *)
+val begin_of_month : t -> t
+
+(** compute a new date at the end of the month. *)
+val end_of_month : t -> t
+
 (** {1 Misc} *)
 
 (** [compare x y] comparison between two datetime. *)
@@ -67,6 +79,12 @@ val compare : t -> t -> int
 
 (** [equal x y] equality between two datetime. *)
 val equal : t -> t -> bool
+
+(** Simple Pretty printer for datetime (according to rfc3339). *)
+val pp_rfc3339 : ?tz:string -> unit -> Format.formatter -> t -> unit
+
+(** Simple Pretty printer for datetime (according to rfc822). *)
+val pp_rfc822 : ?tz:string -> unit -> Format.formatter -> t -> unit
 
 (** Comparison between day of week. *)
 val compare_day_of_week : day_of_week -> day_of_week -> int

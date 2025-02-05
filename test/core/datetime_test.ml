@@ -17,7 +17,15 @@ let check_day_of_week ~expected = function
            expected
   | Error err ->
     err
-    |> Format.asprintf "%a" Rensai.Validation.pp_value_error
+    |> Format.asprintf "Invalid datetime: %a" Rensai.Validation.pp_value_error
+    |> print_endline
+;;
+
+let dump = function
+  | Ok dt -> dt |> Format.asprintf "%a" (Datetime.pp_rfc822 ()) |> print_endline
+  | Error err ->
+    err
+    |> Format.asprintf "Invalid datetime: %a" Rensai.Validation.pp_value_error
     |> print_endline
 ;;
 
@@ -43,4 +51,40 @@ let%expect_test "day of week of an arbitrary date - 3" =
   let dt = Datetime.(make ~year:2010 ~month:Nov ~day:24 ()) in
   check_day_of_week ~expected:Datetime.Wed dt;
   [%expect {| Valid day of week (wed) |}]
+;;
+
+let%expect_test "begin of day - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.begin_of_day
+  in
+  dump test;
+  [%expect {| Wed, 05 Feb 2025 00:00:00 gmt |}]
+;;
+
+let%expect_test "end of day - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.end_of_day
+  in
+  dump test;
+  [%expect {| Wed, 05 Feb 2025 23:59:59 gmt |}]
+;;
+
+let%expect_test "begin of month - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.begin_of_month
+  in
+  dump test;
+  [%expect {| Sat, 01 Feb 2025 00:00:00 gmt |}]
+;;
+
+let%expect_test "end of month - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.end_of_month
+  in
+  dump test;
+  [%expect {| Fri, 28 Feb 2025 23:59:59 gmt |}]
 ;;

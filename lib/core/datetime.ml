@@ -100,7 +100,7 @@ let days_in_month year month =
 let validate_day year month =
   let open Rensai.Validation in
   let dim = days_in_month year month in
-  Int.in_range ~min:0 ~max:dim
+  Int.in_range ~min:1 ~max:dim
 ;;
 
 let validate_hour =
@@ -151,12 +151,76 @@ let day_of_week { year; month; day; _ } =
   [| Sun; Mon; Tue; Wed; Thu; Fri; Sat |].(index)
 ;;
 
-let pp_day_of_week st = function
-  | Mon -> Format.fprintf st "mon"
-  | Tue -> Format.fprintf st "tue"
-  | Wed -> Format.fprintf st "wed"
-  | Thu -> Format.fprintf st "thu"
-  | Fri -> Format.fprintf st "fri"
-  | Sat -> Format.fprintf st "sat"
-  | Sun -> Format.fprintf st "sun"
+let pp_day_of_week st dow =
+  Format.fprintf
+    st
+    (match dow with
+     | Mon -> "mon"
+     | Tue -> "tue"
+     | Wed -> "wed"
+     | Thu -> "thu"
+     | Fri -> "fri"
+     | Sat -> "sat"
+     | Sun -> "sun")
+;;
+
+let pp_month st mon =
+  Format.fprintf
+    st
+    (match mon with
+     | Jan -> "jan"
+     | Feb -> "feb"
+     | Mar -> "mar"
+     | Apr -> "apr"
+     | May -> "may"
+     | Jun -> "jun"
+     | Jul -> "jul"
+     | Aug -> "aug"
+     | Sep -> "sep"
+     | Oct -> "oct"
+     | Nov -> "nov"
+     | Dec -> "dec")
+;;
+
+let pp_rfc3339 ?(tz = "Z") () st { year; month; day; hour; min; sec } =
+  Format.fprintf
+    st
+    "%04d-%02d-%02dT%02d:%02d:%02d%s"
+    year
+    (succ @@ month_to_int month)
+    day
+    hour
+    min
+    sec
+    tz
+;;
+
+let pp_rfc822 ?(tz = "gmt") () st ({ year; month; day; hour; min; sec } as dt) =
+  let dow =
+    dt
+    |> day_of_week
+    |> Format.asprintf "%a" pp_day_of_week
+    |> String.capitalize_ascii
+  in
+  let mon = month |> Format.asprintf "%a" pp_month |> String.capitalize_ascii in
+  Format.fprintf
+    st
+    "%s, %02d %s %04d %02d:%02d:%02d %s"
+    dow
+    day
+    mon
+    year
+    hour
+    min
+    sec
+    tz
+;;
+
+let begin_of_day dt = { dt with hour = 0; min = 0; sec = 0 }
+let end_of_day dt = { dt with hour = 23; min = 59; sec = 59 }
+let begin_of_month dt = { dt with day = 1 } |> begin_of_day
+
+let end_of_month dt =
+  let dim = days_in_month dt.year dt.month in
+  { dt with day = dim } |> end_of_day
 ;;

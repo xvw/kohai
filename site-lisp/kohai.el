@@ -144,7 +144,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
             (objects (mapcar
                       (lambda (elt)
                         (list (cl-getf elt :name)
-                              (or (cl-getf elt :description) "No description")))
+                              (or (cl-getf elt :description) "")))
                       sectors)))
        (make-vtable
         :divider-width "2px"

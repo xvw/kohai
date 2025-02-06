@@ -97,3 +97,131 @@ let%expect_test "end of month - 2" =
   dump test;
   [%expect {| Tue, 29 Feb 2028 23:59:59 gmt |}]
 ;;
+
+let%expect_test "begin of year" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.begin_of_year
+  in
+  dump test;
+  [%expect {| Sat, 01 Jan 2028 00:00:00 gmt |}]
+;;
+
+let%expect_test "end of year" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.end_of_year
+  in
+  dump test;
+  [%expect {| Sun, 31 Dec 2028 23:59:59 gmt |}]
+;;
+
+let%expect_test "succ year - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.succ_year
+  in
+  dump test;
+  [%expect {| Mon, 01 Jan 2029 00:00:00 gmt |}]
+;;
+
+let%expect_test "pred year - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.pred_year
+  in
+  dump test;
+  [%expect {| Fri, 01 Jan 2027 00:00:00 gmt |}]
+;;
+
+let%expect_test "succ month - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.succ_month
+  in
+  dump test;
+  [%expect {| Wed, 01 Mar 2028 00:00:00 gmt |}]
+;;
+
+let%expect_test "succ month - 2" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Dec ~day:5 ()
+    |> Result.map Datetime.succ_month
+  in
+  dump test;
+  [%expect {| Mon, 01 Jan 2029 00:00:00 gmt |}]
+;;
+
+let%expect_test "pred month - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.pred_month
+  in
+  dump test;
+  [%expect {| Sat, 01 Jan 2028 00:00:00 gmt |}]
+;;
+
+let%expect_test "pred month - 2" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.pred_month
+    |> Result.map Datetime.pred_month
+  in
+  dump test;
+  [%expect {| Wed, 01 Dec 2027 00:00:00 gmt |}]
+;;
+
+let%expect_test "succ day - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:5 ()
+    |> Result.map Datetime.succ_day
+  in
+  dump test;
+  [%expect {| Sun, 06 Feb 2028 00:00:00 gmt |}]
+;;
+
+let%expect_test "succ day - 2" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:28 ()
+    |> Result.map Datetime.succ_day
+  in
+  dump test;
+  [%expect {| Tue, 29 Feb 2028 00:00:00 gmt |}]
+;;
+
+let%expect_test "succ day - 3" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:28 ()
+    |> Result.map Datetime.succ_day
+    |> Result.map Datetime.succ_day
+  in
+  dump test;
+  [%expect {| Wed, 01 Mar 2028 00:00:00 gmt |}]
+;;
+
+let%expect_test "succ day - 3" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Dec ~day:31 ()
+    |> Result.map Datetime.succ_day
+  in
+  dump test;
+  [%expect {| Mon, 01 Jan 2029 00:00:00 gmt |}]
+;;
+
+let%expect_test "pred day - 1" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Feb ~day:28 ()
+    |> Result.map Datetime.pred_day
+  in
+  dump test;
+  [%expect {| Sun, 27 Feb 2028 00:00:00 gmt |}]
+;;
+
+let%expect_test "pred day - 2" =
+  let test =
+    Datetime.make ~time:(12, 0, 0) ~year:2028 ~month:Datetime.Jan ~day:1 ()
+    |> Result.map Datetime.pred_day
+  in
+  dump test;
+  [%expect {| Fri, 31 Dec 2027 00:00:00 gmt |}]
+;;

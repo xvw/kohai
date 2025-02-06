@@ -55,6 +55,36 @@ let dow_to_int = function
   | Sun -> 6
 ;;
 
+let next_month = function
+  | Jan -> Feb
+  | Feb -> Mar
+  | Mar -> Apr
+  | Apr -> May
+  | May -> Jun
+  | Jun -> Jul
+  | Jul -> Aug
+  | Aug -> Sep
+  | Sep -> Oct
+  | Oct -> Nov
+  | Nov -> Dec
+  | Dec -> Jan
+;;
+
+let prev_month = function
+  | Jan -> Dec
+  | Feb -> Jan
+  | Mar -> Feb
+  | Apr -> Mar
+  | May -> Apr
+  | Jun -> May
+  | Jul -> Jun
+  | Aug -> Jul
+  | Sep -> Aug
+  | Oct -> Sep
+  | Nov -> Oct
+  | Dec -> Nov
+;;
+
 let compare_date { year; month; day; _ } b =
   let cmp = Int.compare year b.year in
   if Int.equal cmp 0
@@ -223,4 +253,34 @@ let begin_of_month dt = { dt with day = 1 } |> begin_of_day
 let end_of_month dt =
   let dim = days_in_month dt.year dt.month in
   { dt with day = dim } |> end_of_day
+;;
+
+let begin_of_year dt = { dt with month = Jan; day = 1 } |> begin_of_day
+let end_of_year dt = { dt with month = Dec; day = 31 } |> end_of_day
+let succ_year dt = { dt with year = succ dt.year } |> begin_of_year
+let pred_year dt = { dt with year = pred dt.year } |> begin_of_year
+
+let succ_month dt =
+  match dt.month with
+  | Dec -> succ_year dt
+  | mon -> { dt with month = next_month mon } |> begin_of_month
+;;
+
+let pred_month dt =
+  match dt.month with
+  | Jan -> { (pred_year dt) with month = Dec } |> begin_of_month
+  | mon -> { dt with month = prev_month mon } |> begin_of_month
+;;
+
+let pred_day dt =
+  if Int.equal dt.day 1
+  then dt |> pred_month |> end_of_month |> begin_of_day
+  else { dt with day = pred dt.day } |> begin_of_day
+;;
+
+let succ_day dt =
+  let dim = days_in_month dt.year dt.month in
+  if Int.equal dt.day dim
+  then dt |> succ_month
+  else { dt with day = succ dt.day } |> begin_of_day
 ;;

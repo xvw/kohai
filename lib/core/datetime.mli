@@ -72,6 +72,30 @@ val begin_of_month : t -> t
 (** compute a new date at the end of the month. *)
 val end_of_month : t -> t
 
+(** compute a new date at the begining of the year. *)
+val begin_of_year : t -> t
+
+(** compute a new date at the end of the year. *)
+val end_of_year : t -> t
+
+(** compute a date at the begining of the next year. *)
+val succ_year : t -> t
+
+(** compute a date at the begining of the previous year. *)
+val pred_year : t -> t
+
+(** compute a date at the begining of the next month. *)
+val succ_month : t -> t
+
+(** compute a date at the begining of the previous month. *)
+val pred_month : t -> t
+
+(** compute a date at the begining of the next day. *)
+val succ_day : t -> t
+
+(** compute a date at the begining of the previous day. *)
+val pred_day : t -> t
+
 (** {1 Misc} *)
 
 (** [compare x y] comparison between two datetime. *)

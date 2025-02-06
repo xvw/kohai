@@ -1,3 +1,12 @@
+type op =
+  | Min of int
+  | Sec of int
+  | Hour of int
+  | Day of int
+  | Week of int
+  | Month of int
+  | Year of int
+
 type month =
   | Jan
   | Feb
@@ -120,7 +129,7 @@ let validate_year =
 
 let is_leap year = if year mod 100 = 0 then year mod 400 = 0 else year mod 4 = 0
 
-let days_in_month year month =
+let aux_days_in_month year month =
   match month with
   | Jan | Mar | May | Jul | Aug | Oct | Dec -> 31
   | Feb -> if is_leap year then 29 else 28
@@ -129,7 +138,7 @@ let days_in_month year month =
 
 let validate_day year month =
   let open Rensai.Validation in
-  let dim = days_in_month year month in
+  let dim = aux_days_in_month year month in
   Int.in_range ~min:1 ~max:dim
 ;;
 
@@ -246,12 +255,13 @@ let pp_rfc822 ?(tz = "gmt") () st ({ year; month; day; hour; min; sec } as dt) =
     tz
 ;;
 
+let days_in_month { year; month; _ } = aux_days_in_month year month
 let begin_of_day dt = { dt with hour = 0; min = 0; sec = 0 }
 let end_of_day dt = { dt with hour = 23; min = 59; sec = 59 }
 let begin_of_month dt = { dt with day = 1 } |> begin_of_day
 
 let end_of_month dt =
-  let dim = days_in_month dt.year dt.month in
+  let dim = aux_days_in_month dt.year dt.month in
   { dt with day = dim } |> end_of_day
 ;;
 
@@ -279,8 +289,110 @@ let pred_day dt =
 ;;
 
 let succ_day dt =
-  let dim = days_in_month dt.year dt.month in
+  let dim = aux_days_in_month dt.year dt.month in
   if Int.equal dt.day dim
   then dt |> succ_month
   else { dt with day = succ dt.day } |> begin_of_day
 ;;
+
+let pred_hour dt =
+  if Int.equal dt.hour 0
+  then { (dt |> pred_day) with hour = 23; min = 0; sec = 0 }
+  else { dt with hour = pred dt.hour; min = 0; sec = 0 }
+;;
+
+let succ_hour dt =
+  if Int.equal dt.hour 23
+  then dt |> succ_day |> begin_of_day
+  else { dt with hour = succ dt.hour; min = 0; sec = 0 }
+;;
+
+let pred_min dt =
+  if Int.equal dt.min 0
+  then { (dt |> pred_hour) with min = 59; sec = 0 }
+  else { dt with min = pred dt.min; sec = 0 }
+;;
+
+let succ_min dt =
+  if Int.equal dt.min 59
+  then { (dt |> succ_hour) with min = 0; sec = 0 }
+  else { dt with min = succ dt.min; sec = 0 }
+;;
+
+let pred_sec dt =
+  if Int.equal dt.sec 0
+  then { (dt |> pred_min) with sec = 59 }
+  else { dt with sec = pred dt.sec }
+;;
+
+let succ_sec dt =
+  if Int.equal dt.sec 59
+  then { (dt |> succ_min) with sec = 0 }
+  else { dt with sec = succ dt.sec }
+;;
+
+let add_days i dt =
+  let f = if i < 0 then pred_day else succ_day in
+  let i = Int.abs i in
+  let rec aux dt n = if Int.equal i n then dt else aux (f dt) (succ n) in
+  aux dt 0
+;;
+
+let begin_of_week dt =
+  match day_of_week dt with
+  | Mon -> begin_of_day dt
+  | dow ->
+    let v = dow_to_int dow in
+    dt |> add_days (-v) |> begin_of_day
+;;
+
+let end_of_week dt =
+  match day_of_week dt with
+  | Sun -> end_of_day dt
+  | dow ->
+    let v = dow_to_int dow in
+    dt |> add_days (6 - v) |> end_of_day
+;;
+
+let succ_week dt = dt |> end_of_week |> succ_day |> begin_of_day
+let pred_week dt = dt |> begin_of_week |> pred_day |> begin_of_week
+let min x = Min x
+let sec x = Sec x
+let hour x = Hour x
+let day x = Day x
+let month x = Month x
+let year x = Year x
+let week x = Week x
+
+let callback_of = function
+  | Sec x -> Int.abs x, if x < 0 then pred_sec else succ_sec
+  | Min x -> Int.abs x, if x < 0 then pred_min else succ_min
+  | Hour x -> Int.abs x, if x < 0 then pred_hour else succ_hour
+  | Day x -> Int.abs x, if x < 0 then pred_day else succ_day
+  | Month x -> Int.abs x, if x < 0 then pred_month else succ_month
+  | Year x -> Int.abs x, if x < 0 then pred_year else succ_year
+  | Week x -> Int.abs x, if x < 0 then pred_week else succ_week
+;;
+
+let rev_op = function
+  | Min x -> Min (-x)
+  | Sec x -> Sec (-x)
+  | Hour x -> Hour (-x)
+  | Day x -> Day (-x)
+  | Month x -> Month (-x)
+  | Year x -> Year (-x)
+  | Week x -> Week (-x)
+;;
+
+let add op dt =
+  let i, f = callback_of op in
+  let rec aux dt n = if Int.equal i n then dt else aux (f dt) (succ n) in
+  aux dt 0
+;;
+
+module Infix = struct
+  let ( + ) dt op = add op dt
+  let ( - ) dt op = add (rev_op op) dt
+end
+
+include Infix

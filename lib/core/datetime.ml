@@ -331,8 +331,8 @@ let succ_sec dt =
   else { dt with sec = succ dt.sec }
 ;;
 
-let add_days i dt =
-  let f = if i < 0 then pred_day else succ_day in
+let adding i fpred fsucc dt =
+  let f = if i < 0 then fpred else fsucc in
   let i = Int.abs i in
   let rec aux dt n = if Int.equal i n then dt else aux (f dt) (succ n) in
   aux dt 0
@@ -343,7 +343,7 @@ let begin_of_week dt =
   | Mon -> begin_of_day dt
   | dow ->
     let v = dow_to_int dow in
-    dt |> add_days (-v) |> begin_of_day
+    dt |> adding (-v) pred_day succ_day |> begin_of_day
 ;;
 
 let end_of_week dt =
@@ -351,7 +351,7 @@ let end_of_week dt =
   | Sun -> end_of_day dt
   | dow ->
     let v = dow_to_int dow in
-    dt |> add_days (6 - v) |> end_of_day
+    dt |> adding (6 - v) pred_day succ_day |> end_of_day
 ;;
 
 let succ_week dt = dt |> end_of_week |> succ_day |> begin_of_day
@@ -383,6 +383,17 @@ let rev_op = function
   | Year x -> Year (-x)
   | Week x -> Week (-x)
 ;;
+
+let find_next f dow dt =
+  let rec aux dt =
+    let curr_dow = day_of_week dt in
+    if Int.equal (dow_to_int dow) (dow_to_int curr_dow) then dt else aux (f dt)
+  in
+  aux (f dt)
+;;
+
+let on_next = find_next succ_day
+let on_last = find_next pred_day
 
 let add op dt =
   let i, f = callback_of op in

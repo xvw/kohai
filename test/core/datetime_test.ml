@@ -646,3 +646,48 @@ let%expect_test "pred week - 1" =
   dump test;
   [%expect {| Mon, 22 Dec 2025 00:00:00 gmt |}]
 ;;
+
+let%expect_test "on next - 1" =
+  let test =
+    Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    |> Result.map (Datetime.on_next Datetime.Mon)
+  in
+  dump test;
+  [%expect {| Mon, 10 Feb 2025 00:00:00 gmt |}]
+;;
+
+let%expect_test "on next - 2" =
+  let test =
+    Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:4 ()
+    |> Result.map (Datetime.on_next Datetime.Mon)
+  in
+  dump test;
+  [%expect {| Mon, 10 Feb 2025 00:00:00 gmt |}]
+;;
+
+let%expect_test "on next - 3" =
+  let test =
+    Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    |> Result.map (Datetime.on_next Datetime.Wed)
+  in
+  dump test;
+  [%expect {| Wed, 05 Feb 2025 00:00:00 gmt |}]
+;;
+
+let%expect_test "on prev - 1" =
+  let test =
+    Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    |> Result.map (Datetime.on_last Datetime.Mon)
+  in
+  dump test;
+  [%expect {| Mon, 27 Jan 2025 00:00:00 gmt |}]
+;;
+
+let%expect_test "on prev - 2" =
+  let test =
+    Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    |> Result.map (Datetime.on_last Datetime.Sun)
+  in
+  dump test;
+  [%expect {| Sun, 02 Feb 2025 00:00:00 gmt |}]
+;;

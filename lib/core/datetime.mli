@@ -1,4 +1,7 @@
-(** A naive library for manipulating datetime. *)
+(** A naive library for manipulating datetime. The implementation
+    under the hood is really very unoptimized because it focuses on
+    calculating a single date and then loops to produce more ambitious
+    operations.*)
 
 (** {1 Types} *)
 
@@ -133,6 +136,12 @@ val succ_sec : t -> t
 
 (** compute a date at the begining of the previous sec. *)
 val pred_sec : t -> t
+
+(** compute the following date for the given day of week. *)
+val on_next : day_of_week -> t -> t
+
+(** compute the previous date for the given day of week. *)
+val on_last : day_of_week -> t -> t
 
 (** {2 Basic arithmetic}
 

@@ -29,6 +29,15 @@ let dump = function
     |> print_endline
 ;;
 
+let dump_duration = function
+  | Ok duration ->
+    duration |> Format.asprintf "%a" Datetime.pp_duration |> print_endline
+  | Error err ->
+    err
+    |> Format.asprintf "Invalid datetime: %a" Rensai.Validation.pp_value_error
+    |> print_endline
+;;
+
 let%expect_test "day of week of Unix time" =
   let dt = Ok Datetime.unix in
   check_day_of_week ~expected:Datetime.Thu dt;
@@ -690,4 +699,64 @@ let%expect_test "on prev - 2" =
   in
   dump test;
   [%expect {| Sun, 02 Feb 2025 00:00:00 gmt |}]
+;;
+
+let%expect_test "diff_duration - 1" =
+  let test =
+    let open Rensai.Validation.Syntax in
+    let* a =
+      Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    in
+    let+ b =
+      Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    in
+    Datetime.diff_to_duration a b
+  in
+  dump_duration test;
+  [%expect {| 0d, 0h, 0m, 0s |}]
+;;
+
+let%expect_test "diff_duration - 2" =
+  let test =
+    let open Rensai.Validation.Syntax in
+    let* a =
+      Datetime.make ~time:(12, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    in
+    let+ b =
+      Datetime.make ~time:(13, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    in
+    Datetime.diff_to_duration a b
+  in
+  dump_duration test;
+  [%expect {| 0d, 1h, 0m, 0s |}]
+;;
+
+let%expect_test "diff_duration - 3" =
+  let test =
+    let open Rensai.Validation.Syntax in
+    let* a =
+      Datetime.make ~time:(12, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
+    in
+    let+ b =
+      Datetime.make ~time:(13, 22, 6) ~year:2025 ~month:Datetime.Feb ~day:10 ()
+    in
+    Datetime.diff_to_duration a b
+  in
+  dump_duration test;
+  [%expect {| 7d, 1h, 22m, 6s |}]
+;;
+
+let%expect_test "diff_duration - 3" =
+  let test =
+    let open Rensai.Validation.Syntax in
+    let* a =
+      Datetime.make ~time:(12, 0, 0) ~year:2024 ~month:Datetime.Jul ~day:1 ()
+    in
+    let+ b =
+      Datetime.make ~time:(13, 22, 6) ~year:2033 ~month:Datetime.Sep ~day:30 ()
+    in
+    Datetime.diff_to_duration a b
+  in
+  dump_duration test;
+  [%expect {| 3378d, 1h, 22m, 6s |}]
 ;;

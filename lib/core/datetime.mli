@@ -40,6 +40,9 @@ type t = private
   ; sec : int
   }
 
+(** Type describing duration. *)
+type duration
+
 (** An amount for operation on dates. *)
 type op
 
@@ -169,6 +172,15 @@ include module type of Infix
 
 (** {1 Misc} *)
 
+(** Give the difference between two datetime. *)
+val diff : t -> t -> int64
+
+(** Give the difference between two datetime (in duration). *)
+val diff_to_duration : t -> t -> duration
+
+(** Converts a result in second into duration. *)
+val seconds_to_duration : int64 -> duration
+
 (** [compare x y] comparison between two datetime. *)
 val compare : t -> t -> int
 
@@ -180,6 +192,9 @@ val pp_rfc3339 : ?tz:string -> unit -> Format.formatter -> t -> unit
 
 (** Simple Pretty printer for datetime (according to rfc822). *)
 val pp_rfc822 : ?tz:string -> unit -> Format.formatter -> t -> unit
+
+(** Simple pretty printer for duration. *)
+val pp_duration : Format.formatter -> duration -> unit
 
 (** Comparison between day of week. *)
 val compare_day_of_week : day_of_week -> day_of_week -> int

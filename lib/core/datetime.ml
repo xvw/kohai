@@ -7,6 +7,8 @@ type op =
   | Month of int
   | Year of int
 
+type duration = int64 * int64 * int64 * int64
+
 type month =
   | Jan
   | Feb
@@ -255,6 +257,10 @@ let pp_rfc822 ?(tz = "gmt") () st ({ year; month; day; hour; min; sec } as dt) =
     tz
 ;;
 
+let pp_duration st (d, h, m, s) =
+  Format.fprintf st "%Ldd, %Ldh, %Ldm, %Lds" d h m s
+;;
+
 let days_in_month { year; month; _ } = aux_days_in_month year month
 let begin_of_day dt = { dt with hour = 0; min = 0; sec = 0 }
 let end_of_day dt = { dt with hour = 23; min = 59; sec = 59 }
@@ -356,6 +362,36 @@ let end_of_week dt =
 
 let succ_week dt = dt |> end_of_week |> succ_day |> begin_of_day
 let pred_week dt = dt |> begin_of_week |> pred_day |> begin_of_week
+
+let seconds_of { year; month; day; hour; min; sec } =
+  let m = succ (month_to_int month) in
+  let m, y = if m <= 2 then m + 12, year - 1 else m, year in
+  let m, y = Float.of_int m, Float.of_int y in
+  (146097.0 *. y /. 400.0) +. (((153.0 *. m) +. 8.0) /. 5.0) +. Float.of_int day
+  |> Int64.of_float
+  |> Int64.mul 86400L
+  |> Int64.(add @@ of_int sec)
+  |> Int64.add @@ Int64.of_int (min * 60)
+  |> Int64.add @@ Int64.of_int (hour * 3600)
+;;
+
+let seconds_to_duration x =
+  let ( - ) = Int64.sub
+  and ( * ) = Int64.mul in
+  let d = Int64.div x 86400L in
+  let h = Int64.div (x - (d * 86400L)) 3600L in
+  let m = Int64.div (x - (d * 86400L) - (h * 3600L)) 60L in
+  let s = x - (d * 86400L) - (h * 3600L) - (m * 60L) in
+  d, h, m, s
+;;
+
+let diff a b =
+  let a = seconds_of a
+  and b = seconds_of b in
+  Int64.abs (Int64.sub b a)
+;;
+
+let diff_to_duration a b = diff a b |> seconds_to_duration
 let min x = Min x
 let sec x = Sec x
 let hour x = Hour x

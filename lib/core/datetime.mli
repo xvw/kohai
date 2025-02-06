@@ -146,6 +146,9 @@ val on_next : day_of_week -> t -> t
 (** compute the previous date for the given day of week. *)
 val on_last : day_of_week -> t -> t
 
+val min_of : t -> t -> t
+val max_of : t -> t -> t
+
 (** {2 Basic arithmetic}
 
     Arithmetic operations are a bit greedy, as they loop over the
@@ -166,6 +169,12 @@ val year : int -> op
 module Infix : sig
   val ( + ) : t -> op -> t
   val ( - ) : t -> op -> t
+  val ( = ) : t -> t -> bool
+  val ( <> ) : t -> t -> bool
+  val ( > ) : t -> t -> bool
+  val ( < ) : t -> t -> bool
+  val ( >= ) : t -> t -> bool
+  val ( <= ) : t -> t -> bool
 end
 
 include module type of Infix

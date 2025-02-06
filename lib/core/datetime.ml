@@ -440,6 +440,15 @@ let add op dt =
 module Infix = struct
   let ( + ) dt op = add op dt
   let ( - ) dt op = add (rev_op op) dt
+  let ( = ) = equal
+  let ( <> ) x y = not (equal x y)
+  let ( > ) x y = compare x y > 0
+  let ( >= ) x y = compare x y >= 0
+  let ( < ) x y = compare x y < 0
+  let ( <= ) x y = compare x y <= 0
 end
 
 include Infix
+
+let min_of a b = if b > a then a else b
+let max_of a b = if a < b then a else b

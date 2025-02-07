@@ -184,6 +184,9 @@ include module type of Infix
 (** Convert datetime to rensai lang. *)
 val to_rensai : t Rensai.Ast.conv
 
+(** Convert datetime to a compacted representation of rensai lang. *)
+val to_compact_rensai : t Rensai.Ast.conv
+
 (** Convert rensai expression to datetime. *)
 val from_rensai : t Rensai.Validation.t
 

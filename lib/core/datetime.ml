@@ -564,3 +564,5 @@ let to_rensai ({ year; month; day; hour; min; sec } as dt) =
           ] )
     ]
 ;;
+
+let to_compact_rensai dt = Rensai.Ast.string @@ Format.asprintf "%a" (pp ()) dt

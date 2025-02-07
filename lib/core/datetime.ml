@@ -154,6 +154,25 @@ let validate_min_sec =
   Int.in_range ~min:0 ~max:59
 ;;
 
+let validate_month = function
+  | 1 -> Ok Jan
+  | 2 -> Ok Feb
+  | 3 -> Ok Mar
+  | 4 -> Ok Apr
+  | 5 -> Ok May
+  | 6 -> Ok Jun
+  | 7 -> Ok Jul
+  | 8 -> Ok Aug
+  | 9 -> Ok Sep
+  | 10 -> Ok Oct
+  | 11 -> Ok Nov
+  | 12 -> Ok Dec
+  | subject ->
+    Rensai.Validation.fail_with
+      ~subject:(string_of_int subject)
+      "Unexpected month value"
+;;
+
 let make ?(time = 0, 0, 0) ~year ~month ~day () =
   let h, m, s = time in
   let open Rensai.Validation in
@@ -163,6 +182,12 @@ let make ?(time = 0, 0, 0) ~year ~month ~day () =
   let* min = validate_min_sec m in
   let+ sec = validate_min_sec s in
   { year; month; day; hour; min; sec }
+;;
+
+let make' ?(time = 0, 0, 0) ~year ~month ~day () =
+  let open Rensai.Validation in
+  let* month = validate_month month in
+  make ~time ~year ~month ~day ()
 ;;
 
 let day_of_week { year; month; day; _ } =
@@ -221,6 +246,22 @@ let pp_month st mon =
      | Oct -> "oct"
      | Nov -> "nov"
      | Dec -> "dec")
+;;
+
+let pp ?(sep = "-") () st { year; month; day; hour; min; sec } =
+  Format.fprintf
+    st
+    "%04d%s%02d%s%02dT%02d%s%02d%s%02d"
+    year
+    sep
+    (succ @@ month_to_int month)
+    sep
+    day
+    hour
+    sep
+    min
+    sep
+    sec
 ;;
 
 let pp_rfc3339 ?(tz = "Z") () st { year; month; day; hour; min; sec } =
@@ -452,3 +493,74 @@ include Infix
 
 let min_of a b = if b > a then a else b
 let max_of a b = if a < b then a else b
+
+let validate_datetime_from_string s =
+  match
+    Scanf.sscanf_opt
+      s
+      "%04d%c%02d%c%02d%c%02d%c%02d%c%02d"
+      (fun year _ month _ day _ hour _ min _ sec ->
+         (hour, min, sec), year, month, day)
+  with
+  | None -> Rensai.Validation.fail_with ~subject:s "is not a valid date"
+  | Some (time, year, month, day) -> make' ~time ~year ~month ~day ()
+;;
+
+let validate_date_from_string s =
+  match
+    Scanf.sscanf_opt s "%04d%c%02d%c%02d" (fun year _ month _ day ->
+      year, month, day)
+  with
+  | None -> Rensai.Validation.fail_with ~subject:s "is not a valid date"
+  | Some (year, month, day) -> make' ~year ~month ~day ()
+;;
+
+let from_rensai_str =
+  let open Rensai.Validation in
+  String.trim & (validate_datetime_from_string / validate_date_from_string)
+;;
+
+let validate_from_record =
+  let open Rensai.Validation in
+  record (fun f ->
+    let open Record in
+    let+ str =
+      required
+        f
+        "repr"
+        (record (fun g ->
+           let+ str = required g "regular" (string & from_rensai_str) in
+           str))
+    in
+    str)
+;;
+
+let from_rensai =
+  let open Rensai.Validation in
+  validate_from_record / (string & from_rensai_str)
+;;
+
+let pp_regular = pp
+
+let to_rensai ({ year; month; day; hour; min; sec } as dt) =
+  let dow = day_of_week dt in
+  let open Rensai.Ast in
+  record
+    [ "year", int year
+    ; ( "month"
+      , sum (fun month -> Format.asprintf "%a" pp_month month, unit ()) month )
+    ; "month_int", int @@ (month_to_int month |> succ)
+    ; "day", int day
+    ; "hour", int hour
+    ; "min", int min
+    ; "sec", int sec
+    ; ( "day_of_week"
+      , sum (fun dow -> Format.asprintf "%a" pp_day_of_week dow, unit ()) dow )
+    ; ( "repr"
+      , record
+          [ "rfc3339", string (Format.asprintf "%a" (pp_rfc3339 ()) dt)
+          ; "rfc822", string (Format.asprintf "%a" (pp_rfc822 ()) dt)
+          ; "regular", string (Format.asprintf "%a" (pp_regular ()) dt)
+          ] )
+    ]
+;;

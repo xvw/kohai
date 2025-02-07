@@ -179,6 +179,14 @@ end
 
 include module type of Infix
 
+(** {1 Conversion} *)
+
+(** Convert datetime to rensai lang. *)
+val to_rensai : t Rensai.Ast.conv
+
+(** Convert rensai expression to datetime. *)
+val from_rensai : t Rensai.Validation.t
+
 (** {1 Misc} *)
 
 (** Give the difference between two datetime. *)
@@ -195,6 +203,9 @@ val compare : t -> t -> int
 
 (** [equal x y] equality between two datetime. *)
 val equal : t -> t -> bool
+
+(** Simple pretty printer (compatible with validation). *)
+val pp : ?sep:string -> unit -> Format.formatter -> t -> unit
 
 (** Simple Pretty printer for datetime (according to rfc3339). *)
 val pp_rfc3339 : ?tz:string -> unit -> Format.formatter -> t -> unit

@@ -990,3 +990,10 @@ module List = struct
       (List.for_all p)
   ;;
 end
+
+let fail_with ~subject message =
+  let full_message =
+    Format.asprintf "Unexepcted validation `%s`: %s" subject message
+  in
+  Error (Unexpected_value full_message)
+;;

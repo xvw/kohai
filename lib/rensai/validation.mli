@@ -602,6 +602,9 @@ end
 
 (** {1 Misc} *)
 
+(** Fail with a given value. *)
+val fail_with : subject:string -> string -> 'a checked
+
 (** Transforme [value_error] into a valid representation. *)
 val value_error_ast : value_error -> Ast.t
 

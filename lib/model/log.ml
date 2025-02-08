@@ -34,4 +34,12 @@ module Transient = struct
       and+ label = required obj "label" (string & String.is_not_blank) in
       { start_date; duration; project; sectors; label })
   ;;
+
+  let compute_duration log dt =
+    match log.duration with
+    | None when Datetime.Infix.(log.start_date < dt) ->
+      let d = Datetime.diff log.start_date dt in
+      { log with duration = Some d }
+    | Some _ | None -> log
+  ;;
 end

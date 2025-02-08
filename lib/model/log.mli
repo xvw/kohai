@@ -13,4 +13,9 @@ module Transient : sig
 
   (** Convert rensai expression to transient log. *)
   val from_rensai : t Rensai.Validation.t
+
+  (** Compute the duration of a log given a specific date only if the
+      specific date is after and if the duration was not already
+      filled. *)
+  val compute_duration : t -> Datetime.t -> t
 end

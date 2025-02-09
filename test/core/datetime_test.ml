@@ -760,3 +760,24 @@ let%expect_test "diff_duration - 3" =
   dump_duration test;
   [%expect {| 3378d, 1h, 22m, 6s |}]
 ;;
+
+let%expect_test "from_rensai - 1, using compact representation" =
+  let dt = Rensai.Ast.string "2023-12-31" in
+  let dt = Datetime.from_rensai dt in
+  dump dt;
+  [%expect {| Sun, 31 Dec 2023 00:00:00 gmt |}]
+;;
+
+let%expect_test "from_rensai - 2, including time" =
+  let dt = Rensai.Ast.string "2023-12-31T11:12:56" in
+  let dt = Datetime.from_rensai dt in
+  dump dt;
+  [%expect {| Sun, 31 Dec 2023 11:12:56 gmt |}]
+;;
+
+let%expect_test "from_rensai - 3, using complexe representation" =
+  let dt = Datetime.unix |> Datetime.to_rensai in
+  let dt = Datetime.from_rensai dt in
+  dump dt;
+  [%expect {| Thu, 01 Jan 1970 00:00:00 gmt |}]
+;;

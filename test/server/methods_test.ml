@@ -311,8 +311,8 @@ let%expect_test "get sectors with files" =
     {id = 0; jsonrpc = "2.0"; result = <null>}
     {id = 1; jsonrpc = "2.0";
       result =
-       [{description = "sector about cooking"; name = "cooking"};
-        {description = <null>; name = "art"};
+       [{description = <null>; name = "art"};
+        {description = "sector about cooking"; name = "cooking"};
         {description = "sector about programming"; name = "programming"}]}
     |}]
 ;;
@@ -378,21 +378,21 @@ let%expect_test "store sectors" =
     {id = 0; jsonrpc = "2.0"; result = <null>}
     {id = 1; jsonrpc = "2.0";
       result =
-       [{description = "sector about cooking"; name = "cooking"};
-        {description = <null>; name = "art"};
+       [{description = <null>; name = "art"};
+        {description = "sector about cooking"; name = "cooking"};
         {description = "sector about programming"; name = "programming"}]}
     {id = 2; jsonrpc = "2.0";
       result =
-       [{description = "sector about programming"; name = "programming"};
-        {description = <null>; name = "learn"};
+       [{description = <null>; name = "art"};
         {description = "sector about cooking"; name = "cooking"};
-        {description = <null>; name = "art"}]}
+        {description = <null>; name = "learn"};
+        {description = "sector about programming"; name = "programming"}]}
     {id = 3; jsonrpc = "2.0";
       result =
-       [{description = "sector about programming"; name = "programming"};
-        {description = <null>; name = "learn"};
+       [{description = "about art"; name = "art"};
         {description = "sector about cooking"; name = "cooking"};
-        {description = "about art"; name = "art"}]}
+        {description = <null>; name = "learn"};
+        {description = "sector about programming"; name = "programming"}]}
     {id = 4; jsonrpc = "2.0";
       result =
        [{description = "about art"; name = "art"};

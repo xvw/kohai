@@ -44,23 +44,19 @@ let get_sectors body ?id (module H : Eff.HANDLER) () =
   let lexbuf = Lexing.from_string content in
   lexbuf
   |> Rensai.Lang.from_lexingbuf_to_list ~reverse:false
-  |> List.filter_map (fun ast ->
-    ast |> Kohai_model.Sector.from_rensai |> Result.to_option)
+  |> Kohai_model.Sector.Set.from_list
 ;;
 
 let save_sector body ?id (module H : Eff.HANDLER) sector =
   let cwd = ensure_supervision body ?id (module H) () in
   let file = Kohai_model.Resolver.sectors ~cwd in
   let sectors = get_sectors body ?id (module H : Eff.HANDLER) () in
-  let sectors = Kohai_model.Sector.push sectors sector in
+  let sectors = Kohai_model.Sector.Set.push sector sectors in
   let content =
-    List.map
-      (fun sector ->
-         Format.asprintf
-           "%a"
-           Rensai.Lang.pp
-           (Kohai_model.Sector.to_rensai sector))
-      sectors
+    sectors
+    |> Kohai_model.Sector.Set.to_list
+    |> List.map (fun sector ->
+      Format.asprintf "%a" Rensai.Lang.pp (Kohai_model.Sector.to_rensai sector))
     |> String.concat "\n"
   in
   let () = Eff.write_file (module H) file content in

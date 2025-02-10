@@ -17,17 +17,34 @@ let to_rensai { name; description } =
   record [ "name", string name; "description", option string description ]
 ;;
 
-let push list ({ name; description } as sector) =
-  let rec aux acc = function
-    | [] -> sector :: list
-    | x :: xs when String.equal x.name name ->
-      (match description with
-       | None -> list
-       | Some _ -> (sector :: acc) @ xs)
-    | x :: xs -> aux (x :: acc) xs
-  in
-  list
-  |> aux []
-  |> List.sort_uniq (fun { name = name_a; _ } { name = name_b; _ } ->
-    String.compare name_b name_a)
-;;
+module Set = struct
+  module S = Stdlib.Set.Make (struct
+      type nonrec t = t
+
+      let compare { name = a; _ } { name = b; _ } = String.compare a b
+    end)
+
+  type t = S.t
+
+  let from_list list =
+    list
+    |> List.filter_map (fun ast -> ast |> from_rensai |> Result.to_option)
+    |> S.of_list
+  ;;
+
+  let to_list = S.to_list
+  let to_rensai set = set |> S.to_list |> Rensai.Ast.list to_rensai
+
+  let from_rensai =
+    let open Rensai.Validation in
+    list_of from_rensai $ S.of_list
+  ;;
+
+  let push ({ description; _ } as sector) set =
+    match S.find_opt sector set, description with
+    | Some { description = None; _ }, _ | Some _, Some _ ->
+      set |> S.remove sector |> S.add sector
+    | None, _ -> set |> S.add sector
+    | Some _, None -> set
+  ;;
+end

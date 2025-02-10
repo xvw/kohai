@@ -79,7 +79,7 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:A.(list Kohai_model.Sector.to_rensai)
+        ~finalizer:Kohai_model.Sector.Set.to_rensai
         (Action.get_sectors body)
     ;;
 
@@ -87,7 +87,7 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "save")
         ~with_params:Kohai_model.Sector.from_rensai
-        ~finalizer:A.(list Kohai_model.Sector.to_rensai)
+        ~finalizer:Kohai_model.Sector.Set.to_rensai
         (Action.save_sector body)
     ;;
   end

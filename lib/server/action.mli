@@ -39,11 +39,11 @@ val get_sectors
   -> ?id:int
   -> (module Sigs.EFFECT_HANDLER)
   -> unit
-  -> Kohai_model.Sector.t list
+  -> Kohai_model.Sector.Set.t
 
 val save_sector
   :  string
   -> ?id:int
   -> (module Sigs.EFFECT_HANDLER)
   -> Kohai_model.Sector.t
-  -> Kohai_model.Sector.t list
+  -> Kohai_model.Sector.Set.t

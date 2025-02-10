@@ -42,6 +42,10 @@ module type EFFECT_REQUIREMENT = sig
   val write_file : Path.t -> string -> unit
   val append_to_file : Path.t -> string -> unit
 
+  (** {1 Time function} *)
+
+  val now : unit -> Datetime.t
+
   (** {1 Specific function} *)
 
   val set_supervised_directory : Path.t option -> unit

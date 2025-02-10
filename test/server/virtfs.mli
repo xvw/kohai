@@ -44,8 +44,10 @@ val update
 
 module Make (_ : sig
     val fs : t
+    val now : Datetime.t
   end) : sig
   include Sigs.EFFECT_REQUIREMENT
 
   val get_fs : unit -> t
+  val manip_time : (Datetime.t -> Datetime.t) -> unit
 end

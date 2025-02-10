@@ -190,6 +190,12 @@ let make' ?(time = 0, 0, 0) ~year ~month ~day () =
   make ~time ~year ~month ~day ()
 ;;
 
+let from_unix ?(time = 0, 0, 0) ~year ~month ~day () =
+  let year = year + 1900
+  and month = succ month in
+  make' ~time ~year ~month ~day ()
+;;
+
 let day_of_week { year; month; day; _ } =
   let month_value = function
     | Jan -> 0

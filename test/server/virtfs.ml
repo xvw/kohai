@@ -119,11 +119,15 @@ let cat fs path =
 
 module Make (H : sig
     val fs : t
+    val now : Datetime.t
   end) =
 struct
   let supervised_directory = ref None
   let fs = ref H.fs
+  let time = ref H.now
+  let now () = !time
   let get_fs () = !fs
+  let manip_time f = time := f !time
 
   let exists path =
     match get !fs path with

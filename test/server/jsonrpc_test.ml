@@ -9,6 +9,7 @@ module Handler = Eff.Handler (struct
     let create_dir _ = ()
     let write_file _ _ = ()
     let append_to_file _ _ = ()
+    let now () = Datetime.unix
     let set_supervised_directory _ = ()
     let get_supervised_directory () = None
   end)

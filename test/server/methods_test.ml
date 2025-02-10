@@ -24,6 +24,7 @@ let%expect_test "ensure supervision - not supervised" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let input = input ~id:42 "kohai/supervision/ensure" in
@@ -47,6 +48,7 @@ let%expect_test "get supervised directory" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let input = input "kohai/supervision/get" in
@@ -62,6 +64,7 @@ let%expect_test "set supervised dir with relative path" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let input = input "kohai/supervision/set" ~params:{|"./foo"|} in
@@ -85,6 +88,7 @@ let%expect_test "set supervised dir with inexistant path" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let input = input "kohai/supervision/set" ~params:{|"/skdsajdsakjdjk"|} in
@@ -108,6 +112,7 @@ let%expect_test "set supervised dir with valid path" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let input = input "kohai/supervision/set" ~params:{|"/foo"|} in
@@ -123,6 +128,7 @@ let%expect_test "set supervised dir with valid path" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let req0 =
@@ -180,6 +186,7 @@ let%expect_test "set supervised dir with valid path" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let req0 =
@@ -240,6 +247,7 @@ let%expect_test "get sectors without files" =
   let module Handler =
     Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = Virtfs.(from_list [ dir "supervised" [] ])
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let req0 =
@@ -279,6 +287,8 @@ let%expect_test "get sectors with files" =
           from_list
             [ dir "supervised" [ dir "list" [ file ~content "sectors.rens" ] ] ])
       ;;
+
+      let now = Kohai_core.Datetime.unix
     end))
   in
   let req0 =
@@ -322,6 +332,8 @@ let%expect_test "store sectors" =
           from_list
             [ dir "supervised" [ dir "list" [ file ~content "sectors.rens" ] ] ])
       ;;
+
+      let now = Kohai_core.Datetime.unix
     end)
   in
   let module Handler = Kohai_core.Eff.Handler (V) in

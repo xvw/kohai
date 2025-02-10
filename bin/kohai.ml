@@ -65,6 +65,19 @@ let () =
           | _ -> ()
         ;;
 
+        let now () =
+          let time = Eio.Time.now env#clock in
+          let Unix.{ tm_sec; tm_min; tm_hour; tm_mday; tm_mon; tm_year; _ } =
+            Unix.localtime time
+          in
+          let time = tm_hour, tm_min, tm_sec in
+          match
+            Datetime.from_unix ~time ~year:tm_year ~month:tm_mon ~day:tm_mday ()
+          with
+          | Ok x -> x
+          | _ -> Datetime.unix (* TODO: properly raise an error. *)
+        ;;
+
         let set_supervised_directory v = supervised_directory := v
         let get_supervised_directory () = !supervised_directory
       end)

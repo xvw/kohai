@@ -58,6 +58,15 @@ val make
   -> unit
   -> t Rensai.Validation.checked
 
+(** Make a datetime from a Unix representation. *)
+val from_unix
+  :  ?time:int * int * int
+  -> year:int
+  -> month:int
+  -> day:int
+  -> unit
+  -> t Rensai.Validation.checked
+
 (** {2 Constants} *)
 
 (** [unix] return a datetime object for [1970:01:01T00:00:00]. *)

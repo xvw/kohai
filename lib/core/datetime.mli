@@ -201,6 +201,9 @@ val from_rensai : t Rensai.Validation.t
 
 (** {1 Misc} *)
 
+(** returns the number of seconds (since unix time) for a given datetime. *)
+val as_time : t -> float
+
 (** Give the difference between two datetime. *)
 val diff : t -> t -> int64
 

@@ -58,6 +58,10 @@ val create_dir : handler -> Path.t -> unit
 val write_file : handler -> Path.t -> string -> unit
 val append_to_file : handler -> Path.t -> string -> unit
 
+(** {2 Time management} *)
+
+val now : handler -> Datetime.t
+
 (** {1 Program Handler} *)
 
 (** [handle (module Handler) program] Interprets the [program] with the given

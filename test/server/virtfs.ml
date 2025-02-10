@@ -125,7 +125,16 @@ struct
   let supervised_directory = ref None
   let fs = ref H.fs
   let time = ref H.now
-  let now () = !time
+
+  let datetime_from_float time =
+    let Unix.{ tm_sec; tm_min; tm_hour; tm_mday; tm_mon; tm_year; _ } =
+      Unix.localtime time
+    in
+    let time = tm_hour, tm_min, tm_sec in
+    Datetime.from_unix ~time ~year:tm_year ~month:tm_mon ~day:tm_mday ()
+  ;;
+
+  let now () = !time |> Datetime.as_time
   let get_fs () = !fs
   let manip_time f = time := f !time
 

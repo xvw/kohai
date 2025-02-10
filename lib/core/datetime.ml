@@ -438,6 +438,12 @@ let diff a b =
   Int64.abs (Int64.sub b a)
 ;;
 
+let as_time dt =
+  let a = seconds_of unix
+  and b = seconds_of dt in
+  a |> Int64.sub b |> Int64.to_float
+;;
+
 let diff_to_duration a b = diff a b |> seconds_to_duration
 let min x = Min x
 let sec x = Sec x

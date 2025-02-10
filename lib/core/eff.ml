@@ -76,6 +76,21 @@ let append_to_file (module H : HANDLER) path content =
   | None -> H.append_to_file path content
 ;;
 
+let now (module H : HANDLER) =
+  let time = H.now () in
+  time
+  |> H.datetime_from_float
+  |> from_result
+       (module H)
+       (fun value_error ->
+          let message =
+            value_error
+            |> Format.asprintf "%a" Rensai.Validation.pp_value_error
+            |> Option.some
+          in
+          Sigs.Custom_error { body = ""; id = None; code = 99; message })
+;;
+
 let handle (module H : HANDLER) program =
   let program () = program (module H : HANDLER) in
   H.handle_with_error program

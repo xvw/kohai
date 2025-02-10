@@ -44,7 +44,8 @@ module type EFFECT_REQUIREMENT = sig
 
   (** {1 Time function} *)
 
-  val now : unit -> Datetime.t
+  val now : unit -> float
+  val datetime_from_float : float -> Datetime.t Rensai.Validation.checked
 
   (** {1 Specific function} *)
 

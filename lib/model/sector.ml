@@ -3,6 +3,8 @@ type t =
   ; description : string option
   }
 
+let make ?description name = { name; description }
+
 let from_rensai =
   let open Rensai.Validation in
   record (fun obj ->

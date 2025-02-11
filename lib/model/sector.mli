@@ -9,6 +9,8 @@ val to_rensai : t Rensai.Ast.conv
 (** Convert rensai expression to sector. *)
 val from_rensai : t Rensai.Validation.t
 
+val make : ?description:string -> string -> t
+
 module Set : sig
   type sector := t
   type t

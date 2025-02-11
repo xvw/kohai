@@ -89,7 +89,7 @@
     ("sn" "new" kohai-sector-save :transient t)]
 
    ["Logs"
-    ("ln" "new" kohai-record-log)]
+    ("r" "record" kohai-record-log)]
 
    ["Other"
     ("q" "close" transient-quit-one)]])
@@ -205,9 +205,9 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                  sectors)))
     (let ((selected-sector (completing-read "Sector: "
                                             sector-entries nil nil nil t)))
-      (alist-get selected-sector
+      (or (alist-get selected-sector
                  sector-entries
-                 nil nil #'equal))))
+                 nil nil #'equal) selected-sector))))
 
 ;; Features
 
@@ -249,12 +249,14 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                               (read-from-minibuffer "When: " "now"))))
          (at-time (if (or (string-blank-p raw-time)
                           (string= raw-time "now"))
-                      nil raw-time) )
-         (label (string-trim (read-from-minibuffer "# "))))
-    (print sector)
-    (print project)
-    (print at-time)
-    (print label)))
+                      nil raw-time))
+         (label (string-trim (read-from-minibuffer "# ")))
+         (param (list :start-date at-time
+                      :project project
+                      :sector sector
+                      :label label)))
+    (let ((result (kohai--send :kohai/log/record param)))
+      (print result))))
 
 (defun kohai-supervised-get ()
   "Display the current supervised directory."

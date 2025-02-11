@@ -47,3 +47,10 @@ val save_sector
   -> (module Sigs.EFFECT_HANDLER)
   -> Kohai_model.Sector.t
   -> Kohai_model.Sector.Set.t
+
+val record_log
+  :  string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> Kohai_model.Log.Recored.t
+  -> Kohai_model.Log.Transient.t

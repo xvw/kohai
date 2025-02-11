@@ -1,6 +1,14 @@
 (** The logs are a collection of time-ordered notes on how I spent my
     free time on various and sundry projects. *)
 
+module Recored : sig
+  type t
+
+  val from_rensai : t Rensai.Validation.t
+  val start_date_of : t -> Datetime.t option
+  val sector_of : t -> string
+end
+
 module Transient : sig
   (** Transient logs are logs that need to be classified. Each time a
       log is entered, it is first put into a transient state. *)
@@ -9,13 +17,7 @@ module Transient : sig
   type t
 
   (** Build a transient log. *)
-  val make
-    :  start_date:Datetime.t
-    -> ?duration:int64
-    -> ?project:string
-    -> sectors:string list
-    -> string
-    -> t
+  val make : start_date:Datetime.t -> Recored.t -> t
 
   (** Convert transient log to rensai lang. *)
   val to_rensai : t Rensai.Ast.conv

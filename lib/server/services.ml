@@ -91,6 +91,18 @@ module Kohai = struct
         (Action.save_sector body)
     ;;
   end
+
+  module Log = struct
+    let prefix = String.cat (prefix "log/")
+
+    let record body =
+      Jsonrpc.service
+        ~meth:(prefix "record")
+        ~with_params:Kohai_model.Log.Recored.from_rensai
+        ~finalizer:Kohai_model.Log.Transient.to_rensai
+        (Action.record_log body)
+    ;;
+  end
 end
 
 let methods body =
@@ -103,6 +115,7 @@ let methods body =
   ; Kohai.Supervision.set body
   ; Kohai.Sector.list body
   ; Kohai.Sector.save body
+  ; Kohai.Log.record body
   ]
 ;;
 

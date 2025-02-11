@@ -8,6 +8,15 @@ module Transient : sig
   (** A type that denotes a transient log. *)
   type t
 
+  (** Build a transient log. *)
+  val make
+    :  start_date:Datetime.t
+    -> ?duration:int64
+    -> ?project:string
+    -> sectors:string list
+    -> string
+    -> t
+
   (** Convert transient log to rensai lang. *)
   val to_rensai : t Rensai.Ast.conv
 

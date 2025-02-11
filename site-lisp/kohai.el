@@ -21,6 +21,7 @@
 
 (require 'jsonrpc)
 (require 'vtable)
+(require 'cl-lib)
 
 (defgroup kohai nil
   "Interaction from Emacs to a Kohai server."
@@ -79,13 +80,19 @@
 
 (transient-define-prefix kohai--dashboard ()
   "Global command access of Kohai."
-  [["supervised directory"
-    ("dg" "get supervised directory" kohai-supervised-get)
-    ("ds" "set supervised directory" kohai-supervised-set)]
+  [["Dir"
+    ("dg" "get" kohai-supervised-get :transient t)
+    ("ds" "set" kohai-supervised-set :transient t)]
 
    ["Sectors"
-    ("sl" "get the sector list" kohai-sector-list)
-    ("sn" "create a new sector" kohai-sector-save)]])
+    ("sl" "list" kohai-sector-list :transient t)
+    ("sn" "new" kohai-sector-save :transient t)]
+
+   ["Logs"
+    ("ln" "new" kohai-record-log)]
+
+   ["Other"
+    ("q" "close" transient-quit-one)]])
 
 ;;; Internal function
 
@@ -186,6 +193,22 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
         :columns '("Sector name" "Sector description")
         :objects objects)))))
 
+(defun kohai--complete-sectors (sectors)
+  "Get SECTORS as a completion list."
+  (let ((sector-entries
+         (mapcar (lambda (sector)
+                   (let* ((name (cl-getf sector :name))
+                          (desc (cl-getf sector :description))
+                          (key (concat (propertize name 'face 'bold)
+                                       ": " desc)))
+                     (cons key name)))
+                 sectors)))
+    (let ((selected-sector (completing-read "Sector: "
+                                            sector-entries nil nil nil t)))
+      (alist-get selected-sector
+                 sector-entries
+                 nil nil #'equal))))
+
 ;; Features
 
 (defun kohai ()
@@ -209,9 +232,29 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 (defun kohai-sector-list ()
   "Get the list of sectors in a dedicated buffer."
   (interactive)
+  (kohai--ensure-supervision)
   (kohai--get-sectors)
   (switch-to-buffer-other-window
    (get-buffer-create kohai-sectors-buffer-name)))
+
+(defun kohai-record-log ()
+  "Start recording a log."
+  (interactive)
+  (kohai--ensure-supervision)
+  (let* ((sectors (kohai--send :kohai/sector/list nil))
+         (sector (kohai--complete-sectors sectors))
+         (raw-project (string-trim (read-from-minibuffer "Project: ")))
+         (project (if (string-blank-p raw-project) nil raw-project))
+         (raw-time (downcase (string-trim
+                              (read-from-minibuffer "When: " "now"))))
+         (at-time (if (or (string-blank-p raw-time)
+                          (string= raw-time "now"))
+                      nil raw-time) )
+         (label (string-trim (read-from-minibuffer "# "))))
+    (print sector)
+    (print project)
+    (print at-time)
+    (print label)))
 
 (defun kohai-supervised-get ()
   "Display the current supervised directory."

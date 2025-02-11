@@ -7,6 +7,10 @@ module Transient = struct
     ; label : string
     }
 
+  let make ~start_date ?duration ?project ~sectors label =
+    { start_date; duration; project; sectors; label }
+  ;;
+
   let to_rensai { start_date; duration; project; sectors; label } =
     let open Rensai.Ast in
     record

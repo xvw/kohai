@@ -43,13 +43,17 @@
 
 
 (defcustom kohai-stderr-buffer-name "*kohai-stderr*"
-  "The name of the buffer listing displaying the Kohai errors."
+  "The name of the buffer displaying the Kohai errors."
   :group 'kohai :type 'string)
 
 (defcustom kohai-sectors-buffer-name "*kohai-sectors*"
-  "The name of the buffer listing displaying the Kohai sectors."
+  "The name of the buffer listing sectors."
   :group 'kohai :type 'string)
 
+
+(defcustom kohai-transient-logs-buffer-name "*kohai-transient-logs*"
+  "The name of the buffer listing transient logs."
+  :group 'kohai :type 'string)
 
 ;;; Variables
 
@@ -78,18 +82,19 @@
 
 ;;; Transient stuff
 
-(transient-define-prefix kohai--dashboard ()
+(transient-define-prefix kohai-dashboard ()
   "Global command access of Kohai."
   [["Dir"
     ("dg" "get" kohai-supervised-get :transient t)
     ("ds" "set" kohai-supervised-set :transient t)]
 
    ["Sectors"
-    ("sl" "list" kohai-sector-list :transient t)
+    ("sl" "list" kohai-sector-list)
     ("sn" "new" kohai-sector-save :transient t)]
 
    ["Logs"
-    ("r" "record" kohai-record-log)]
+    ("r" "record" kohai-record-log)
+    ("t" "transients" kohai-transient-logs)]
 
    ["Other"
     ("q" "close" transient-quit-one)]])
@@ -193,6 +198,27 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
         :columns '("Sector name" "Sector description")
         :objects objects)))))
 
+(defun kohai--get-transient-logs (&optional given-logs)
+  "Return the list of transient logs (or GIVEN-LOGS) in a dedicated buffer."
+  (kohai--ensure-supervision)
+  (kohai--fill-buffer
+   kohai-transient-logs-buffer-name
+   (lambda (_buff)
+     (let* ((logs (or given-logs (kohai--send :kohai/log/transient nil)))
+            (objects (mapcar
+                      (lambda (elt)
+                        (list (cl-getf elt :index)
+                              (cl-getf elt :start_date)
+                              (or (cl-getf elt :duration) "?")
+                              (or (cl-getf elt :project) "-")
+                              (string-join (cl-getf elt :sectors) ", ")
+                              (cl-getf elt :label)))
+                      logs)))
+       (make-vtable
+        :divider-width "5px"
+        :columns '("n" "st" "d" "p" "s" "l")
+        :objects objects)))))
+
 (defun kohai--complete-sectors (sectors)
   "Get SECTORS as a completion list."
   (let ((sector-entries
@@ -220,7 +246,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (if kohai-supervised
       (progn (kohai--send :kohai/supervision/set kohai-supervised)
              (message "%s is supervised" kohai-supervised)
-             (kohai--dashboard))
+             (kohai-dashboard))
     (call-interactively #'kohai-supervised-set)))
 
 (defun kohai-sector-save (name description)
@@ -256,7 +282,18 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                       :sector sector
                       :label label)))
     (let ((result (kohai--send :kohai/log/record param)))
-      (print result))))
+      (kohai--get-sectors)
+      (kohai--get-transient-logs result)
+      (switch-to-buffer-other-window
+       (get-buffer-create kohai-transient-logs-buffer-name)))))
+
+(defun kohai-transient-logs ()
+  "Fetch the transient log list."
+  (interactive)
+  (kohai--ensure-supervision)
+  (kohai--get-transient-logs)
+  (switch-to-buffer-other-window
+   (get-buffer-create kohai-transient-logs-buffer-name)))
 
 (defun kohai-supervised-get ()
   "Display the current supervised directory."

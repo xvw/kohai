@@ -29,4 +29,7 @@ module Transient : sig
       specific date is after and if the duration was not already
       filled. *)
   val compute_duration : t -> Datetime.t -> t
+
+  val push : t -> t list -> t list
+  val index : t list -> t list
 end

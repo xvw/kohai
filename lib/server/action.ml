@@ -63,6 +63,21 @@ let save_sector body ?id (module H : Eff.HANDLER) sector =
   sectors
 ;;
 
+let get_transient_log' body ?id (module H : Eff.HANDLER) () =
+  let cwd = ensure_supervision body ?id (module H) () in
+  let file = Kohai_model.Resolver.transient_logs ~cwd in
+  let content = Eff.read_file (module H) file in
+  let lexbuf = Lexing.from_string content in
+  lexbuf
+  |> Rensai.Lang.from_lexingbuf_to_list ~reverse:false
+  |> List.filter_map (fun x ->
+    x |> Kohai_model.Log.Transient.from_rensai |> Result.to_option)
+;;
+
+let get_transient_log body ?id (module H : Eff.HANDLER) () =
+  get_transient_log' body ?id (module H) () |> Kohai_model.Log.Transient.index
+;;
+
 let record_log body ?id (module H : Eff.HANDLER) recorded =
   let cwd = ensure_supervision body ?id (module H) () in
   let _ =
@@ -72,6 +87,7 @@ let record_log body ?id (module H : Eff.HANDLER) recorded =
     |> Kohai_model.Sector.make
     |> save_sector body ?id (module H : Eff.HANDLER)
   in
+  let logs = get_transient_log' body ?id (module H) () in
   let file = Kohai_model.Resolver.transient_logs ~cwd in
   let start_date =
     match Kohai_model.Log.Recored.start_date_of recorded with
@@ -79,14 +95,16 @@ let record_log body ?id (module H : Eff.HANDLER) recorded =
     | None -> Eff.now (module H)
   in
   let log = Kohai_model.Log.Transient.make ~start_date recorded in
-  let () =
-    Eff.append_to_file
-      (module H)
-      file
-      (Format.asprintf
-         "\n%a"
-         Rensai.Lang.pp
-         (Kohai_model.Log.Transient.to_rensai log))
+  let logs = Kohai_model.Log.Transient.push log logs in
+  let content =
+    logs
+    |> List.map (fun sector ->
+      Format.asprintf
+        "%a"
+        Rensai.Lang.pp
+        (Kohai_model.Log.Transient.to_rensai sector))
+    |> String.concat "\n"
   in
-  log
+  let () = Eff.write_file (module H) file content in
+  logs
 ;;

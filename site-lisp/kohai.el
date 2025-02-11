@@ -157,11 +157,12 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
     (kohai--fill-buffer buffer-name action)
     (switch-to-buffer-other-window buff)))
 
-(defun kohai--read-dt-duration (prompt)
+(defun kohai--read-dt-duration (prompt &optional default)
   "Read a duration or a datetime from the minibuffer with a PROMPT."
-  (let* ((raw-time
-          (downcase (string-trim (read-from-minibuffer prompt "now")))))
-    (if (or (string-blank-p raw-time) (string= raw-time "now"))
+  (let* ((value (or default "now"))
+         (raw-time (string-trim (read-from-minibuffer prompt value))))
+    (if (or (string-blank-p raw-time)
+            (string= (downcase raw-time) "now"))
         nil raw-time)))
 
 (defun kohai--sector-save (sector desc)
@@ -238,6 +239,21 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
          (logs (kohai--send :kohai/log/transient/stop param)))
     (kohai--get-transient-logs logs)))
 
+(defun kohai--ask-for-closing-transient-logs (outdated)
+  "Interactively ask for filling opening tasks (OUTDATED)."
+  (dolist (log (append outdated nil))
+    (let* ((index (cl-getf log :index))
+           (date (cl-getf log :start_date))
+           (label (cl-getf log :label))
+           (v (format "%02d. %s %s\t"
+                      index
+                      date
+                      (propertize label 'face 'bold))))
+      (when (yes-or-no-p v)
+        (let  ((logs (kohai--send :kohai/log/transient/stop
+                                  (list :index index))))
+          (kohai--get-transient-logs logs))))))
+
 (defun kohai--complete-sectors (sectors)
   "Get SECTORS as a completion list."
   (let ((sector-entries
@@ -298,11 +314,10 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                       :label label)))
     (let* ((result (kohai--send :kohai/log/record param))
            (logs (cl-getf result :logs))
-           (_outd (cl-getf result :outaded)))
+           (outd (cl-getf result :outdated)))
       (kohai--get-sectors)
       (kohai--get-transient-logs logs)
-      (switch-to-buffer-other-window
-       (get-buffer-create kohai-transient-logs-buffer-name)))))
+      (kohai--ask-for-closing-transient-logs outd))))
 
 (defun kohai-transient-logs ()
   "Fetch the transient log list."

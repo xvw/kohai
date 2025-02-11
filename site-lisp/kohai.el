@@ -134,20 +134,44 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
     (kohai--fill-buffer buffer-name action)
     (switch-to-buffer-other-window buff)))
 
-(defun kohai--get-sectors ()
-  "Return the list of sectors in a dedicated buffer."
+(defun kohai--sector-save (sector desc)
+  "Send a request that store SECTOR with a given DESC."
+  (let* ((real-name (string-trim sector))
+         (real-desc (string-trim desc))
+         (desc (if (string-blank-p real-desc) nil real-desc))
+         (param (list :name real-name
+                      :description desc)))
+    (let ((result (kohai--send :kohai/sector/save param)))
+      (message "%s has been stored." real-name)
+      (kohai--get-sectors result))))
+
+(defun kohai--sector-update-description (object)
+  "Update the selected sector (OBJECT) description."
+  (let* ((sector (car object))
+         (description (car (cdr object)))
+         (new-desc (read-from-minibuffer
+                    (format "New description of [%s]: " sector)
+                    description)))
+    (when (not (string-blank-p new-desc))
+      (kohai--sector-save sector new-desc))))
+
+(defun kohai--get-sectors (&optional given-sectors)
+  "Return the list of sectors (or GIVEN-SECTORS) in a dedicated buffer."
   (kohai--ensure-supervision)
   (kohai--fill-buffer
    kohai-sectors-buffer-name
    (lambda (_buff)
-     (let* ((sectors (kohai--send :kohai/sector/list nil))
+     (let* ((sectors (or given-sectors (kohai--send :kohai/sector/list nil)))
             (objects (mapcar
                       (lambda (elt)
-                        (list (cl-getf elt :name)
-                              (or (cl-getf elt :description) "")))
+                        (list (propertize (cl-getf elt :name)
+                                          'face '(bold default))
+                              (propertize (or (cl-getf elt :description) "")
+                                          'face 'default)))
                       sectors)))
        (make-vtable
-        :divider-width "2px"
+        :actions '("RET" kohai--sector-update-description)
+        :divider " "
         :columns '("Sector name" "Sector description")
         :objects objects)))))
 
@@ -168,14 +192,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "Save a new sector with a NAME and a DESCRIPTION."
   (interactive "sName: \nsDescription of %s: ")
   (kohai--ensure-supervision)
-  (let* ((real-name (string-trim name))
-         (real-desc (string-trim description))
-         (desc (if (string-blank-p real-desc) nil real-desc))
-         (param (list :name real-name
-                      :description desc)))
-    (let ((_result (kohai--send :kohai/sector/save param)))
-      (message "%s has been stored." real-name)
-      (kohai--get-sectors))))
+  (kohai--sector-save name description))
 
 (defun kohai-sector-list ()
   "Get the list of sectors in a dedicated buffer."

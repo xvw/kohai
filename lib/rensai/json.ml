@@ -42,8 +42,8 @@ let rec to_yojson = function
   | Ast.Bool b -> `Bool b
   | Ast.Int x -> `Int x
   | Ast.Float x -> `Float x
-  | Ast.Int32 x -> `Intlit (Int32.to_string x ^ "l")
-  | Ast.Int64 x -> `Intlit (Int64.to_string x ^ "L")
+  | Ast.Int32 x -> `Intlit (Int32.to_string x)
+  | Ast.Int64 x -> `Intlit (Int64.to_string x)
   | Ast.Char x -> `String (String.make 1 x)
   | Ast.String x -> `String x
   | Ast.Pair (a, b) -> `Tuple [ to_yojson a; to_yojson b ]

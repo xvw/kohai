@@ -157,6 +157,13 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
     (kohai--fill-buffer buffer-name action)
     (switch-to-buffer-other-window buff)))
 
+(defun kohai--read-dt-duration (prompt)
+  "Read a duration or a datetime from the minibuffer with a PROMPT."
+  (let* ((raw-time
+          (downcase (string-trim (read-from-minibuffer prompt "now")))))
+    (if (or (string-blank-p raw-time) (string= raw-time "now"))
+        nil raw-time)))
+
 (defun kohai--sector-save (sector desc)
   "Send a request that store SECTOR with a given DESC."
   (let* ((real-name (string-trim sector))
@@ -194,9 +201,10 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                       sectors)))
        (make-vtable
         :actions '("RET" kohai--sector-update-description)
-        :divider " "
+        :divider-width "5px"
         :columns '("Sector name" "Sector description")
         :objects objects)))))
+
 
 (defun kohai--get-transient-logs (&optional given-logs)
   "Return the list of transient logs (or GIVEN-LOGS) in a dedicated buffer."
@@ -215,9 +223,20 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                               (cl-getf elt :label)))
                       logs)))
        (make-vtable
+        :actions '("c" kohai--transient-log-close)
         :divider-width "5px"
         :columns '("n" "st" "d" "p" "s" "l")
         :objects objects)))))
+
+
+(defun kohai--transient-log-close (object)
+  "Close the transient log defined by OBJECT"
+  (kohai--ensure-supervision)
+  (let* ((index (car object))
+         (duration (kohai--read-dt-duration "Duration: "))
+         (param (list :index index :duration duration))
+         (logs (kohai--send :kohai/log/transient/stop param)))
+    (kohai--get-transient-logs logs)))
 
 (defun kohai--complete-sectors (sectors)
   "Get SECTORS as a completion list."
@@ -232,8 +251,8 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
     (let ((selected-sector (completing-read "Sector: "
                                             sector-entries nil nil nil t)))
       (or (alist-get selected-sector
-                 sector-entries
-                 nil nil #'equal) selected-sector))))
+                     sector-entries
+                     nil nil #'equal) selected-sector))))
 
 ;; Features
 
@@ -271,19 +290,17 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
          (sector (kohai--complete-sectors sectors))
          (raw-project (string-trim (read-from-minibuffer "Project: ")))
          (project (if (string-blank-p raw-project) nil raw-project))
-         (raw-time (downcase (string-trim
-                              (read-from-minibuffer "When: " "now"))))
-         (at-time (if (or (string-blank-p raw-time)
-                          (string= raw-time "now"))
-                      nil raw-time))
+         (at-time (kohai--read-dt-duration "When: "))
          (label (string-trim (read-from-minibuffer "# ")))
          (param (list :start-date at-time
                       :project project
                       :sector sector
                       :label label)))
-    (let ((result (kohai--send :kohai/log/record param)))
+    (let* ((result (kohai--send :kohai/log/record param))
+           (logs (cl-getf result :logs))
+           (_outd (cl-getf result :outaded)))
       (kohai--get-sectors)
-      (kohai--get-transient-logs result)
+      (kohai--get-transient-logs logs)
       (switch-to-buffer-other-window
        (get-buffer-create kohai-transient-logs-buffer-name)))))
 

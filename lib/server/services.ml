@@ -99,7 +99,7 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "record")
         ~with_params:Kohai_model.Log.Recored.from_rensai
-        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
+        ~finalizer:Kohai_model.Log.Transient.result_to_rensai
         (Action.record_log body)
     ;;
 
@@ -109,6 +109,14 @@ module Kohai = struct
         ~with_params:discard
         ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
         (Action.get_transient_log body)
+    ;;
+
+    let stop_recording body =
+      Jsonrpc.service
+        ~meth:(prefix "transient/stop")
+        ~with_params:Kohai_model.Log.Transient.Operate.Stop.from_rensai
+        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
+        (Action.stop_recording body)
     ;;
   end
 end
@@ -125,6 +133,7 @@ let methods body =
   ; Kohai.Sector.save body
   ; Kohai.Log.record body
   ; Kohai.Log.transient body
+  ; Kohai.Log.stop_recording body
   ]
 ;;
 

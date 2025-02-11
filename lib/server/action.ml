@@ -78,6 +78,16 @@ let get_transient_log body ?id (module H : Eff.HANDLER) () =
   get_transient_log' body ?id (module H) () |> Kohai_model.Log.Transient.index
 ;;
 
+let make_transient_log_content logs =
+  logs
+  |> List.map (fun sector ->
+    Format.asprintf
+      "%a"
+      Rensai.Lang.pp
+      (Kohai_model.Log.Transient.to_rensai sector))
+  |> String.concat "\n"
+;;
+
 let record_log body ?id (module H : Eff.HANDLER) recorded =
   let cwd = ensure_supervision body ?id (module H) () in
   let _ =
@@ -96,15 +106,31 @@ let record_log body ?id (module H : Eff.HANDLER) recorded =
   in
   let log = Kohai_model.Log.Transient.make ~start_date recorded in
   let logs = Kohai_model.Log.Transient.push log logs in
-  let content =
+  let content = make_transient_log_content logs in
+  let () = Eff.write_file (module H) file content in
+  logs |> Kohai_model.Log.Transient.split log
+;;
+
+let stop_recording body ?id (module H : Eff.HANDLER) operation =
+  let cwd = ensure_supervision body ?id (module H) () in
+  let logs = get_transient_log' body ?id (module H) () in
+  let file = Kohai_model.Resolver.transient_logs ~cwd in
+  let i = Kohai_model.Log.Transient.Operate.Stop.index operation in
+  let logs =
     logs
-    |> List.map (fun sector ->
-      Format.asprintf
-        "%a"
-        Rensai.Lang.pp
-        (Kohai_model.Log.Transient.to_rensai sector))
-    |> String.concat "\n"
+    |> List.map (fun log ->
+      let j = Kohai_model.Log.Transient.index_of log in
+      let d = Kohai_model.Log.Transient.Operate.Stop.duration operation in
+      if Int.equal i j
+      then (
+        match d with
+        | None ->
+          Kohai_model.Log.Transient.compute_duration log (Eff.now (module H))
+        | Some d -> Kohai_model.Log.Transient.push_duration log d)
+      else log)
+    |> Kohai_model.Log.Transient.index
   in
+  let content = make_transient_log_content logs in
   let () = Eff.write_file (module H) file content in
   logs
 ;;

@@ -16,11 +16,15 @@ module Transient : sig
   (** A type that denotes a transient log. *)
   type t
 
+  type result
+
   (** Build a transient log. *)
   val make : start_date:Datetime.t -> Recored.t -> t
 
   (** Convert transient log to rensai lang. *)
   val to_rensai : t Rensai.Ast.conv
+
+  val result_to_rensai : result Rensai.Ast.conv
 
   (** Convert rensai expression to transient log. *)
   val from_rensai : t Rensai.Validation.t
@@ -30,6 +34,19 @@ module Transient : sig
       filled. *)
   val compute_duration : t -> Datetime.t -> t
 
+  val push_duration : t -> int -> t
+  val index_of : t -> int
   val push : t -> t list -> t list
   val index : t list -> t list
+  val split : t -> t list -> result
+
+  module Operate : sig
+    module Stop : sig
+      type t
+
+      val from_rensai : t Rensai.Validation.t
+      val index : t -> int
+      val duration : t -> int option
+    end
+  end
 end

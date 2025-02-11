@@ -75,6 +75,17 @@
 
 (provide 'rens-mode)
 
+;;; Transient stuff
+
+(transient-define-prefix kohai--dashboard ()
+  "Global command access of Kohai."
+  [["supervised directory"
+    ("dg" "get supervised directory" kohai-supervised-get)
+    ("ds" "set supervised directory" kohai-supervised-set)]
+
+   ["Sectors"
+    ("sl" "get the sector list" kohai-sector-list)
+    ("sn" "create a new sector" kohai-sector-save)]])
 
 ;;; Internal function
 
@@ -185,7 +196,8 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (jsonrpc--message "Connected")
   (if kohai-supervised
       (progn (kohai--send :kohai/supervision/set kohai-supervised)
-             (message "%s is supervised" kohai-supervised))
+             (message "%s is supervised" kohai-supervised)
+             (kohai--dashboard))
     (call-interactively #'kohai-supervised-set)))
 
 (defun kohai-sector-save (name description)

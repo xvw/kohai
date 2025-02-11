@@ -200,11 +200,13 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                               (propertize (or (cl-getf elt :description) "")
                                           'face 'default)))
                       sectors)))
-       (make-vtable
-        :actions '("RET" kohai--sector-update-description)
-        :divider-width "5px"
-        :columns '("Sector name" "Sector description")
-        :objects objects)))))
+       (if (<= (length sectors) 0)
+           (insert "no sectors")
+         (make-vtable
+          :actions '("RET" kohai--sector-update-description)
+          :divider-width "5px"
+          :columns '("Sector name" "Sector description")
+          :objects objects))))))
 
 
 (defun kohai--get-transient-logs (&optional given-logs)
@@ -219,16 +221,33 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                         (list (cl-getf elt :index)
                               (cl-getf elt :start_date)
                               (or (cl-getf elt :duration) "?")
-                              (or (cl-getf elt :project) "-")
-                              (string-join (cl-getf elt :sectors) ", ")
+                              (or (cl-getf elt :project) "")
+                              (cl-getf elt :sector)
                               (cl-getf elt :label)))
                       logs)))
-       (make-vtable
-        :actions '("c" kohai--transient-log-close)
-        :divider-width "5px"
-        :columns '("n" "st" "d" "p" "s" "l")
-        :objects objects)))))
+       (if (<= (length logs) 0)
+           (insert "no transient logs")
+         (make-vtable
+          :actions '("c" kohai--transient-log-close
+                     "r" kohai--transient-log-rewrite)
+          :divider-width "5px"
+          :columns '("n" "st" "d" "p" "s" "l")
+          :objects objects))))))
 
+
+(defun kohai--record-transient-log (date project label)
+  "Prompt the recording of a log with a prefilled DATE, PROJECT and LABEL."
+  (kohai--ensure-supervision)
+  (let* ((sectors (kohai--send :kohai/sector/list nil))
+         (sector (kohai--complete-sectors sectors))
+         (raw-project (string-trim (read-from-minibuffer "Project: " project)))
+         (project (if (string-blank-p raw-project) nil raw-project))
+         (at-time (kohai--read-dt-duration "When: " date))
+         (label (string-trim (read-from-minibuffer "# " label))))
+    (list :start_date at-time
+          :project project
+          :sector sector
+          :label label)))
 
 (defun kohai--transient-log-close (object)
   "Close the transient log defined by OBJECT"
@@ -237,6 +256,19 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
          (duration (kohai--read-dt-duration "Duration: "))
          (param (list :index index :duration duration))
          (logs (kohai--send :kohai/log/transient/stop param)))
+    (kohai--get-transient-logs logs)))
+
+(defun kohai--transient-log-rewrite (object)
+  "Rewrite the transient log defined by OBJECT."
+  (kohai--ensure-supervision)
+  (let* ((index (car object))
+         (date (car (cdr object)))
+         (project (car (cdr (cdr (cdr object)))))
+         (label (car (cdr (cdr (cdr (cdr (cdr object)))))))
+         (param (kohai--record-transient-log date project label))
+         (param-with-index (append param (list :index index)))
+         (logs (kohai--send :kohai/log/transient/rewrite
+                              param-with-index)))
     (kohai--get-transient-logs logs)))
 
 (defun kohai--ask-for-closing-transient-logs (outdated)
@@ -302,22 +334,13 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "Start recording a log."
   (interactive)
   (kohai--ensure-supervision)
-  (let* ((sectors (kohai--send :kohai/sector/list nil))
-         (sector (kohai--complete-sectors sectors))
-         (raw-project (string-trim (read-from-minibuffer "Project: ")))
-         (project (if (string-blank-p raw-project) nil raw-project))
-         (at-time (kohai--read-dt-duration "When: "))
-         (label (string-trim (read-from-minibuffer "# ")))
-         (param (list :start-date at-time
-                      :project project
-                      :sector sector
-                      :label label)))
-    (let* ((result (kohai--send :kohai/log/record param))
-           (logs (cl-getf result :logs))
-           (outd (cl-getf result :outdated)))
-      (kohai--get-sectors)
-      (kohai--get-transient-logs logs)
-      (kohai--ask-for-closing-transient-logs outd))))
+  (let* ((param (kohai--record-transient-log nil nil nil))
+         (result (kohai--send :kohai/log/record param))
+         (logs (cl-getf result :logs))
+         (outd (cl-getf result :outdated)))
+    (kohai--get-sectors)
+    (kohai--get-transient-logs logs)
+    (kohai--ask-for-closing-transient-logs outd)))
 
 (defun kohai-transient-logs ()
   "Fetch the transient log list."

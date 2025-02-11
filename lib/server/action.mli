@@ -68,3 +68,10 @@ val stop_recording
   -> (module Sigs.EFFECT_HANDLER)
   -> Kohai_model.Log.Transient.Operate.Stop.t
   -> Kohai_model.Log.Transient.t list
+
+val rewrite_transient_log
+  :  string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> Kohai_model.Log.Transient.t
+  -> Kohai_model.Log.Transient.t list

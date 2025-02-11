@@ -134,3 +134,27 @@ let stop_recording body ?id (module H : Eff.HANDLER) operation =
   let () = Eff.write_file (module H) file content in
   logs
 ;;
+
+let rewrite_transient_log body ?id (module H : Eff.HANDLER) current =
+  let cwd = ensure_supervision body ?id (module H) () in
+  let _ =
+    (* Store the sector if not exists. *)
+    current
+    |> Kohai_model.Log.Transient.sector_of
+    |> Kohai_model.Sector.make
+    |> save_sector body ?id (module H : Eff.HANDLER)
+  in
+  let logs = get_transient_log' body ?id (module H) () in
+  let file = Kohai_model.Resolver.transient_logs ~cwd in
+  let i = Kohai_model.Log.Transient.index_of current in
+  let logs =
+    logs
+    |> List.map (fun log ->
+      let j = Kohai_model.Log.Transient.index_of log in
+      if Int.equal i j then current else log)
+    |> Kohai_model.Log.Transient.index
+  in
+  let content = make_transient_log_content logs in
+  let () = Eff.write_file (module H) file content in
+  logs
+;;

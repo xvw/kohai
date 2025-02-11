@@ -27,32 +27,27 @@ module Transient = struct
     ; start_date : Datetime.t
     ; duration : int option
     ; project : string option
-    ; sectors : string list
+    ; sector : string
     ; label : string
     }
 
   type result = t * t list * t list
 
   let index_of { index; _ } = index
+  let sector_of { sector; _ } = sector
 
   let make ~start_date ({ project; sector; label; _ } : Recored.t) =
-    { index = -1
-    ; start_date
-    ; duration = None
-    ; project
-    ; sectors = [ sector ]
-    ; label
-    }
+    { index = -1; start_date; duration = None; project; sector; label }
   ;;
 
-  let to_rensai { index; start_date; duration; project; sectors; label } =
+  let to_rensai { index; start_date; duration; project; sector; label } =
     let open Rensai.Ast in
     record
       [ "index", int index
       ; "start_date", Datetime.to_compact_rensai start_date
       ; "duration", option int duration
       ; "project", option string project
-      ; "sectors", list string sectors
+      ; "sector", string sector
       ; "label", string label
       ]
   ;;
@@ -74,14 +69,9 @@ module Transient = struct
       and+ index = optional_or ~default:(-1) obj "index" int
       and+ duration = optional obj "duration" int
       and+ project = optional obj "project" string
-      and+ sectors =
-        optional_or
-          ~default:[]
-          obj
-          "sectors"
-          (list_of (string & String.is_slug))
+      and+ sector = required obj "sector" (string & String.is_slug)
       and+ label = required obj "label" (string & String.is_not_blank) in
-      { index; start_date; duration; project; sectors; label })
+      { index; start_date; duration; project; sector; label })
   ;;
 
   let push_duration log duration =

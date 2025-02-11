@@ -36,6 +36,7 @@ module Transient : sig
 
   val push_duration : t -> int -> t
   val index_of : t -> int
+  val sector_of : t -> string
   val push : t -> t list -> t list
   val index : t list -> t list
   val split : t -> t list -> result

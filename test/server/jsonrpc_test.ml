@@ -163,7 +163,8 @@ let%expect_test "List of methods - without prefix" =
         "experimental/plus"; "kohai/supervision/ensure";
         "kohai/supervision/is_valid"; "kohai/supervision/get";
         "kohai/supervision/set"; "kohai/sector/list"; "kohai/sector/save";
-        "kohai/log/record"; "kohai/log/transient"; "kohai/log/transient/stop"]}
+        "kohai/log/record"; "kohai/log/transient"; "kohai/log/transient/stop";
+        "kohai/log/transient/rewrite"]}
     |}]
 ;;
 

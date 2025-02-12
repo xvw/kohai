@@ -44,7 +44,7 @@ module Kohai = struct
         ~meth:(prefix "ensure")
         ~with_params:discard
         ~finalizer:A.unit
-        (Action.ensure_supervision body)
+        (Operation.Global.ensure_supervision ~body)
     ;;
 
     let is_valid =
@@ -52,7 +52,7 @@ module Kohai = struct
         ~meth:(prefix "is_valid")
         ~with_params:Path.from_rensai
         ~finalizer:A.bool
-        Action.is_valid_supervised_directory
+        Operation.Supervised_directory.is_valid
     ;;
 
     let get =
@@ -60,7 +60,7 @@ module Kohai = struct
         ~meth:(prefix "get")
         ~with_params:discard
         ~finalizer:A.(option Path.to_rensai)
-        Action.get_supervised_directory
+        Operation.Supervised_directory.get
     ;;
 
     let set body =
@@ -68,7 +68,7 @@ module Kohai = struct
         ~meth:(prefix "set")
         ~with_params:Path.from_rensai
         ~finalizer:A.null
-        (Action.set_supervised_directory body)
+        (Operation.Supervised_directory.set ~body)
     ;;
   end
 

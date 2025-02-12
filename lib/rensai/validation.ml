@@ -944,6 +944,11 @@ module String = struct
          | 'A' .. 'Z' when accept_capital -> true
          | c -> Stdlib.Char.(equal separator c || equal unknown c)))
   ;;
+
+  let is_non_empty_slug ?accept_capital ?unknown ?separator =
+    Infix.(
+      is_not_empty & is_not_blank & is_slug ?accept_capital ?unknown ?separator)
+  ;;
 end
 
 module List = struct

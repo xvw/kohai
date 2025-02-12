@@ -35,6 +35,15 @@ module Set = struct
   ;;
 
   let to_list = S.to_list
+
+  let dump sectors =
+    sectors
+    |> to_list
+    |> List.map (fun sector ->
+      Format.asprintf "%a" Rensai.Lang.pp (to_rensai sector))
+    |> String.concat "\n"
+  ;;
+
   let to_rensai set = set |> S.to_list |> Rensai.Ast.list to_rensai
 
   let from_rensai =

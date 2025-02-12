@@ -80,7 +80,7 @@ module Kohai = struct
         ~meth:(prefix "list")
         ~with_params:discard
         ~finalizer:Kohai_model.Sector.Set.to_rensai
-        (Action.get_sectors body)
+        (Operation.Sector.list ~body)
     ;;
 
     let save body =
@@ -88,7 +88,7 @@ module Kohai = struct
         ~meth:(prefix "save")
         ~with_params:Kohai_model.Sector.from_rensai
         ~finalizer:Kohai_model.Sector.Set.to_rensai
-        (Action.save_sector body)
+        (Operation.Sector.save ~body)
     ;;
   end
 

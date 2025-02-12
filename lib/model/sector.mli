@@ -27,4 +27,7 @@ module Set : sig
 
   (** Convert rensai expression to sector set. *)
   val from_rensai : t Rensai.Validation.t
+
+  (** Render a sector set into a string to be stored in a file. *)
+  val dump : t -> string
 end

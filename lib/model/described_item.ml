@@ -35,6 +35,7 @@ module Set = struct
   ;;
 
   let to_list = S.to_list
+  let dump items = items |> to_list |> Rensai.Lang.dump_list to_rensai
   let to_rensai set = set |> S.to_list |> Rensai.Ast.list to_rensai
 
   let from_rensai =
@@ -42,11 +43,13 @@ module Set = struct
     list_of from_rensai $ S.of_list
   ;;
 
-  let push ({ description; _ } as sector) set =
-    match S.find_opt sector set, description with
+  let push ({ description; _ } as item) set =
+    match S.find_opt item set, description with
     | Some { description = None; _ }, _ | Some _, Some _ ->
-      set |> S.remove sector |> S.add sector
-    | None, _ -> set |> S.add sector
+      set |> S.remove item |> S.add item
+    | None, _ -> set |> S.add item
     | Some _, None -> set
   ;;
+
+  let find name set = S.find_opt { name; description = None } set
 end

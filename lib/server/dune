@@ -13,3 +13,5 @@
   yojson
   eio
   eio_main))
+
+(include_subdirs qualified)

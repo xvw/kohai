@@ -16,3 +16,6 @@ val from_lexingbuf_to_list : ?reverse:bool -> Lexing.lexbuf -> Ast.t list
     Rensai.Lang. Something printer with the following pretty-printer
     should be bi-directionnaly parsed.*)
 val pp : Format.formatter -> Ast.t -> unit
+
+(** Dump a list of element into a lexbuffable string. *)
+val dump_list : ('a -> Ast.t) -> 'a list -> string

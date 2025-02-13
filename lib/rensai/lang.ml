@@ -48,3 +48,9 @@ let rec pp st = function
     let fields = Fmt.using Ast.record_to_assoc fields in
     (Fmt.box ~indent:2 (obj fields)) st record
 ;;
+
+let dump_list to_rensai list =
+  list
+  |> List.map (fun elt -> Format.asprintf "%a" pp (to_rensai elt))
+  |> String.concat "\n"
+;;

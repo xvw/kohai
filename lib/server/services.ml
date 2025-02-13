@@ -44,7 +44,7 @@ module Kohai = struct
         ~meth:(prefix "ensure")
         ~with_params:discard
         ~finalizer:A.unit
-        (Action.ensure_supervision body)
+        (Operation.Global.ensure_supervision ~body)
     ;;
 
     let is_valid =
@@ -52,7 +52,7 @@ module Kohai = struct
         ~meth:(prefix "is_valid")
         ~with_params:Path.from_rensai
         ~finalizer:A.bool
-        Action.is_valid_supervised_directory
+        Operation.Supervised_directory.is_valid
     ;;
 
     let get =
@@ -60,71 +60,90 @@ module Kohai = struct
         ~meth:(prefix "get")
         ~with_params:discard
         ~finalizer:A.(option Path.to_rensai)
-        Action.get_supervised_directory
+        Operation.Supervised_directory.get
     ;;
 
     let set body =
       Jsonrpc.service
         ~meth:(prefix "set")
         ~with_params:Path.from_rensai
-        ~finalizer:A.null
-        (Action.set_supervised_directory body)
+        ~finalizer:Path.to_rensai
+        (Operation.Supervised_directory.set ~body)
     ;;
   end
 
-  module Sector = struct
-    let prefix = String.cat (prefix "sector/")
+  module Described_itm
+      (I : Operation.Generic.DESCRIBED_ITEM)
+      (P : sig
+         val prefix : string
+       end) =
+  struct
+    let prefix = String.cat (prefix P.prefix)
 
     let list body =
       Jsonrpc.service
         ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:Kohai_model.Sector.Set.to_rensai
-        (Action.get_sectors body)
+        ~finalizer:Kohai_model.Described_item.Set.to_rensai
+        (I.list ~body)
     ;;
 
     let save body =
       Jsonrpc.service
         ~meth:(prefix "save")
-        ~with_params:Kohai_model.Sector.from_rensai
-        ~finalizer:Kohai_model.Sector.Set.to_rensai
-        (Action.save_sector body)
+        ~with_params:Kohai_model.Described_item.from_rensai
+        ~finalizer:Kohai_model.Described_item.Set.to_rensai
+        (I.save ~body)
+    ;;
+
+    let get body =
+      Jsonrpc.service
+        ~meth:(prefix "get")
+        ~with_params:V.string
+        ~finalizer:(A.option Kohai_model.Described_item.to_rensai)
+        (I.get ~body)
     ;;
   end
 
-  module Log = struct
-    let prefix = String.cat (prefix "log/")
+  module Sector =
+    Described_itm
+      (Operation.Sector)
+      (struct
+        let prefix = "sector/"
+      end)
 
-    let record body =
-      Jsonrpc.service
-        ~meth:(prefix "record")
-        ~with_params:Kohai_model.Log.Recored.from_rensai
-        ~finalizer:Kohai_model.Log.Transient.result_to_rensai
-        (Action.record_log body)
-    ;;
+  module Project =
+    Described_itm
+      (Operation.Project)
+      (struct
+        let prefix = "project/"
+      end)
 
-    let transient body =
+  module Transient_log = struct
+    let prefix = String.cat (prefix "transient-log/")
+
+    let list body =
       Jsonrpc.service
-        ~meth:(prefix "transient")
+        ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
-        (Action.get_transient_log body)
+        ~finalizer:(A.list Kohai_model.Transient_log.to_rensai)
+        (Operation.Transient_log.list ~body)
     ;;
 
-    let stop_recording body =
+    let get body =
       Jsonrpc.service
-        ~meth:(prefix "transient/stop")
-        ~with_params:Kohai_model.Log.Transient.Operate.Stop.from_rensai
-        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
-        (Action.stop_recording body)
+        ~meth:(prefix "get")
+        ~with_params:V.int
+        ~finalizer:(A.option Kohai_model.Transient_log.to_rensai)
+        (Operation.Transient_log.get ~body)
     ;;
 
-    let rewrite body =
+    let action body =
       Jsonrpc.service
-        ~meth:(prefix "transient/rewrite")
-        ~with_params:Kohai_model.Log.Transient.from_rensai
-        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
-        (Action.rewrite_transient_log body)
+        ~meth:(prefix "action")
+        ~with_params:Kohai_model.Transient_log.operation_from_rensai
+        ~finalizer:Kohai_model.Transient_log.result_to_rensai
+        (Operation.Transient_log.action ~body)
     ;;
   end
 end
@@ -139,10 +158,13 @@ let methods body =
   ; Kohai.Supervision.set body
   ; Kohai.Sector.list body
   ; Kohai.Sector.save body
-  ; Kohai.Log.record body
-  ; Kohai.Log.transient body
-  ; Kohai.Log.stop_recording body
-  ; Kohai.Log.rewrite body
+  ; Kohai.Sector.get body
+  ; Kohai.Project.list body
+  ; Kohai.Project.save body
+  ; Kohai.Project.get body
+  ; Kohai.Transient_log.list body
+  ; Kohai.Transient_log.get body
+  ; Kohai.Transient_log.action body
   ]
 ;;
 

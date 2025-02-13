@@ -26,6 +26,7 @@
 (require 'kohai-core)
 (require 'kohai-req)
 (require 'kohai-sector)
+(require 'kohai-project)
 (require 'kohai-transient-log)
 (require 'kohai-transient)
 
@@ -79,6 +80,31 @@
   (let ((sector-name (kohai-sector--ac nil t)))
     (kohai-sector--update-desc sector-name)
     (pop-to-buffer kohai-sectors-buffer-name)))
+
+
+(defun kohai-list-projects ()
+  "Fill the project's buffer."
+  (interactive)
+  (kohai--ensure-supervision)
+  (kohai-project--list)
+  (pop-to-buffer kohai-projects-buffer-name))
+
+(defun kohai-new-project ()
+  "Save a new project."
+  (interactive)
+  (kohai--ensure-supervision)
+  (let ((name (read-string "Project name: "))
+        (desc (read-string "Project description: ")))
+    (kohai-project--save name desc)
+    (pop-to-buffer kohai-projects-buffer-name)))
+
+(defun kohai-edit-project ()
+  "Edit project's description."
+  (interactive)
+  (kohai--ensure-supervision)
+  (let ((project-name (kohai-project--ac nil t)))
+    (kohai-project--update-desc project-name)
+    (pop-to-buffer kohai-projects-buffer-name)))
 
 
 (defun kohai ()

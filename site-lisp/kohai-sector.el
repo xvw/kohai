@@ -21,45 +21,33 @@
 
 ;;; Code:
 
-(require 'vtable)
 (require 'kohai-core)
-(require 'kohai-req)
-(require 'kohai-buffer)
 (require 'kohai-generic)
-
-(defvar-local selected-key "sector"
-  "The key for the generic instantiation.")
-
-
-(defvar-local selected-buffer kohai-sectors-buffer-name
-    "The targeted buffer.")
-
 
 (defun kohai-sector--ac (&optional sectors not-empty)
   "Get SECTORS as a completion list.
 If NOT-EMPTY the list must be filled."
-  (kohai-generic--ditem-ac selected-key
+  (kohai-generic--ditem-ac "sector"
                            sectors
                            not-empty))
 
 (defun kohai-sector--list (&optional given-sectors)
   "Return the list of sectors (or GIVEN-SECTORS)."
-  (kohai-generic--ditem-list selected-key
-                             selected-buffer
+  (kohai-generic--ditem-list "sector"
+                             kohai-sectors-buffer-name
                              given-sectors))
 
 (defun kohai-sector--save (name desc)
   "Smartly save a sector (with NAME and DESC)."
-  (kohai-generic--ditem-save selected-key
-                             selected-buffer
+  (kohai-generic--ditem-save "sector"
+                             kohai-sectors-buffer-name
                              name desc))
 
 (defun kohai-sector--update-desc (name)
   "Update the description of a sector by his NAME."
-  (kohai-generic--ditem-update-desc selected-key
-                                    selected-buffer
+  (kohai-generic--ditem-update-desc "sector"
+                                    kohai-sectors-buffer-name
                                     name))
 
 (provide 'kohai-sector)
 ;;; kohai-sector.el ends here
-

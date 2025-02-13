@@ -48,6 +48,10 @@
   "The name of the buffer listing sectors."
   :group 'kohai :type 'string)
 
+(defcustom kohai-projects-buffer-name "*kohai-projects*"
+  "The name of the buffer listing sectors."
+  :group 'kohai :type 'string)
+
 
 (defcustom kohai-transient-logs-buffer-name "*kohai-transient-logs*"
   "The name of the buffer listing transient logs."

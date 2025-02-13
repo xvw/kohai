@@ -29,16 +29,19 @@
 (transient-define-prefix kohai-transient--dashboard ()
   "General Dashboard, opened when `kohai' is called."
   [["Supervised"
-    ("dg" "get" kohai-get-supervised :transient t)
-    ("ds" "set" kohai-set-supervised :transient t)]
+    ("dg" "get" kohai-get-supervised)
+    ("ds" "set" kohai-set-supervised)]
 
    ["Sector"
     ("sl" "list" kohai-list-sectors)
     ("sn" "new" kohai-new-sector)]
 
+   ["Projects"
+    ("pl" "list" kohai-list-projects)
+    ("pn" "new" kohai-new-project)]
+
    ["Other"
     ("q" "close" transient-quit-one)]])
-
 
 
 (provide 'kohai-transient)

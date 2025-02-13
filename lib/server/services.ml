@@ -67,7 +67,7 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "set")
         ~with_params:Path.from_rensai
-        ~finalizer:A.null
+        ~finalizer:Path.to_rensai
         (Operation.Supervised_directory.set ~body)
     ;;
   end

@@ -8,7 +8,7 @@
 ;; This file is NOT part of GNU Emac
 
 ;; Maintainer: Xavier Van de Woestyne <xaviervdw@gmail.com>
-;; Created: 24 January 2025
+;; Created: 13 February 2025
 ;; Keywords: tool timetracker productivity
 ;; URL: https://github.com/xvw/kohai
 ;; Package-Requires: ((emacs "29.1"))
@@ -38,3 +38,4 @@
 (add-to-list 'auto-mode-alist '("\\.rens\\'" . rens-mode))
 
 (provide 'rens-mode)
+;;; rens-mode.el ends here

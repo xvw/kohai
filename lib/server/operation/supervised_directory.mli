@@ -6,7 +6,7 @@ val set
   -> ?id:int
   -> (module Sigs.EFFECT_HANDLER)
   -> Path.t
-  -> unit
+  -> Path.t
 
 (** Return the supervised directory for the current session. *)
 val get : ?id:int -> (module Sigs.EFFECT_HANDLER) -> unit -> Path.t option

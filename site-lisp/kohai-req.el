@@ -8,7 +8,7 @@
 ;; This file is NOT part of GNU Emac
 
 ;; Maintainer: Xavier Van de Woestyne <xaviervdw@gmail.com>
-;; Created: 24 January 2025
+;; Created: 13 February 2025
 ;; Keywords: tool timetracker productivity
 ;; URL: https://github.com/xvw/kohai
 ;; Package-Requires: ((emacs "29.1"))
@@ -22,6 +22,7 @@
 ;;; Code:
 
 (require 'jsonrpc)
+(require 'kohai-core)
 
 (defun kohai-req--make-connection ()
   "Initialize the connection with the Kohai server."
@@ -39,6 +40,32 @@
                            kohai-stderr-buffer-name)
                           :noquery t))))
     (setq kohai--connection (funcall server))))
+
+
+(cl-defun kohai-req--send (method params &key
+                              timeout
+                              cancel-on-input
+                              cancel-on-input-retval)
+  "Execute the request METHOD with given PARAMS.
+TIMEOUT is a timeout time response.  CANCEL-ON-INPUT and
+CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
+  (kohai--ensure-connection)
+  (let ((server kohai--connection))
+    (jsonrpc-request server method params
+                     :timeout timeout
+                     :cancel-on-input cancel-on-input
+                     :cancel-on-input-retval cancel-on-input-retval)))
+
+
+;;; Request related to the supervised directory
+
+(defun kohai-req--supervised-get ()
+  "A request that return the current supervised folder."
+  (kohai-req--send :kohai/supervision/get nil))
+
+(defun kohai-req--supervised-set (directory)
+  "A request to patch the DIRECTORY supervised by the server."
+  (kohai-req--send :kohai/supervision/set directory))
 
 
 (provide 'kohai-req)

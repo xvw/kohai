@@ -25,7 +25,7 @@ let%expect_test "get sectors without files" =
   List.iter print_endline [ req0; req1 ];
   [%expect
     {|
-    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 0; jsonrpc = "2.0"; result = "/supervised"}
     {id = 1; jsonrpc = "2.0"; result = []}
     |}]
 ;;
@@ -66,7 +66,7 @@ let%expect_test "get sectors with files" =
   List.iter print_endline [ req0; req1 ];
   [%expect
     {|
-    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 0; jsonrpc = "2.0"; result = "/supervised"}
     {id = 1; jsonrpc = "2.0";
       result =
        [{description = <null>; name = "art"};
@@ -135,7 +135,7 @@ let%expect_test "store sectors" =
   List.iter print_endline [ req0; req1; req2; req3; req4 ];
   [%expect
     {|
-    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 0; jsonrpc = "2.0"; result = "/supervised"}
     {id = 1; jsonrpc = "2.0";
       result =
        [{description = <null>; name = "art"};

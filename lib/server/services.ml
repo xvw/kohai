@@ -92,42 +92,6 @@ module Kohai = struct
     ;;
   end
 
-  module Log = struct
-    let prefix = String.cat (prefix "log/")
-
-    let record body =
-      Jsonrpc.service
-        ~meth:(prefix "record")
-        ~with_params:Kohai_model.Log.Recored.from_rensai
-        ~finalizer:Kohai_model.Log.Transient.result_to_rensai
-        (Action.record_log body)
-    ;;
-
-    let transient body =
-      Jsonrpc.service
-        ~meth:(prefix "transient")
-        ~with_params:discard
-        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
-        (Action.get_transient_log body)
-    ;;
-
-    let stop_recording body =
-      Jsonrpc.service
-        ~meth:(prefix "transient/stop")
-        ~with_params:Kohai_model.Log.Transient.Operate.Stop.from_rensai
-        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
-        (Action.stop_recording body)
-    ;;
-
-    let rewrite body =
-      Jsonrpc.service
-        ~meth:(prefix "transient/rewrite")
-        ~with_params:Kohai_model.Log.Transient.from_rensai
-        ~finalizer:(A.list Kohai_model.Log.Transient.to_rensai)
-        (Action.rewrite_transient_log body)
-    ;;
-  end
-
   module Transient_log = struct
     let prefix = String.cat (prefix "transient-log/")
 
@@ -167,10 +131,6 @@ let methods body =
   ; Kohai.Supervision.set body
   ; Kohai.Sector.list body
   ; Kohai.Sector.save body
-  ; Kohai.Log.record body
-  ; Kohai.Log.transient body
-  ; Kohai.Log.stop_recording body
-  ; Kohai.Log.rewrite body
   ; Kohai.Transient_log.list body
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body

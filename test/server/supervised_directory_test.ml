@@ -109,7 +109,7 @@ let%expect_test "set supervised dir with valid path" =
   |> Kohai_core.Eff.handle (module Handler)
   |> request_dump
   |> print_endline;
-  [%expect {| {id = 1; jsonrpc = "2.0"; result = <null>} |}]
+  [%expect {| {id = 1; jsonrpc = "2.0"; result = "/foo"} |}]
 ;;
 
 let%expect_test "set supervised dir with valid path" =
@@ -158,7 +158,7 @@ let%expect_test "set supervised dir with valid path" =
   [%expect
     {|
     {id = 0; jsonrpc = "2.0"; result = <null>}
-    {id = 1; jsonrpc = "2.0"; result = <null>}
+    {id = 1; jsonrpc = "2.0"; result = "/foo"}
     {id = 2; jsonrpc = "2.0"; result = "/foo"}
     {error =
       {code = -32001; data = "The given directory does not exists";

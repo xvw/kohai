@@ -89,7 +89,7 @@ let%expect_test "get transient logs when file are empty" =
     [ supervise; get_logs ];
   [%expect
     {|
-    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 0; jsonrpc = "2.0"; result = "/supervised"}
     {id = 1; jsonrpc = "2.0"; result = []}
     |}]
 ;;
@@ -172,7 +172,7 @@ let%expect_test "" =
     ];
   [%expect
     {|
-    {id = 0; jsonrpc = "2.0"; result = <null>}
+    {id = 0; jsonrpc = "2.0"; result = "/supervised"}
     {id = 1; jsonrpc = "2.0"; result = []}
     {id = 2; jsonrpc = "2.0";
       result =

@@ -82,6 +82,10 @@
   "Return nil if a TERM is blank."
   (when (and term (not (string-blank-p term))) term))
 
+(defun kohai--vector-empty-p (v)
+  "Return t if V is an empty vector."
+  (and (vectorp v) (zerop (length v))))
+
 ;;; Messages
 
 (defun kohai--message-supervised (directory)
@@ -109,7 +113,6 @@
   (let ((pname (or name "VALUE")))
     (when (not (kohai--nil-if-blank value))
       (error "[%s] cannot be blank (or empty)" pname))))
-
 
 ;;; Text propertize
 

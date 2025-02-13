@@ -67,24 +67,54 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "A request to patch the DIRECTORY supervised by the server."
   (kohai-req--send :kohai/supervision/set directory))
 
+;;; Described item requests
+
+(defun kohai-req--described-item-list (subject)
+  "Use SUBJECT to request a generalized described item."
+  (kohai-req--send (intern (format ":kohai/%s/list" subject)) nil))
+
+(defun kohai-req--described-item-save (subject name desc)
+  "A request that store a described item via a NAME and a DESC in SUBJECT."
+  (let* ((pname (kohai--trim-downcase name))
+         (pdesc (kohai--trim-downcase desc)))
+    (kohai--not-blank pname (format "%s.name" subject))
+    (let ((param (list :name pname
+                       :description (kohai--nil-if-blank pdesc))))
+      (kohai-req--send (intern (format ":kohai/%s/save" subject))
+                       param))))
+
+
+(defun kohai-req--described-item-get (subject name)
+  "A request that retreive a SUBJECT by his NAME."
+  (kohai-req--send (intern (format ":kohai/%s/get" subject)) name))
+
 ;;; Request related to sectors
 
 (defun kohai-req--sector-list ()
   "A request that return the list of stored sectors."
-  (kohai-req--send :kohai/sector/list nil))
+  (kohai-req--described-item-list "sector"))
 
 (defun kohai-req--sector-save (name desc)
   "A request that store a sector via a NAME and a DESC."
-  (let* ((pname (kohai--trim-downcase name))
-         (pdesc (kohai--trim-downcase desc)))
-    (kohai--not-blank pname "sector.name")
-    (let ((param (list :name pname
-                       :description (kohai--nil-if-blank pdesc))))
-      (kohai-req--send :kohai/sector/save param))))
+  (kohai-req--described-item-save "sector" name desc))
 
 (defun kohai-req--sector-get (name)
   "A request that retreive a sector by his NAME."
-  (kohai-req--send :kohai/sector/get name))
+  (kohai-req--described-item-get "sector" name))
+
+;;; Request related to projects
+
+(defun kohai-req--project-list ()
+  "A request that return the list of stored project."
+  (kohai-req--described-item-list "project"))
+
+(defun kohai-req--project-save (name desc)
+  "A request that store a project via a NAME and a DESC."
+  (kohai-req--described-item-save "project" name desc))
+
+(defun kohai-req--project-get (name)
+  "A request that retreive a project by his NAME."
+  (kohai-req--described-item-get "project" name))
 
 
 (provide 'kohai-req)

@@ -76,7 +76,7 @@
   "Edit sector's description."
   (interactive)
   (kohai--ensure-supervision)
-  (let ((sector-name (kohai-sector--ac)))
+  (let ((sector-name (kohai-sector--ac nil t)))
     (kohai-sector--update-desc sector-name)
     (pop-to-buffer kohai-sectors-buffer-name)))
 

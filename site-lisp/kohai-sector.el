@@ -25,62 +25,40 @@
 (require 'kohai-core)
 (require 'kohai-req)
 (require 'kohai-buffer)
+(require 'kohai-generic)
 
-(defun kohai-sector--ac (&optional sectors)
-  "Get SECTORS as a completion list."
-  (let* ((sector-entries
-          (mapcar (lambda (sector)
-                    (let* ((name (cl-getf sector :name))
-                           (desc (cl-getf sector :description))
-                           (key (format "%s: %s" (kohai--bold name) desc)))
-                      (cons key name)))
-                  (or sectors (kohai-req--sector-list))))
-         (selected (completing-read "Sector: "
-                                    sector-entries
-                                    nil nil nil t)))
-    (or (alist-get selected sector-entries nil nil #'equal) selected)))
+(defvar-local selected-key "sector"
+  "The key for the generic instantiation.")
 
-(defun kohai-sector--with-buffer (action)
-  "Run ACTION inside the sector's buffer."
-  (kohai-buffer--truncate-with
-   kohai-sectors-buffer-name (lambda (_b) (funcall action))))
 
-(defun kohai-sector--to-vtable-entry (sector)
-  "Render a SECTOR into a vtable column."
-  (list (kohai--bold (cl-getf sector :name))
-        (or (cl-getf sector :description) "")))
+(defvar-local selected-buffer kohai-sectors-buffer-name
+    "The targeted buffer.")
 
-(defun kohai-sector--list-vtable (sectors)
-  "Create the vtable displaying SECTORS."
-  (lambda ()
-    (make-vtable :columns '("Name" "Description")
-                 :divider-width kohai--vtable-default-divider
-                 :objects (mapcar #'kohai-sector--to-vtable-entry
-                                  sectors)
-                 :actions '("d" (lambda (o)
-                                  (kohai-sector--update-desc (car o)))))))
+
+(defun kohai-sector--ac (&optional sectors not-empty)
+  "Get SECTORS as a completion list.
+If NOT-EMPTY the list must be filled."
+  (kohai-generic--ditem-ac selected-key
+                           sectors
+                           not-empty))
 
 (defun kohai-sector--list (&optional given-sectors)
-  "Return the list of sectors (or GIVEN-SECTORS) in a dedicated buffer."
-  (let* ((sectors (or given-sectors (kohai-req--sector-list))))
-    (if (<= (length sectors) 0)
-        (kohai--error-no-entries "sectors list")
-      (kohai-sector--with-buffer (kohai-sector--list-vtable sectors)))))
+  "Return the list of sectors (or GIVEN-SECTORS)."
+  (kohai-generic--ditem-list selected-key
+                             selected-buffer
+                             given-sectors))
 
 (defun kohai-sector--save (name desc)
   "Smartly save a sector (with NAME and DESC)."
-  (let ((sectors (kohai-req--sector-save name desc)))
-    (kohai--message-stored name "sector")
-    (kohai-sector--list sectors)))
+  (kohai-generic--ditem-save selected-key
+                             selected-buffer
+                             name desc))
 
 (defun kohai-sector--update-desc (name)
   "Update the description of a sector by his NAME."
-  (let ((sector (kohai-req--sector-get name)))
-    (kohai--should-exists sector "sector")
-    (let* ((old-desc (cl-getf sector :description))
-           (new-desc (read-string (format "New description (%s): " name)
-                                  old-desc)))
-      (kohai-sector--save name new-desc))))
+  (kohai-generic--ditem-update-desc selected-key
+                                    selected-buffer
+                                    name))
 
 (provide 'kohai-sector)
 ;;; kohai-sector.el ends here

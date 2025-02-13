@@ -50,7 +50,7 @@ let from_rensai =
     and+ project = optional b "project" slug
     and+ duration = optional b "duration" int
     and+ sector = required b "sector" slug
-    and+ label = required b "labbel" (string & String.is_not_blank) in
+    and+ label = required b "label" (string & String.is_not_blank) in
     { index; start_date; duration; project; sector; label })
 ;;
 
@@ -84,7 +84,7 @@ let operation_from_rensai =
           let+ start_date = optional b "start_date" Datetime.from_rensai
           and+ project = optional b "project" slug
           and+ sector = required b "sector" slug
-          and+ label = required b "labbel" (string & String.is_not_blank) in
+          and+ label = required b "label" (string & String.is_not_blank) in
           Record { start_date; project; sector; label }) )
     ; ( "stop_recording"
       , record (fun b ->
@@ -99,7 +99,7 @@ let operation_from_rensai =
           and+ start_date = optional b "start_date" Datetime.from_rensai
           and+ project = optional b "project" slug
           and+ sector = required b "sector" slug
-          and+ label = required b "labbel" (string & String.is_not_blank) in
+          and+ label = required b "label" (string & String.is_not_blank) in
           Rewrite { index; start_date; project; sector; label }) )
     ]
 ;;

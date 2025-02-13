@@ -43,9 +43,9 @@
 
 
 (cl-defun kohai-req--send (method params &key
-                              timeout
-                              cancel-on-input
-                              cancel-on-input-retval)
+                                  timeout
+                                  cancel-on-input
+                                  cancel-on-input-retval)
   "Execute the request METHOD with given PARAMS.
 TIMEOUT is a timeout time response.  CANCEL-ON-INPUT and
 CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
@@ -72,6 +72,19 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 (defun kohai-req--sector-list ()
   "A request that return the list of stored sectors."
   (kohai-req--send :kohai/sector/list nil))
+
+(defun kohai-req--sector-save (name desc)
+  "A request that store a sector via a NAME and a DESC."
+  (let* ((pname (kohai--trim-downcase name))
+         (pdesc (kohai--trim-downcase desc)))
+    (kohai--not-blank pname "sector.name")
+    (let ((param (list :name pname
+                       :description (kohai--nil-if-blank pdesc))))
+      (kohai-req--send :kohai/sector/save param))))
+
+(defun kohai-req--sector-get (name)
+  "A request that retreive a sector by his NAME."
+  (kohai-req--send :kohai/sector/get name))
 
 
 (provide 'kohai-req)

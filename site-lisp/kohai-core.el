@@ -58,20 +58,10 @@
 (defvar kohai--connection nil
   "The Kohai JSONRPC instance.")
 
-;;; Messages
+(defvar kohai--vtable-default-divider "5px"
+  "Define the default divider width for vtable.")
 
-(defun kohai--message-supervised (directory)
-  "Display a message for DIRECTORY as a supervised folder."
-  (if (not directory)
-      (message "There is no supervised directory")
-    (message "[%s] is supervised" directory)))
-
-(defun kohai--error-no-entries (kind)
-  "Display an error if a list of KIND is empty."
-  (error "%s is empty" kind))
-
-
-;;; Internal functions
+;;; Guards
 
 (defun kohai--ensure-connection ()
   "Ensure that the current session is connected to a Kohai server."
@@ -82,6 +72,50 @@
   (and (kohai--ensure-connection)
        (or kohai-supervised (error "No supervised folder"))))
 
+;;; Helpers
+
+(defun kohai--trim-downcase (term)
+  "Apply trim and downcase to TERM."
+  (string-trim (downcase term)))
+
+(defun kohai--nil-if-blank (term)
+  "Return nil if a TERM is blank."
+  (when (and term (not (string-blank-p term))) term))
+
+;;; Messages
+
+(defun kohai--message-supervised (directory)
+  "Display a message for DIRECTORY as a supervised folder."
+  (if (not directory)
+      (message "There is no supervised directory")
+    (message "[%s] is supervised" directory)))
+
+(defun kohai--message-stored (name &optional kind)
+  "message for NAME of type KIND stored."
+  (let ((prefix (if kind (format "%s.%s" name kind) name)))
+    (message "[%s] has been stored" prefix)))
+
+(defun kohai--error-no-entries (kind)
+  "Display an error if a list of KIND is empty."
+  (error "[%s] is empty" kind))
+
+(defun kohai--should-exists (value subject)
+  "Display an error on SUBJECT is VALUE is nil."
+  (when (not value)
+    (error "[%s] does not exists" subject)))
+
+(defun kohai--not-blank (value &optional name)
+  "Display an error if a VALUE (with NAME) is blank."
+  (let ((pname (or name "VALUE")))
+    (when (not (kohai--nil-if-blank value))
+      (error "[%s] cannot be blank (or empty)" pname))))
+
+
+;;; Text propertize
+
+(defun kohai--bold (text)
+  "Propertize TEXT in bold."
+  (propertize text 'face 'bold))
 
 (provide 'kohai-core)
 ;;; kohai-core.el ends here

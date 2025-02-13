@@ -25,11 +25,12 @@
 (require 'rens-mode)
 (require 'kohai-core)
 (require 'kohai-req)
-(require 'kohai-buffer)
+(require 'kohai-sector)
+
 
 ;;; Features
 
-(defun kohai-supervise ()
+(defun kohai-set-supervised ()
   "Set interactively the current supervised directory."
   (interactive)
   (kohai--ensure-connection)
@@ -47,19 +48,37 @@
     (customize-save-variable 'kohai-supervised absolute-path)
     (kohai--message-supervised absolute-path)))
 
-(defun kohai-supervised ()
+(defun kohai-get-supervised ()
   "Display, in the minibuffer, the current supervised directory."
   (interactive)
   (kohai--ensure-connection)
   (let ((supervised (kohai-req--supervised-get)))
     (kohai--message-supervised supervised)))
 
-(defun kohai-sectors ()
+(defun kohai-list-sectors ()
   "Fill the sector's buffer."
   (interactive)
   (kohai--ensure-supervision)
-  (kohai-buffer--sector-list)
+  (kohai-sector--list)
   (pop-to-buffer kohai-sectors-buffer-name))
+
+(defun kohai-new-sector ()
+  "Save a new sector."
+  (interactive)
+  (kohai--ensure-supervision)
+  (let ((name (read-string "Sector name: "))
+        (desc (read-string "Sector description: ")))
+    (kohai-sector--save name desc)
+    (pop-to-buffer kohai-sectors-buffer-name)))
+
+(defun kohai-edit-sector ()
+  "Edit sector's description."
+  (interactive)
+  (kohai--ensure-supervision)
+  (let ((sector-name (kohai-sector--ac)))
+    (kohai-sector--update-desc sector-name)
+    (pop-to-buffer kohai-sectors-buffer-name)))
+
 
 (defun kohai ()
   "Launch Kohai."
@@ -68,7 +87,7 @@
   (if (and kohai-supervised (not (string-blank-p kohai-supervised)))
       (progn (kohai-req--supervised-set kohai-supervised)
              (kohai--message-supervised kohai-supervised))
-    (call-interactively #'kohai-supervise)))
+    (call-interactively #'kohai-set-supervised)))
 
 (provide 'kohai)
 ;;; kohai.el ends here

@@ -25,6 +25,7 @@
 (require 'rens-mode)
 (require 'kohai-core)
 (require 'kohai-req)
+(require 'kohai-buffer)
 
 ;;; Features
 
@@ -53,6 +54,13 @@
   (let ((supervised (kohai-req--supervised-get)))
     (kohai--message-supervised supervised)))
 
+(defun kohai-sectors ()
+  "Fill the sector's buffer."
+  (interactive)
+  (kohai--ensure-supervision)
+  (kohai-buffer--sector-list)
+  (pop-to-buffer kohai-sectors-buffer-name))
+
 (defun kohai ()
   "Launch Kohai."
   (interactive)
@@ -61,7 +69,6 @@
       (progn (kohai-req--supervised-set kohai-supervised)
              (kohai--message-supervised kohai-supervised))
     (call-interactively #'kohai-supervise)))
-
 
 (provide 'kohai)
 ;;; kohai.el ends here

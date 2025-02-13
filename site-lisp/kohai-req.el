@@ -67,6 +67,12 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "A request to patch the DIRECTORY supervised by the server."
   (kohai-req--send :kohai/supervision/set directory))
 
+;;; Request related to sectors
+
+(defun kohai-req--sector-list ()
+  "A request that return the list of stored sectors."
+  (kohai-req--send :kohai/sector/list nil))
+
 
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

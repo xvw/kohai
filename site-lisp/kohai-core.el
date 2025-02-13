@@ -66,6 +66,10 @@
       (message "There is no supervised directory")
     (message "[%s] is supervised" directory)))
 
+(defun kohai--error-no-entries (kind)
+  "Display an error if a list of KIND is empty."
+  (error "%s is empty" kind))
+
 
 ;;; Internal functions
 

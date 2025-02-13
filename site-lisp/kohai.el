@@ -1,9 +1,11 @@
 ;;; kohai.el --- A strange timetracker   -*- coding: utf-8; lexical-binding: t -*-
 
-;; Copyright (C) since 2025  The OCaml-eglot Project Contributors
+;; Copyright (C) since 2025  Xavier Van de Woestyne
 ;; Licensed under the MIT license.
 
 ;; Author: Xavier Van de Woestyne <xaviervdw@gmail.com>
+
+;; This file is NOT part of GNU Emac
 
 ;; Maintainer: Xavier Van de Woestyne <xaviervdw@gmail.com>
 ;; Created: 24 January 2025
@@ -22,6 +24,8 @@
 (require 'jsonrpc)
 (require 'vtable)
 (require 'cl-lib)
+(require 'rens-mode)
+(require 'kohai-req)
 
 (defgroup kohai nil
   "Interaction from Emacs to a Kohai server."
@@ -60,25 +64,6 @@
 (defvar kohai--connection nil
   "The Kohai JSONRPC instance.")
 
-;;; Custom modes for syntax highlighting
-
-(defvar rensai-constants
-  '("null" "true" "false")
-  "Constants for the Rensai Language.")
-
-(defvar rensai-font-lock-defaults
-  `((("\"\\.\\*\\?" . font-lock-string-face)
-     ( ,(regexp-opt rensai-constants 'words) . font-lock-builtin-face)))
-  "Default Font Lock for the Rensai Language.")
-
-(define-derived-mode rens-mode fundamental-mode "Rensai"
-  "Major mode for highlighting Rensai text buffer."
-  (setq font-lock-defaults rensai-font-lock-defaults))
-
-;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.rens\\'" . rens-mode))
-
-(provide 'rens-mode)
 
 ;;; Transient stuff
 
@@ -100,22 +85,6 @@
     ("q" "close" transient-quit-one)]])
 
 ;;; Internal function
-
-(defun kohai--make-connection ()
-  "Initialize the connection with the Kohai server."
-  (let ((server (apply-partially
-                 #'make-instance 'jsonrpc-process-connection
-                 :name "kohai"
-                 :on-shutdown (lambda () (setq kohai--connection nil))
-                 :process (make-process :name "kohai process"
-                                        :connection-type 'pipe
-                                        :coding 'utf-8-emacs-unix
-                                        :command (list kohai-binary)
-                                        :stderr
-                                        (get-buffer-create
-                                         kohai-stderr-buffer-name)
-                                        :noquery t))))
-    (setq kohai--connection (funcall server))))
 
 (defun kohai--ensure-connection ()
   "Ensure that the current session is connected to a Kohai server."
@@ -308,7 +277,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "Run a kohai process."
   (interactive)
   (when (not kohai--connection)
-    (kohai--make-connection))
+    (kohai-req--make-connection))
   (jsonrpc--message "Connected")
   (if kohai-supervised
       (progn (kohai--send :kohai/supervision/set kohai-supervised)

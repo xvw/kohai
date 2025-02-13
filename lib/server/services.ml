@@ -72,33 +72,52 @@ module Kohai = struct
     ;;
   end
 
-  module Sector = struct
-    let prefix = String.cat (prefix "sector/")
+  module Described_itm
+      (I : Operation.Generic.DESCRIBED_ITEM)
+      (P : sig
+         val prefix : string
+       end) =
+  struct
+    let prefix = String.cat (prefix P.prefix)
 
     let list body =
       Jsonrpc.service
         ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:Kohai_model.Sector.Set.to_rensai
-        (Operation.Sector.list ~body)
+        ~finalizer:Kohai_model.Described_item.Set.to_rensai
+        (I.list ~body)
     ;;
 
     let save body =
       Jsonrpc.service
         ~meth:(prefix "save")
-        ~with_params:Kohai_model.Sector.from_rensai
-        ~finalizer:Kohai_model.Sector.Set.to_rensai
-        (Operation.Sector.save ~body)
+        ~with_params:Kohai_model.Described_item.from_rensai
+        ~finalizer:Kohai_model.Described_item.Set.to_rensai
+        (I.save ~body)
     ;;
 
     let get body =
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:V.string
-        ~finalizer:(A.option Kohai_model.Sector.to_rensai)
-        (Operation.Sector.get ~body)
+        ~finalizer:(A.option Kohai_model.Described_item.to_rensai)
+        (I.get ~body)
     ;;
   end
+
+  module Sector =
+    Described_itm
+      (Operation.Sector)
+      (struct
+        let prefix = "sector/"
+      end)
+
+  module Project =
+    Described_itm
+      (Operation.Project)
+      (struct
+        let prefix = "project/"
+      end)
 
   module Transient_log = struct
     let prefix = String.cat (prefix "transient-log/")
@@ -140,6 +159,9 @@ let methods body =
   ; Kohai.Sector.list body
   ; Kohai.Sector.save body
   ; Kohai.Sector.get body
+  ; Kohai.Project.list body
+  ; Kohai.Project.save body
+  ; Kohai.Project.get body
   ; Kohai.Transient_log.list body
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body

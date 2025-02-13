@@ -26,7 +26,8 @@
 (require 'kohai-core)
 (require 'kohai-req)
 (require 'kohai-sector)
-
+(require 'kohai-transient-log)
+(require 'kohai-transient)
 
 ;;; Features
 
@@ -86,7 +87,8 @@
   (when (not kohai--connection) (kohai-req--make-connection))
   (if (and kohai-supervised (not (string-blank-p kohai-supervised)))
       (progn (kohai-req--supervised-set kohai-supervised)
-             (kohai--message-supervised kohai-supervised))
+             (kohai--message-supervised kohai-supervised)
+             (call-interactively #'kohai-transient--dashboard))
     (call-interactively #'kohai-set-supervised)))
 
 (provide 'kohai)

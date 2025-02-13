@@ -16,7 +16,7 @@ let get ?body ?id (module H : Eff.HANDLER) index =
 ;;
 
 let store_missing_sector ?body ?id (module H : Eff.HANDLER) sector =
-  sector |> Kohai_model.Sector.make |> Sector.save ?body ?id (module H)
+  sector |> Kohai_model.Described_item.make |> Sector.save ?body ?id (module H)
 ;;
 
 let action ?body ?id (module H : Eff.HANDLER) operation =

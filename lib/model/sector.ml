@@ -50,4 +50,6 @@ module Set = struct
     | None, _ -> set |> S.add sector
     | Some _, None -> set
   ;;
+
+  let find name set = S.find_opt { name; description = None } set
 end

@@ -17,3 +17,8 @@ let save ?body ?id (module H : Eff.HANDLER) sector =
   let () = Eff.write_file (module H) file content in
   sectors
 ;;
+
+let get ?body ?id (module H : Eff.HANDLER) sector =
+  let sectors = list ?body ?id (module H : Eff.HANDLER) () in
+  Kohai_model.Sector.Set.find sector sectors
+;;

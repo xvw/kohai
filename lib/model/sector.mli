@@ -30,4 +30,7 @@ module Set : sig
 
   (** Render a sector set into a string to be stored in a file. *)
   val dump : t -> string
+
+  (** find a sector in a set. *)
+  val find : string -> t -> sector option
 end

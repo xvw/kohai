@@ -90,6 +90,14 @@ module Kohai = struct
         ~finalizer:Kohai_model.Sector.Set.to_rensai
         (Operation.Sector.save ~body)
     ;;
+
+    let get body =
+      Jsonrpc.service
+        ~meth:(prefix "get")
+        ~with_params:V.string
+        ~finalizer:(A.option Kohai_model.Sector.to_rensai)
+        (Operation.Sector.get ~body)
+    ;;
   end
 
   module Transient_log = struct
@@ -131,6 +139,7 @@ let methods body =
   ; Kohai.Supervision.set body
   ; Kohai.Sector.list body
   ; Kohai.Sector.save body
+  ; Kohai.Sector.get body
   ; Kohai.Transient_log.list body
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body

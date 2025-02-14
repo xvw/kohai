@@ -21,11 +21,24 @@
 
 ;;; Code:
 
-(require 'vtable)
 (require 'kohai-core)
-(require 'kohai-req)
-(require 'kohai-buffer)
+(require 'kohai-sector)
+(require 'kohai-project)
 
+
+(defun kohai-transient-log--prompt-record (date sector project label)
+  "Create params for recording a transient log.
+DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
+  (kohai--ensure-supervision)
+  (let* ((sector (kohai-sector--ac nil nil sector))
+         (project (kohai--nil-if-blank (kohai-project--ac nil nil project)))
+         (at-time (kohai--read-datetime "When: " date))
+         (label (string-trim (read-from-string "# " label))))
+    (kohai--not-blank label "label")
+    (list :start-date at-time
+          :sector sector
+          :project project
+          :label label)))
 
 
 

@@ -24,12 +24,13 @@
 (require 'kohai-core)
 (require 'kohai-generic)
 
-(defun kohai-project--ac (&optional projects not-empty)
+(defun kohai-project--ac (&optional projects not-empty default)
   "Get PROJECTS as a completion list.
-If NOT-EMPTY the list must be filled."
+If NOT-EMPTY the list must be filled. DEFAULT is the default value."
   (kohai-generic--ditem-ac "project"
                            projects
-                           not-empty))
+                           not-empty
+                           default))
 
 (defun kohai-project--list (&optional given-projects)
   "Return the list of projects (or GIVEN-PROJECTS)."

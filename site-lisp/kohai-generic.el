@@ -26,9 +26,9 @@
 (require 'kohai-req)
 (require 'kohai-buffer)
 
-(defun kohai-generic--ditem-ac (key &optional entries not-empty)
+(defun kohai-generic--ditem-ac (key &optional entries not-empty default)
   "Get ENTRIES (dispatched on KEY) as a completion list.
-If NOT-EMPTY the list must be filled."
+If NOT-EMPTY the list must be filled. DEFAULT is the default value."
   (let ((given-entries (or entries (kohai-req--described-item-list key))))
     (when (and not-empty (kohai--vector-empty-p given-entries))
       (kohai--error-no-entries key))
@@ -41,7 +41,7 @@ If NOT-EMPTY the list must be filled."
                     given-entries))
            (selected (completing-read (format "%s: " (capitalize key))
                                       formatted-entries
-                                      nil nil nil t)))
+                                      nil nil default t)))
       (or (alist-get selected formatted-entries nil nil #'equal) selected))))
 
 (defun kohai-generic--ditem-to-vtable-entry (item)

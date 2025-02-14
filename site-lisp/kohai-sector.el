@@ -24,12 +24,13 @@
 (require 'kohai-core)
 (require 'kohai-generic)
 
-(defun kohai-sector--ac (&optional sectors not-empty)
+(defun kohai-sector--ac (&optional sectors not-empty default)
   "Get SECTORS as a completion list.
-If NOT-EMPTY the list must be filled."
+If NOT-EMPTY the list must be filled. DEFAULT is the default value."
   (kohai-generic--ditem-ac "sector"
                            sectors
-                           not-empty))
+                           not-empty
+                           default))
 
 (defun kohai-sector--list (&optional given-sectors)
   "Return the list of sectors (or GIVEN-SECTORS)."

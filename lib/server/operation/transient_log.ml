@@ -19,16 +19,30 @@ let store_missing_sector ?body ?id (module H : Eff.HANDLER) sector =
   sector |> Kohai_model.Described_item.make |> Sector.save ?body ?id (module H)
 ;;
 
+let store_missing_project ?body ?id (module H : Eff.HANDLER) project =
+  project
+  |> Kohai_model.Described_item.make
+  |> Project.save ?body ?id (module H)
+;;
+
+let store_missing_data ?body ?id (module H : Eff.HANDLER) ~sector ~project =
+  let _ = store_missing_sector ?body ?id (module H) sector
+  and () =
+    match project with
+    | Some project ->
+      store_missing_project ?body ?id (module H) project |> ignore
+    | None -> ()
+  in
+  ()
+;;
+
 let action ?body ?id (module H : Eff.HANDLER) operation =
   let cwd = Global.ensure_supervision ?body ?id (module H) () in
   let file = Kohai_model.Resolver.transient_logs ~cwd in
   let now = Eff.now (module H) in
   match operation with
   | M.Record { start_date; project; sector; label } ->
-    let _ =
-      (* Store missing sectors *)
-      sector |> store_missing_sector ?body ?id (module H)
-    in
+    let () = store_missing_data ?body ?id (module H) ~sector ~project in
     let transients = all ?body ?id (module H) in
     let start_date = Option.value ~default:now start_date in
     let transient = M.make ~start_date ~project ~sector ~label in

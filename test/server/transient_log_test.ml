@@ -94,7 +94,7 @@ let%expect_test "get transient logs when file are empty" =
     |}]
 ;;
 
-let%expect_test "" =
+let%expect_test "end-to-end test - 1" =
   let id = ref 0 in
   let supervise =
     "kohai/supervision/set"
@@ -158,6 +158,27 @@ let%expect_test "" =
     |> Jsonrpc.run ~services:Services.all
     |> Kohai_core.Eff.handle (module H)
   in
+  let get_projects =
+    "kohai/project/list"
+    |> input ~id
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  let third_record =
+    let params =
+      record ~project:"capsule" ~sector:"visual" "Make visual stuff on Capsule"
+    in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  let get_projects_with_capsule =
+    "kohai/project/list"
+    |> input ~id
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
   List.iter
     (fun result -> result |> request_dump |> print_endline)
     [ supervise
@@ -169,6 +190,9 @@ let%expect_test "" =
     ; get_second
     ; close_first
     ; close_second
+    ; get_projects
+    ; third_record
+    ; get_projects_with_capsule
     ];
   [%expect
     {|
@@ -235,5 +259,26 @@ let%expect_test "" =
             project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"}];
          inserted = <null>; outdated = []}}
+    {id = 9; jsonrpc = "2.0"; result = [{description = <null>; name = "kohai"}]}
+    {id = 10; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
+            sector = "programming"; start_date = "2025-02-12T11-00-00"};
+          {duration = 3600; index = 1; label = "test of an other log";
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"};
+          {duration = <null>; index = 2; label = "Make visual stuff on Capsule";
+            project = "capsule"; sector = "visual";
+            start_date = "2025-02-12T13-00-00"}];
+         inserted =
+          {duration = <null>; index = -1; label = "Make visual stuff on Capsule";
+            project = "capsule"; sector = "visual";
+            start_date = "2025-02-12T13-00-00"};
+         outdated = []}}
+    {id = 11; jsonrpc = "2.0";
+      result =
+       [{description = <null>; name = "capsule"};
+        {description = <null>; name = "kohai"}]}
     |}]
 ;;

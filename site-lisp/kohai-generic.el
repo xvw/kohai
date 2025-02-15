@@ -26,9 +26,16 @@
 (require 'kohai-req)
 (require 'kohai-buffer)
 
+(defun kohai-generic-vtable (key buffer entries vtable)
+  "Fill a BUFFER with ENTRIES into a VTABLE (KEY is used for reporting)."
+  (if (kohai--vector-empty-p entries)
+      (kohai--error-no-entries (format "%s list" key))
+    (kohai-buffer--truncate-with
+     buffer (lambda (_buf) (funcall vtable entries)))))
+
 (defun kohai-generic--ditem-ac (key &optional entries not-empty default)
   "Get ENTRIES (dispatched on KEY) as a completion list.
-If NOT-EMPTY the list must be filled. DEFAULT is the default value."
+If NOT-EMPTY the list must be filled.  DEFAULT is the default value."
   (let ((given-entries (or entries (kohai-req--described-item-list key))))
     (when (and not-empty (kohai--vector-empty-p given-entries))
       (kohai--error-no-entries key))
@@ -71,24 +78,23 @@ In BUFFER."
   "Run the update function using KEY into BUFFER."
   (lambda (o) (kohai-generic--ditem-update-desc key buffer (car o))))
 
-(defun kohai-generic--ditem-list-vtable (key buffer entries)
+(defun kohai-generic--ditem-list-vtable (key buffer)
   "Create the vtable displaying ENTRIES using KEY.
 In BUFFER."
-  (let ((callback (kohai-generic--ditem-run-update key buffer)))
-    (make-vtable :columns '("Name" "Description")
-                 :divider-width kohai--vtable-default-divider
-                 :objects (mapcar #'kohai-generic--ditem-to-vtable-entry entries)
-                 :actions `("d" ,(lambda (o) (funcall callback o))))))
+  (lambda (entries)
+    (let ((callback (kohai-generic--ditem-run-update key buffer)))
+      (make-vtable :columns '("Name" "Description")
+                   :divider-width kohai--vtable-default-divider
+                   :objects (mapcar #'kohai-generic--ditem-to-vtable-entry
+                                    entries)
+                   :actions `("d" ,(lambda (o) (funcall callback o)))))))
 
 (defun kohai-generic--ditem-list (key buffer &optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES).
 In a dedicated BUFFER using KEY."
   (let* ((entries (or given-entries (kohai-req--described-item-list key))))
-    (if (kohai--vector-empty-p entries)
-        (kohai--error-no-entries (format "%s list" key))
-      (kohai-buffer--truncate-with
-       buffer (lambda (buf)
-                (kohai-generic--ditem-list-vtable key buf entries))))))
+    (kohai-generic-vtable
+     key buffer entries (kohai-generic--ditem-list-vtable key buffer))))
 
 
 (provide 'kohai-generic)

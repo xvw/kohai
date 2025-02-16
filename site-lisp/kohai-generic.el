@@ -92,7 +92,7 @@ In BUFFER."
 (defun kohai-generic--ditem-list (key buffer &optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES).
 In a dedicated BUFFER using KEY."
-  (let* ((entries (or given-entries (kohai-req--described-item-list key))))
+  (let ((entries (or given-entries (kohai-req--described-item-list key))))
     (kohai-generic-vtable
      key buffer entries (kohai-generic--ditem-list-vtable key buffer))))
 

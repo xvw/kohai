@@ -106,6 +106,13 @@
     (kohai-project--update-desc project-name)
     (pop-to-buffer kohai-projects-buffer-name)))
 
+(defun kohai-list-transient-log ()
+  "Fill the transient-log's buffer."
+  (interactive)
+  (kohai--ensure-supervision)
+  (kohai-transient-log--list)
+  (pop-to-buffer kohai-transient-logs-buffer-name))
+
 
 (defun kohai ()
   "Launch Kohai."

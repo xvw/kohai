@@ -22,6 +22,8 @@
 ;;; Code:
 
 (require 'kohai-core)
+(require 'kohai-req)
+(require 'kohai-generic)
 (require 'kohai-sector)
 (require 'kohai-project)
 
@@ -40,6 +42,35 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
           :project project
           :label label)))
 
+(defun kohai-transient-log--to-vtable-entry (log)
+  "Render LOG as a vtable entry."
+  (list (cl-getf log :index)
+        (kohai--bold (cl-getf log :sector))
+        (or  (cl-getf log :project) "")
+        (cl-getf log :start_date)
+        (or (cl-getf log :duration) "?")
+        (cl-getf log :label)))
+
+(defun kohai-transient-log--list-vtable ()
+  "Create the vtable displaying transient logs."
+  (lambda (entries)
+    (make-vtable :divider-width kohai--vtable-default-divider
+                 :objects (mapcar #'kohai-transient-log--to-vtable-entry
+                                  entries)
+                 :columns '("Index"
+                            "Sector"
+                            "Project"
+                            "Start date"
+                            "Duration"
+                            "Label"))))
+
+(defun kohai-transient-log--list (&optional given-entries)
+  "Return the list of entries (or GIVEN-ENTRIES) in log buffer."
+  (let ((entries (or given-entries (kohai-req--transient-log-list))))
+    (kohai-generic-vtable "transient-log"
+                          kohai-transient-logs-buffer-name
+                          entries
+                          (kohai-transient-log--list-vtable))))
 
 
 (provide 'kohai-transient-log)

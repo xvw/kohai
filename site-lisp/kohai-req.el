@@ -42,7 +42,8 @@
     (setq kohai--connection (funcall server))))
 
 
-(cl-defun kohai-req--send (method params &key
+(cl-defun kohai-req--send (method
+                           &optional params &key
                                   timeout
                                   cancel-on-input
                                   cancel-on-input-retval)
@@ -61,7 +62,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 
 (defun kohai-req--supervised-get ()
   "A request that return the current supervised folder."
-  (kohai-req--send :kohai/supervision/get nil))
+  (kohai-req--send :kohai/supervision/get))
 
 (defun kohai-req--supervised-set (directory)
   "A request to patch the DIRECTORY supervised by the server."
@@ -71,7 +72,7 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 
 (defun kohai-req--described-item-list (subject)
   "Use SUBJECT to request a generalized described item."
-  (kohai-req--send (intern (format ":kohai/%s/list" subject)) nil))
+  (kohai-req--send (intern (format ":kohai/%s/list" subject))))
 
 (defun kohai-req--described-item-save (subject name desc)
   "A request that store a described item via a NAME and a DESC in SUBJECT."
@@ -115,6 +116,12 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 (defun kohai-req--project-get (name)
   "A request that retreive a project by his NAME."
   (kohai-req--described-item-get "project" name))
+
+;;; Request related to transient logs
+
+(defun kohai-req--transient-log-list ()
+  "A request that return the list of transient logs."
+  (kohai-req--send :kohai/transient-log/list))
 
 
 (provide 'kohai-req)

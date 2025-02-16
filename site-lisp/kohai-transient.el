@@ -40,6 +40,9 @@
     ("pl" "list" kohai-list-projects)
     ("pn" "new" kohai-new-project)]
 
+   ["Transient logs"
+    ("tll" "list" kohai-list-transient-log)]
+
    ["Other"
     ("q" "close" transient-quit-one)]])
 

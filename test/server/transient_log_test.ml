@@ -30,12 +30,33 @@ let record ?start_date ?project ~sector label =
   Yojson.to_string x
 ;;
 
+let rewrite ~index ?start_date ?project ~sector label =
+  let x =
+    `Variant
+      ( "Rewrite"
+      , Some
+          (`Assoc
+              [ "index", `Int index
+              ; "start_date", opt_string start_date
+              ; "project", opt_string project
+              ; "sector", `String sector
+              ; "label", `String label
+              ]) )
+  in
+  Yojson.to_string x
+;;
+
 let stop ?duration index =
   let x =
     `Variant
       ( "Stop_recording"
       , Some (`Assoc [ "index", `Int index; "duration", opt_int duration ]) )
   in
+  Yojson.to_string x
+;;
+
+let delete ~index =
+  let x = `Variant ("Delete", Some (`Assoc [ "index", `Int index ])) in
   Yojson.to_string x
 ;;
 
@@ -179,6 +200,26 @@ let%expect_test "end-to-end test - 1" =
     |> Jsonrpc.run ~services:Services.all
     |> Kohai_core.Eff.handle (module H)
   in
+  let rewrite_third_record =
+    let params =
+      rewrite
+        ~project:"capsule"
+        ~sector:"visual"
+        ~index:2
+        "Make visual stuff on Capsule (rewritted)"
+    in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  let remove_third_record =
+    let params = delete ~index:2 in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
   List.iter
     (fun result -> result |> request_dump |> print_endline)
     [ supervise
@@ -193,6 +234,8 @@ let%expect_test "end-to-end test - 1" =
     ; get_projects
     ; third_record
     ; get_projects_with_capsule
+    ; rewrite_third_record
+    ; remove_third_record
     ];
   [%expect
     {|
@@ -280,5 +323,27 @@ let%expect_test "end-to-end test - 1" =
       result =
        [{description = <null>; name = "capsule"};
         {description = <null>; name = "kohai"}]}
+    {id = 12; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
+            sector = "programming"; start_date = "2025-02-12T11-00-00"};
+          {duration = 3600; index = 1; label = "test of an other log";
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"};
+          {duration = <null>; index = 2;
+            label = "Make visual stuff on Capsule (rewritted)";
+            project = "capsule"; sector = "visual";
+            start_date = "2025-02-12T13-00-00"}];
+         inserted = <null>; outdated = []}}
+    {id = 13; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
+            sector = "programming"; start_date = "2025-02-12T11-00-00"};
+          {duration = 3600; index = 1; label = "test of an other log";
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"}];
+         inserted = <null>; outdated = []}}
     |}]
 ;;

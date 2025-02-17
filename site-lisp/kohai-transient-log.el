@@ -65,7 +65,14 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                             "Label")
                  :actions '("c" (lambda (o)
                                   (kohai-transient-log--stop-recording
-                                   (car o)))))))
+                                   (car o)))
+                            "r" (lambda (o)
+                                  (kohai-transient-log--rewrite
+                                   (car o)))
+                            "d" (lambda (o)
+                                  (kohai-transient-log--delete
+                                   (car o)))
+                            "n" (lambda (_) (kohai-transient-log--record))))))
 
 (defun kohai-transient-log--list (&optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES) in log buffer."
@@ -75,17 +82,21 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                           entries
                           (kohai-transient-log--list-vtable))))
 
+(defun kohai-transient-log--minimize (log)
+  "A very small string representation of a LOG."
+  (let ((index (cl-getf log :index))
+         (sdate (cl-getf log :start_date))
+         (sector (cl-getf log :sector))
+         (project (cl-getf log :project))
+         (label (cl-getf log :label)))
+    (format "%02d. %s: %s (%s, %s)" index sdate label sector
+            (or project "N/A"))))
+
 (defun kohai-transient-log--ask-for-closing-outdated (outdated)
   "Perform interactively closing of OUTDATED entries."
   (dolist (log (append outdated nil))
-    (let* ((index (cl-getf log :index))
-           (sdate (cl-getf log :start_date))
-           (sector (cl-getf log :sector))
-           (project (cl-getf log :project))
-           (label (cl-getf log :label))
-           (v (format "%02d. %s: %s (%s, %s)\t"
-                      index sdate label sector
-                      (or project "N/A"))))
+    (let ((index (cl-getf log :index))
+          (v (format "Close %s\t" (kohai-transient-log--minimize log))))
       (when (yes-or-no-p v)
         (let ((logs (kohai-req--transient-log-stop-recording
                      (list :index index))))
@@ -108,6 +119,27 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
          (param (list :index index :duration duration))
          (logs (kohai-req--transient-log-stop-recording param)))
     (kohai-transient-log--list (cl-getf logs :all))))
+
+(defun kohai-transient-log--rewrite (index)
+  "Rewrite a transient log referenced by INDEX."
+  (let ((entry (kohai-req--transient-log-get index)))
+    (kohai--should-exists entry "transient log")
+    (let* ((param
+            (kohai-transient-log--prompt-record (cl-getf entry :start_date)
+                                                (cl-getf entry :sector)
+                                                (cl-getf entry :project)
+                                                (cl-getf entry :label)))
+           (param-with-index (append param (list :index index)))
+           (logs (kohai-req--transient-log-rewrite param-with-index)))
+      (kohai-transient-log--list (cl-getf logs :all)))))
+
+(defun kohai-transient-log--delete (index)
+  "Delete a log referenced by INDEX."
+  (let ((entry (kohai-req--transient-log-get index)))
+    (kohai--should-exists entry "transient log")
+    (when (yes-or-no-p (format "Delete %s\t" entry))
+      (let ((logs (kohai-req--transient-log-delete index)))
+        (kohai-transient-log--list (cl-getf logs :all))))))
 
 
 (provide 'kohai-transient-log)

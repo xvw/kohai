@@ -128,6 +128,10 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "A request that return the list of transient logs."
   (kohai-req--send :kohai/transient-log/list))
 
+(defun kohai-req--transient-log-get (index)
+  "A request that return one transient log by INDEX."
+  (kohai-req--send :kohai/transient-log/get index))
+
 (defun kohai-req--transient-log-action (action &optional value)
   "A request that perform an ACTION (with VALUE) on transient logs."
   (kohai-req--send :kohai/transient-log/action
@@ -139,8 +143,15 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 
 (defun kohai-req--transient-log-stop-recording (index)
   "A request that stop the recording of a log with INDEX."
-    (kohai-req--transient-log-action "stop_recording" index))
+  (kohai-req--transient-log-action "stop_recording" index))
 
+(defun kohai-req--transient-log-rewrite (param)
+  "A request that rewrite an existing transient log with PARAM."
+  (kohai-req--transient-log-action "rewrite" param))
+
+(defun kohai-req--transient-log-delete (index)
+  "A request that delete a transient log by INDEX."
+  (kohai-req--transient-log-action "delete" (list :index index)))
 
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

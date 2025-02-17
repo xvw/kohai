@@ -16,6 +16,7 @@ type operation =
       ; sector : string
       ; label : string
       }
+  | Delete of { index : int }
 
 type t =
   { index : int
@@ -101,6 +102,11 @@ let operation_from_rensai =
           and+ sector = required b "sector" slug
           and+ label = required b "label" (string & String.is_not_blank) in
           Rewrite { index; start_date; project; sector; label }) )
+    ; ( "delete"
+      , record (fun b ->
+          let open Record in
+          let+ index = required b "index" positive_int in
+          Delete { index }) )
     ]
 ;;
 

@@ -63,10 +63,7 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
     let () = Eff.write_file (module H) file content in
     result
   | M.Rewrite { index; start_date; project; sector; label } ->
-    let _ =
-      (* Store missing sectors *)
-      sector |> store_missing_sector ?body ?id (module H)
-    in
+    let () = store_missing_data ?body ?id (module H) ~sector ~project in
     let start_date = Option.value ~default:now start_date in
     let patched_log = M.make ~start_date ~project ~sector ~label in
     let transients =
@@ -74,7 +71,16 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
       |> List.map (fun log ->
         if M.has_index index log then patched_log else log)
     in
-    let result = M.to_result ~inserted:patched_log transients in
+    let result = M.to_result transients in
+    let content = M.dump result in
+    let () = Eff.write_file (module H) file content in
+    result
+  | M.Delete { index } ->
+    let transients =
+      all ?body ?id (module H)
+      |> List.filter (fun log -> not (M.has_index index log))
+    in
+    let result = M.to_result transients in
     let content = M.dump result in
     let () = Eff.write_file (module H) file content in
     result

@@ -30,6 +30,7 @@ type operation = private
       ; sector : string
       ; label : string
       }
+  | Delete of { index : int }
 
 (** {1 API} *)
 

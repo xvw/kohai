@@ -54,7 +54,8 @@ If NOT-EMPTY the list must be filled.  DEFAULT is the default value."
 (defun kohai-generic--ditem-to-vtable-entry (item)
   "Render an ITEM into a vtable column."
   (list (kohai--bold (cl-getf item :name))
-        (or (cl-getf item :description) "")))
+        (or (cl-getf item :description) "")
+        (if (> (cl-getf item :counter) 0) "X" " ")))
 
 
 (defun kohai-generic--ditem-save (key buffer name desc)
@@ -74,27 +75,50 @@ In BUFFER."
                                   old-desc)))
       (kohai-generic--ditem-save key buffer name new-desc))))
 
-(defun kohai-generic--ditem-run-update (key buffer)
-  "Run the update function using KEY into BUFFER."
-  (lambda (o) (kohai-generic--ditem-update-desc key buffer (car o))))
-
 (defun kohai-generic--ditem-list-vtable (key buffer)
   "Create the vtable displaying ENTRIES using KEY.
-In BUFFER."
+In BUFFER, CREATE is used to create a new entry."
   (lambda (entries)
-    (let ((callback (kohai-generic--ditem-run-update key buffer)))
-      (make-vtable :columns '("Name" "Description")
-                   :divider-width kohai--vtable-default-divider
-                   :objects (mapcar #'kohai-generic--ditem-to-vtable-entry
-                                    entries)
-                   :actions `("d" ,(lambda (o) (funcall callback o)))))))
+    (make-vtable :columns '("Name" "Description" "Deleteable")
+                 :divider-width kohai--vtable-default-divider
+                 :objects (mapcar #'kohai-generic--ditem-to-vtable-entry
+                                  entries)
+                 :actions `("u" ,(lambda (o)
+                                   (kohai-generic--ditem-update-desc
+                                    key buffer (car o)))
+                            "d" ,(lambda (o)
+                                   (kohai-generic--ditem-delete
+                                    key buffer (car o)))
+                            "n" ,(lambda (_o)
+                                   (kohai-generic--ditem-new key buffer))))))
 
 (defun kohai-generic--ditem-list (key buffer &optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES).
 In a dedicated BUFFER using KEY."
   (let ((entries (or given-entries (kohai-req--described-item-list key))))
-    (kohai-generic-vtable
-     key buffer entries (kohai-generic--ditem-list-vtable key buffer))))
+    (kohai-generic-vtable key
+                          buffer
+                          entries
+                          (kohai-generic--ditem-list-vtable key buffer))))
+
+(defun kohai-generic--ditem-new (key buffer)
+  "Save a generic item (defined by KEY) and switch to BUFFER."
+  (let* ((prefix (capitalize key))
+         (name (read-string (format "%s name: " prefix)))
+         (desc (read-string (format "%s description: " prefix))))
+    (kohai-generic--ditem-save key buffer name desc)
+    (pop-to-buffer buffer)))
+
+(defun kohai-generic--ditem-delete (key buffer name)
+  "Delete a generic item NAME (defined by KEY) and switch to BUFFER."
+  (let ((entry (kohai-req--described-item-get key name)))
+    (kohai--should-exists entry key)
+    (kohai--should-be-eraseable entry)
+    (when (yes-or-no-p (format "Delete %s %s " key name))
+      (let ((values (kohai-req--described-item-delete key name)))
+        (kohai--message-deleted name key)
+        (kohai-generic--ditem-list key buffer values)))))
+
 
 
 (provide 'kohai-generic)

@@ -26,4 +26,12 @@ module type DESCRIBED_ITEM = sig
     -> (module Sigs.EFFECT_HANDLER)
     -> string
     -> Kohai_model.Described_item.t option
+
+  (** Delete a sector by his name. *)
+  val delete
+    :  ?body:string
+    -> ?id:int
+    -> (module Sigs.EFFECT_HANDLER)
+    -> string
+    -> Kohai_model.Described_item.Set.t
 end

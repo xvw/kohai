@@ -103,6 +103,14 @@ module Kohai = struct
         ~finalizer:(A.option Kohai_model.Described_item.to_rensai)
         (I.get ~body)
     ;;
+
+    let delete body =
+      Jsonrpc.service
+        ~meth:(prefix "delete")
+        ~with_params:V.string
+        ~finalizer:Kohai_model.Described_item.Set.to_rensai
+        (I.delete ~body)
+    ;;
   end
 
   module Sector =
@@ -159,9 +167,11 @@ let methods body =
   ; Kohai.Sector.list body
   ; Kohai.Sector.save body
   ; Kohai.Sector.get body
+  ; Kohai.Sector.delete body
   ; Kohai.Project.list body
   ; Kohai.Project.save body
   ; Kohai.Project.get body
+  ; Kohai.Project.delete body
   ; Kohai.Transient_log.list body
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body

@@ -271,10 +271,11 @@ let%expect_test "end-to-end test - 1" =
              start_date = "2025-02-12T11-00-00"}]}}
     {id = 4; jsonrpc = "2.0";
       result =
-       [{description = "logs related to music"; name = "music"};
-        {description = <null>; name = "not-known"};
-        {description = "logs related to programming"; name = "programming"};
-        {description = "logs related to art"; name = "visual"}]}
+       [{counter = 0; description = "logs related to music"; name = "music"};
+        {counter = 0; description = <null>; name = "not-known"};
+        {counter = 0; description = "logs related to programming";
+          name = "programming"};
+        {counter = 0; description = "logs related to art"; name = "visual"}]}
     {id = 5; jsonrpc = "2.0";
       result =
        {duration = <null>; index = 0; label = "test of a log"; project = <null>;
@@ -302,7 +303,8 @@ let%expect_test "end-to-end test - 1" =
             project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"}];
          inserted = <null>; outdated = []}}
-    {id = 9; jsonrpc = "2.0"; result = [{description = <null>; name = "kohai"}]}
+    {id = 9; jsonrpc = "2.0";
+      result = [{counter = 0; description = <null>; name = "kohai"}]}
     {id = 10; jsonrpc = "2.0";
       result =
        {all =
@@ -321,8 +323,8 @@ let%expect_test "end-to-end test - 1" =
          outdated = []}}
     {id = 11; jsonrpc = "2.0";
       result =
-       [{description = <null>; name = "capsule"};
-        {description = <null>; name = "kohai"}]}
+       [{counter = 0; description = <null>; name = "capsule"};
+        {counter = 0; description = <null>; name = "kohai"}]}
     {id = 12; jsonrpc = "2.0";
       result =
        {all =

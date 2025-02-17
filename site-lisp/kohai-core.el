@@ -19,6 +19,8 @@
 
 ;; Core of Kohai
 
+(require 'cl-lib)
+
 ;;; Code:
 
 (defgroup kohai nil
@@ -109,9 +111,16 @@ DEFAULT is the prefilled value."
     (message "[%s] is supervised" directory)))
 
 (defun kohai--message-stored (name &optional kind)
-  "message for NAME of type KIND stored."
+  "Message for NAME of type KIND stored."
   (let ((prefix (if kind (format "%s.%s" name kind) name)))
     (message "[%s] has been stored" prefix)))
+
+
+(defun kohai--message-deleted (name &optional kind)
+  "Message for NAME of type KIND deleted."
+  (let ((prefix (if kind (format "%s.%s" name kind) name)))
+    (message "[%s] has been deleted" prefix)))
+
 
 (defun kohai--error-no-entries (kind)
   "Display an error if a list of KIND is empty."
@@ -127,6 +136,13 @@ DEFAULT is the prefilled value."
   (let ((pname (or name "VALUE")))
     (when (not (kohai--nil-if-blank value))
       (error "[%s] cannot be blank (or empty)" pname))))
+
+(defun kohai--should-be-eraseable (entry &optional name)
+  "Display an error if an ENTRY (with NAME) is not eraseable."
+  (let ((pname (or name "ENTRY"))
+        (counter (cl-getf entry :counter)))
+    (when (> counter 0)
+      (error "[%s] cannot be erased (%d occurence(s))" pname counter))))
 
 ;;; Text propertize
 

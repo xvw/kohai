@@ -26,11 +26,12 @@
 
 (defun kohai-sector--ac (&optional sectors not-empty default)
   "Get SECTORS as a completion list.
-If NOT-EMPTY the list must be filled. DEFAULT is the default value."
+If NOT-EMPTY the list must be filled.  DEFAULT is the default value."
   (kohai-generic--ditem-ac "sector"
                            sectors
                            not-empty
                            default))
+
 
 (defun kohai-sector--list (&optional given-sectors)
   "Return the list of sectors (or GIVEN-SECTORS)."
@@ -49,6 +50,11 @@ If NOT-EMPTY the list must be filled. DEFAULT is the default value."
   (kohai-generic--ditem-update-desc "sector"
                                     kohai-sectors-buffer-name
                                     name))
+
+(defun kohai-sector--new ()
+  "Prompt a sector's save procedure"
+  (kohai-generic--ditem-new "sector" kohai-sectors-buffer-name))
+
 
 (provide 'kohai-sector)
 ;;; kohai-sector.el ends here

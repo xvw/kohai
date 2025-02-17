@@ -68,10 +68,7 @@
   "Save a new sector."
   (interactive)
   (kohai--ensure-supervision)
-  (let ((name (read-string "Sector name: "))
-        (desc (read-string "Sector description: ")))
-    (kohai-sector--save name desc)
-    (pop-to-buffer kohai-sectors-buffer-name)))
+  (kohai-sector--new))
 
 (defun kohai-edit-sector ()
   "Edit sector's description."
@@ -93,10 +90,7 @@
   "Save a new project."
   (interactive)
   (kohai--ensure-supervision)
-  (let ((name (read-string "Project name: "))
-        (desc (read-string "Project description: ")))
-    (kohai-project--save name desc)
-    (pop-to-buffer kohai-projects-buffer-name)))
+  (kohai-project--new))
 
 (defun kohai-edit-project ()
   "Edit project's description."

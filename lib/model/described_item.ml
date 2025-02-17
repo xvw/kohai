@@ -1,22 +1,29 @@
 type t =
   { name : string
   ; description : string option
+  ; counter : int
   }
 
-let make ?description name = { name; description }
+let make ?(counter = 0) ?description name = { name; description; counter }
+let can_be_erased { counter; _ } = counter <= 0
 
 let from_rensai =
   let open Rensai.Validation in
   record (fun obj ->
     let open Record in
     let+ name = required obj "name" String.(string & is_not_blank & is_slug)
-    and+ description = optional obj "description" string in
-    { name; description })
+    and+ description = optional obj "description" string
+    and+ counter = optional_or ~default:0 obj "counter" int in
+    { name; description; counter })
 ;;
 
-let to_rensai { name; description } =
+let to_rensai { name; description; counter } =
   let open Rensai.Ast in
-  record [ "name", string name; "description", option string description ]
+  record
+    [ "name", string name
+    ; "description", option string description
+    ; "counter", int counter
+    ]
 ;;
 
 module Set = struct
@@ -51,5 +58,6 @@ module Set = struct
     | Some _, None -> set
   ;;
 
-  let find name set = S.find_opt { name; description = None } set
+  let find name set = S.find_opt { name; description = None; counter = 0 } set
+  let remove name set = S.remove { name; description = None; counter = 0 } set
 end

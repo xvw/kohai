@@ -94,6 +94,10 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "A request that retreive a SUBJECT by his NAME."
   (kohai-req--send (intern (format ":kohai/%s/get" subject)) name))
 
+(defun kohai-req--described-item-delete (subject name)
+  "A request that delete a SUBJECT by his NAME."
+  (kohai-req--send (intern (format ":kohai/%s/delete" subject)) name))
+
 ;;; Request related to sectors
 
 (defun kohai-req--sector-list ()

@@ -23,4 +23,18 @@ module Make (D : Generic.SIMPLE_RESOLVER) = struct
     let items = list ?body ?id (module H : Eff.HANDLER) () in
     Kohai_model.Described_item.Set.find item items
   ;;
+
+  let delete ?body ?id (module H : Eff.HANDLER) item_name =
+    let cwd = Global.ensure_supervision ?body ?id (module H) () in
+    let file = D.resolver ~cwd in
+    let items = list ?body ?id (module H : Eff.HANDLER) () in
+    let item = Kohai_model.Described_item.Set.find item_name items in
+    match item with
+    | Some item when Kohai_model.Described_item.can_be_erased item ->
+      let items = Kohai_model.Described_item.Set.remove item_name items in
+      let content = Kohai_model.Described_item.Set.dump items in
+      let () = Eff.write_file (module H) file content in
+      items
+    | None | Some _ -> items
+  ;;
 end

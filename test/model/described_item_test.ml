@@ -33,8 +33,8 @@ let%expect_test "Simply dump a list of sectors" =
   a_sector_list |> dump;
   [%expect
     {|
-    [<description: "about learning"; name: "learning">,
-     <description: null; name: "programming">]
+    [<counter: 0; description: "about learning"; name: "learning">,
+     <counter: 0; description: null; name: "programming">]
     |}]
 ;;
 
@@ -48,9 +48,9 @@ let%expect_test "Push a new sector - 1" =
   dump_ok result;
   [%expect
     {|
-    [<description: null; name: "art">,
-     <description: "about learning"; name: "learning">,
-     <description: null; name: "programming">]
+    [<counter: 0; description: null; name: "art">,
+     <counter: 0; description: "about learning"; name: "learning">,
+     <counter: 0; description: null; name: "programming">]
     |}]
 ;;
 
@@ -67,9 +67,9 @@ let%expect_test "Push a new sector - 2" =
   dump_ok result;
   [%expect
     {|
-    [<description: "A description"; name: "art">,
-     <description: "about learning"; name: "learning">,
-     <description: null; name: "programming">]
+    [<counter: 0; description: "A description"; name: "art">,
+     <counter: 0; description: "about learning"; name: "learning">,
+     <counter: 0; description: null; name: "programming">]
     |}]
 ;;
 
@@ -89,8 +89,8 @@ let%expect_test "Push a new sector - 3" =
   dump_ok result;
   [%expect
     {|
-    [<description: "about learning"; name: "learning">,
-     <description: "A programming description"; name: "programming">]
+    [<counter: 0; description: "about learning"; name: "learning">,
+     <counter: 0; description: "A programming description"; name: "programming">]
     |}]
 ;;
 
@@ -104,7 +104,7 @@ let%expect_test "Push a new sector - 4" =
   dump_ok result;
   [%expect
     {|
-    [<description: "about learning"; name: "learning">,
-     <description: null; name: "programming">]
+    [<counter: 0; description: "about learning"; name: "learning">,
+     <counter: 0; description: null; name: "programming">]
     |}]
 ;;

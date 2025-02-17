@@ -10,7 +10,8 @@ val to_rensai : t Rensai.Ast.conv
 (** Convert rensai expression to item. *)
 val from_rensai : t Rensai.Validation.t
 
-val make : ?description:string -> string -> t
+val make : ?counter:int -> ?description:string -> string -> t
+val can_be_erased : t -> bool
 
 module Set : sig
   type item := t
@@ -34,4 +35,7 @@ module Set : sig
 
   (** find a item in a set. *)
   val find : string -> t -> item option
+
+  (** Remove an item from the given set.*)
+  val remove : string -> t -> t
 end

@@ -32,6 +32,7 @@ If NOT-EMPTY the list must be filled. DEFAULT is the default value."
                            not-empty
                            default))
 
+
 (defun kohai-project--list (&optional given-projects)
   "Return the list of projects (or GIVEN-PROJECTS)."
   (kohai-generic--ditem-list "project"
@@ -49,6 +50,10 @@ If NOT-EMPTY the list must be filled. DEFAULT is the default value."
   (kohai-generic--ditem-update-desc "project"
                                     kohai-projects-buffer-name
                                     name))
+
+(defun kohai-project--new ()
+  "Prompt a project's save procedure"
+  (kohai-generic--ditem-new "project" kohai-projects-buffer-name))
 
 (provide 'kohai-project)
 ;;; kohai-project.el ends here

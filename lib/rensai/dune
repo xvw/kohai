@@ -2,7 +2,7 @@
  (name rensai)
  (public_name rensai)
  (modules_without_implementation sigs)
- (libraries fmt kohai-prelude))
+ (libraries fmt))
 
 (menhir
  (modules parser))

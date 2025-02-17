@@ -14,6 +14,8 @@ depends: [
   "dune" {>= "3.17"}
   "ocaml" {>= "5.3.0"}
   "rensai" {= version}
+  "ppx_expect" {with-test}
+  "mdx" {with-test}
   "yojson" {>= "2.2.2"}
   "fmt" {>= "0.9.0"}
   "logs" {>= "0.7.0"}

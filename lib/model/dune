@@ -1,5 +1,5 @@
 (library
  (name kohai_model)
- (public_name kohai-core.model)
+ (public_name kohai.model)
  (flags (:standard) -open Kohai_core)
- (libraries kohai-prelude kohai-core rensai))
+ (libraries kohai.core rensai))

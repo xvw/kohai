@@ -1,3 +1,0 @@
-(library
- (name prelude)
- (public_name kohai-prelude))

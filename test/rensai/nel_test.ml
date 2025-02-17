@@ -1,4 +1,4 @@
-open Prelude
+open Rensai
 
 let dump pp value =
   value |> Format.asprintf "nel@[<h>[%a]@]" (Nel.pp pp) |> print_endline

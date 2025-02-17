@@ -1,5 +1,3 @@
-open Prelude
-
 type value_error =
   | Unexpected_kind of
       { expected : Kind.t

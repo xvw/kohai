@@ -1,8 +1,6 @@
 (** Allows the description of precise validation schemes for data
     described in Rensai format. *)
 
-open Prelude
-
 (**/**)
 
 (**  {@ocaml[
@@ -62,7 +60,16 @@ open Prelude
       val y : (string * string * int option) Validation.checked =
         Error
          (Rensai.Validation.Unexpected_record
-           {Rensai.Validation.errors = <abstr>; value = {first_name = [1; 2; 3]}})
+           {Rensai.Validation.errors =
+             Rensai.Nel.(::)
+              (Rensai.Validation.Invalid_field
+                {Rensai.Validation.field = "first_name";
+                 error =
+                  Rensai.Validation.Unexpected_kind
+                   {Rensai.Validation.expected = Rensai.Kind.String;
+                    given = Rensai.Kind.List Rensai.Kind.Int; value = [1; 2; 3]}},
+              [Rensai.Validation.Missing_field "last_name"]);
+            value = {first_name = [1; 2; 3]}})
     ]rr} *)
 
 (** {1 Types} *)

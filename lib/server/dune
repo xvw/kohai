@@ -8,8 +8,8 @@
   fmt
   fmt.tty
   rensai
-  kohai-core
-  kohai-core.model
+  kohai.core
+  kohai.model
   yojson
   eio
   eio_main))

@@ -13,15 +13,6 @@
 (maintainers "Xavier Van de Woestyne <xaviervdw@gmail.com>")
 
 (package
- (name kohai-prelude)
- (synopsis "A small standard library extension")
- (description "Some tools for easing Kohai foundational development")
- (depends
-  (ocaml (>= 5.3.0))
-  (ppx_expect :with-test)
-  (mdx :with-test)))
-
-(package
  (name rensai)
  (synopsis "Rensai can be used to describe generic encoders and decoders")
  (description "By lifting heterogeneous data into a finite set of constructors,
@@ -31,23 +22,10 @@ for which the encoding and validation functions become generic
  (depends
   (ocaml (>= 5.3.0))
   menhir
-  (kohai-prelude (= :version))
   (fmt (>= 0.9.0))
   (ppx_expect :with-test)
   (mdx :with-test)))
 
-(package
- (name kohai-core)
- (synopsis "Tools from the heart of Kohai")
- (description "Set of concrete data structures and tools needed to
- model data in Kohai")
- (depends
-  (ocaml (>= 5.3.0))
-  (kohai-prelude (= :version))
-  (rensai (= :version))
-  (ppx_expect :with-test)
-  (mdx :with-test)))
- 
 (package
  (name kohai)
  (allow_empty)
@@ -57,6 +35,8 @@ for which the encoding and validation functions become generic
  (depends
   (ocaml (>= 5.3.0))
   (rensai (= :version))
+  (ppx_expect :with-test)
+  (mdx :with-test)
   (yojson (>= 2.2.2))
   (fmt (>= 0.9.0))
   (logs (>= 0.7.0))

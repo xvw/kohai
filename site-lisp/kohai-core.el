@@ -94,9 +94,10 @@
   "Read a duration or a datetime from the minibuffer with a PROMPT.
 DEFAULT is the prefilled value."
   (let* ((value (or default "now"))
-         (datetime (string-trim (read-from-string prompt value))))
+         (datetime (string-trim (read-string prompt value))))
     (if (or (string-blank-p datetime)
             (string= (downcase datetime) "now")) nil
+      (message "foo")
       datetime)))
 
 ;;; Messages

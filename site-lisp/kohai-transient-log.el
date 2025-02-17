@@ -28,16 +28,16 @@
 (require 'kohai-project)
 
 
-(defun kohai-transient-log--prompt-record (date sector project label)
+(defun kohai-transient-log--prompt-record (&optional date sector project label)
   "Create params for recording a transient log.
 DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
   (kohai--ensure-supervision)
   (let* ((sector (kohai-sector--ac nil nil sector))
          (project (kohai--nil-if-blank (kohai-project--ac nil nil project)))
          (at-time (kohai--read-datetime "When: " date))
-         (label (string-trim (read-from-string "# " label))))
+         (label (string-trim (read-string "# " label))))
     (kohai--not-blank label "label")
-    (list :start-date at-time
+    (list :start_date at-time
           :sector sector
           :project project
           :label label)))
@@ -71,6 +71,33 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                           kohai-transient-logs-buffer-name
                           entries
                           (kohai-transient-log--list-vtable))))
+
+(defun kohai-transient-log--ask-for-closing-outdated (outdated)
+  "Perform interactively closing of OUTDATED entries."
+  (dolist (log (append outdated nil))
+    (let* ((index (cl-getf log :index))
+           (sdate (cl-getf log :start_date))
+           (sector (cl-getf log :sector))
+           (project (cl-getf log :project))
+           (label (cl-getf log :label))
+           (v (format "%02d. %s: %s (%s, %s)\t"
+                      index sdate label sector
+                      (or project "N/A"))))
+      (when (yes-or-no-p v)
+        (let ((logs (kohai-req--transient-log-stop-recording
+                     (list :index index))))
+          (kohai-transient-log--list (cl-getf logs :all)))))))
+
+(defun kohai-transient-log--record ()
+  "Record a transient log."
+  (let* ((param (kohai-transient-log--prompt-record))
+         (result (kohai-req--transient-log-record param))
+         (all (cl-getf result :all))
+         (outdated (cl-getf result :outdated)))
+    (kohai-sector--list)
+    (kohai-project--list)
+    (kohai-transient-log--list all)
+    (kohai-transient-log--ask-for-closing-outdated outdated)))
 
 
 (provide 'kohai-transient-log)

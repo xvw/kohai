@@ -113,6 +113,13 @@
   (kohai-transient-log--list)
   (pop-to-buffer kohai-transient-logs-buffer-name))
 
+(defun kohai-record-transient-log ()
+  "Record a transient log."
+  (interactive)
+  (kohai--ensure-supervision)
+  (kohai-transient-log--record)
+  (pop-to-buffer kohai-transient-logs-buffer-name))
+
 
 (defun kohai ()
   "Launch Kohai."

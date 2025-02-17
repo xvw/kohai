@@ -58,6 +58,11 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
                      :cancel-on-input-retval cancel-on-input-retval)))
 
 
+(defun kohai-req--constr (ctor &optional value)
+  "Build a sum type (based on CTOR and VALUE)."
+  (list :ctor ctor
+        :value value))
+
 ;;; Request related to the supervised directory
 
 (defun kohai-req--supervised-get ()
@@ -122,6 +127,19 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 (defun kohai-req--transient-log-list ()
   "A request that return the list of transient logs."
   (kohai-req--send :kohai/transient-log/list))
+
+(defun kohai-req--transient-log-action (action &optional value)
+  "A request that perform an ACTION (with VALUE) on transient logs."
+  (kohai-req--send :kohai/transient-log/action
+                   (kohai-req--constr action value)))
+
+(defun kohai-req--transient-log-record (param)
+  "A request that record a log with PARAM."
+  (kohai-req--transient-log-action "record" param))
+
+(defun kohai-req--transient-log-stop-recording (index)
+  "A request that stop the recording of a log with INDEX."
+    (kohai-req--transient-log-action "stop_recording" index))
 
 
 (provide 'kohai-req)

@@ -120,8 +120,5 @@ In a dedicated BUFFER using KEY."
         (kohai-generic--ditem-list key buffer values)))))
 
 
-
 (provide 'kohai-generic)
 ;;; kohai-generic.el ends here
-
-

@@ -84,4 +84,24 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
     let content = M.dump result in
     let () = Eff.write_file (module H) file content in
     result
+  | M.Add_meta { index; key; value } ->
+    let transients =
+      all ?body ?id (module H)
+      |> List.map (fun log ->
+        if M.has_index index log then M.add_meta ~key ~value log else log)
+    in
+    let result = M.to_result transients in
+    let content = M.dump result in
+    let () = Eff.write_file (module H) file content in
+    result
+  | M.Remove_meta { index; key } ->
+    let transients =
+      all ?body ?id (module H)
+      |> List.map (fun log ->
+        if M.has_index index log then M.remove_meta ~key log else log)
+    in
+    let result = M.to_result transients in
+    let content = M.dump result in
+    let () = Eff.write_file (module H) file content in
+    result
 ;;

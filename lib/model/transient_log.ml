@@ -17,6 +17,15 @@ type operation =
       ; label : string
       }
   | Delete of { index : int }
+  | Add_meta of
+      { index : int
+      ; key : string
+      ; value : string
+      }
+  | Remove_meta of
+      { index : int
+      ; key : string
+      }
 
 type t =
   { index : int
@@ -25,6 +34,7 @@ type t =
   ; project : string option
   ; sector : string
   ; label : string
+  ; meta : string Key_value.t
   }
 
 type result =
@@ -36,7 +46,14 @@ type result =
 let has_index i { index; _ } = Int.equal i index
 
 let make ~start_date ~project ~sector ~label =
-  { index = -1; start_date; duration = None; project; sector; label }
+  { index = -1
+  ; start_date
+  ; duration = None
+  ; project
+  ; sector
+  ; label
+  ; meta = Key_value.empty ()
+  }
 ;;
 
 let slug = Rensai.Validation.(string & String.is_non_empty_slug)
@@ -51,11 +68,18 @@ let from_rensai =
     and+ project = optional b "project" slug
     and+ duration = optional b "duration" int
     and+ sector = required b "sector" slug
-    and+ label = required b "label" (string & String.is_not_blank) in
-    { index; start_date; duration; project; sector; label })
+    and+ label = required b "label" (string & String.is_not_blank)
+    and+ meta =
+      optional_or
+        ~default:(Key_value.empty ())
+        b
+        "meta"
+        (Key_value.from_rensai string)
+    in
+    { index; start_date; duration; project; sector; label; meta })
 ;;
 
-let to_rensai { index; start_date; duration; project; sector; label } =
+let to_rensai { index; start_date; duration; project; sector; label; meta } =
   let open Rensai.Ast in
   record
     [ "index", int index
@@ -64,6 +88,7 @@ let to_rensai { index; start_date; duration; project; sector; label } =
     ; "project", option string project
     ; "sector", string sector
     ; "label", string label
+    ; "meta", Key_value.to_rensai string meta
     ]
 ;;
 
@@ -107,6 +132,19 @@ let operation_from_rensai =
           let open Record in
           let+ index = required b "index" positive_int in
           Delete { index }) )
+    ; ( "add_meta"
+      , record (fun b ->
+          let open Record in
+          let+ index = required b "index" positive_int
+          and+ key = required b "key" (string & String.is_not_blank)
+          and+ value = required b "value" (string & String.is_not_blank) in
+          Add_meta { index; key; value }) )
+    ; ( "remove_meta"
+      , record (fun b ->
+          let open Record in
+          let+ index = required b "index" positive_int
+          and+ key = required b "key" (string & String.is_not_blank) in
+          Remove_meta { index; key }) )
     ]
 ;;
 
@@ -163,3 +201,9 @@ let finalize_duration dt log = function
   | None -> use_datetime dt log
   | Some d -> use_static_duration d log
 ;;
+
+let add_meta ~key ~value log =
+  { log with meta = Key_value.add key value log.meta }
+;;
+
+let remove_meta ~key log = { log with meta = Key_value.remove key log.meta }

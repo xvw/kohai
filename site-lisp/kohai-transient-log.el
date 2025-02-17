@@ -72,7 +72,10 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                             "d" (lambda (o)
                                   (kohai-transient-log--delete
                                    (car o)))
-                            "n" (lambda (_) (kohai-transient-log--record))))))
+                            "n" (lambda (_) (kohai-transient-log--record))
+                            "m" (lambda (o)
+                                  (kohai-transient-log--handle-meta
+                                   (car o)))))))
 
 (defun kohai-transient-log--list (&optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES) in log buffer."
@@ -141,6 +144,50 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
       (let ((logs (kohai-req--transient-log-delete index)))
         (kohai-transient-log--list (cl-getf logs :all))))))
 
+
+(defun kohai-transient-log--meta-add (entry)
+  "Prompt metadata adding for ENTRY."
+  (let* ((key (string-trim (read-string "Key: ")))
+        (value (string-trim (read-string "Value: ")))
+        (index (cl-getf entry :index))
+        (_ (kohai-req--transient-log-add-meta index key value))
+        (entry (kohai-req--transient-log-get index)))
+    (kohai-transient-log--list-meta entry)))
+
+(defun kohai-transient-log--meta-entry (meta)
+  "Render a META for a vtable."
+  (list (kohai--bold (cl-getf meta :key))
+        (cl-getf meta :value)))
+
+(defun kohai-transient-log--list-meta (entry)
+  "List META related to ENTRY."
+  (kohai-buffer--truncate-with
+   kohai-transient-log-buffer-name
+   (lambda (_buff)
+     (let ((meta (append (cl-getf entry :meta) nil)))
+       (if meta
+           (progn
+             (make-vtable :columns '("Key" "Value")
+                          :divider-width kohai--vtable-default-divider
+                          :objects (mapcar #'kohai-transient-log--meta-entry
+                                           meta)
+                          :actions `("n" ,(lambda (_o)
+                                           (kohai-transient-log--meta-add entry))
+                                     "q" ,(lambda (_o)
+                                           (kill-buffer
+                                            kohai-transient-log-buffer-name))))
+             (display-buffer
+              kohai-transient-log-buffer-name
+              '(display-buffer-in-side-window .((side . bottom))))
+             (pop-to-buffer kohai-transient-log-buffer-name))
+         (when (yes-or-no-p "No metadata, adding it? ")
+           (kohai-transient-log--meta-add entry)))))))
+
+(defun kohai-transient-log--handle-meta (index)
+  "Handle metadata of transient log referenced by INDEX."
+  (let ((entry (kohai-req--transient-log-get index)))
+    (kohai--should-exists entry "transient log")
+    (kohai-transient-log--list-meta entry)))
 
 (provide 'kohai-transient-log)
 ;;; kohai-transient-log.el ends here

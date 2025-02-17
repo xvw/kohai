@@ -59,6 +59,10 @@
   "The name of the buffer listing transient logs."
   :group 'kohai :type 'string)
 
+(defcustom kohai-transient-log-buffer-name "*kohai-a-transient-log*"
+  "the name of the buffer displaying a specific transient log."
+  :group 'kohai :type 'string)
+
 ;;; Variables
 
 (defvar kohai--connection nil

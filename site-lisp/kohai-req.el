@@ -157,5 +157,18 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "A request that delete a transient log by INDEX."
   (kohai-req--transient-log-action "delete" (list :index index)))
 
+(defun kohai-req--transient-log-add-meta (index key value)
+  "A request that add to log INDEX a meta using KEY and VALUE."
+  (kohai-req--transient-log-action "add_meta"
+                                   (list :index index
+                                         :key key
+                                         :value value)))
+
+(defun kohai-req--transient-log-remove-meta (index key)
+  "A request that remove to log INDEX a meta using KEY."
+  (kohai-req--transient-log-action "remove_meta"
+                                   (list :index index
+                                         :key key)))
+
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

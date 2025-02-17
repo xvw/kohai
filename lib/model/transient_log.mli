@@ -31,6 +31,15 @@ type operation = private
       ; label : string
       }
   | Delete of { index : int }
+  | Add_meta of
+      { index : int
+      ; key : string
+      ; value : string
+      }
+  | Remove_meta of
+      { index : int
+      ; key : string
+      }
 
 (** {1 API} *)
 
@@ -73,3 +82,6 @@ val operation_from_rensai : operation Rensai.Validation.t
 
 (** Render a list of transient logs into a string to be stored in a file. *)
 val dump : result -> string
+
+val add_meta : key:string -> value:string -> t -> t
+val remove_meta : key:string -> t -> t

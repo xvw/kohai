@@ -137,7 +137,7 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
   "Delete a log referenced by INDEX."
   (let ((entry (kohai-req--transient-log-get index)))
     (kohai--should-exists entry "transient log")
-    (when (yes-or-no-p (format "Delete %s\t" entry))
+    (when (yes-or-no-p (format "Delete %s? " entry))
       (let ((logs (kohai-req--transient-log-delete index)))
         (kohai-transient-log--list (cl-getf logs :all))))))
 

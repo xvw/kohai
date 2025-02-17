@@ -550,6 +550,14 @@ module String : sig
     -> ?unknown:char
     -> ?separator:char
     -> (string, string) v
+
+  (** [is_non_empty_slug ?accept_capital ?unknown ?separator] ensure
+      that a string look like a slug (and is not empty).*)
+  val is_non_empty_slug
+    :  ?accept_capital:bool
+    -> ?unknown:char
+    -> ?separator:char
+    -> (string, string) v
 end
 
 (** Validators specific to list. *)

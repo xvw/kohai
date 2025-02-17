@@ -1,7 +1,10 @@
 open Kohai_core
 open Kohai_server
 
-let () =
+let bin = Sys.argv.(0)
+let version = "dev"
+
+let run () =
   Eio_main.run (fun env ->
     let module Handler =
       Kohai_core.Eff.Handler (struct
@@ -81,3 +84,23 @@ let () =
     in
     Server.run (module Handler) env)
 ;;
+
+let run_t =
+  let open Cmdliner in
+  let expr = Term.(const run $ const ()) in
+  let doc = "Run the server (using stdin/stdout)" in
+  let info = Cmd.info "run" ~doc in
+  Cmd.v info expr
+;;
+
+let all =
+  let open Cmdliner in
+  let doc =
+    "Kohai is a very simple (but opinionated) timetracker for my personal usage"
+  in
+  let info = Cmd.info bin ~version ~doc in
+  let default = Term.(ret (const (`Help (`Pager, None)))) in
+  Cmd.group info ~default [ run_t ]
+;;
+
+let () = exit @@ Cmdliner.Cmd.eval all

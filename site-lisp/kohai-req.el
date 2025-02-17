@@ -34,7 +34,7 @@
                           :name "kohai process"
                           :connection-type 'pipe
                           :coding 'utf-8-emacs-unix
-                          :command (list kohai-binary)
+                          :command (list kohai-binary "run")
                           :stderr
                           (get-buffer-create
                            kohai-stderr-buffer-name)

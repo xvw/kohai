@@ -2,7 +2,7 @@
  (name kohai)
  (public_name kohai)
  (package kohai)
- (libraries eio eio_main unix kohai.server)
+ (libraries eio eio_main cmdliner unix kohai.server)
  (promote
   (until-clean)
   (into "../")))

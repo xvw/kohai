@@ -62,7 +62,10 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                             "Project"
                             "Start date"
                             "Duration"
-                            "Label"))))
+                            "Label")
+                 :actions '("c" (lambda (o)
+                                  (kohai-transient-log--stop-recording
+                                   (car o)))))))
 
 (defun kohai-transient-log--list (&optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES) in log buffer."
@@ -98,6 +101,13 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
     (kohai-project--list)
     (kohai-transient-log--list all)
     (kohai-transient-log--ask-for-closing-outdated outdated)))
+
+(defun kohai-transient-log--stop-recording (index)
+  "Stop the recording for a log referenced by INDEX."
+  (let* ((duration (kohai--read-datetime "Duration: "))
+         (param (list :index index :duration duration))
+         (logs (kohai-req--transient-log-stop-recording param)))
+    (kohai-transient-log--list (cl-getf logs :all))))
 
 
 (provide 'kohai-transient-log)

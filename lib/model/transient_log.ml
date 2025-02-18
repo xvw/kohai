@@ -172,7 +172,6 @@ let to_result ?inserted all =
         match log.duration with
         | Some _ -> false
         | None -> Datetime.Infix.(inserted.start_date > log.start_date))
-      |> sort
     in
     { all; inserted = Some inserted; outdated }
 ;;

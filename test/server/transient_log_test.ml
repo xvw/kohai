@@ -84,14 +84,14 @@ let default_dt =
   | _ -> failwith "Invalid date" (* should not happen. *)
 ;;
 
-module FS = Virtfs.Make (struct
-    let fs = default_fs
-    let now = default_dt
-  end)
-
-module H = Kohai_core.Eff.Handler (FS)
-
 let%expect_test "get transient logs when file are empty" =
+  let module FS =
+    Virtfs.Make (struct
+      let fs = default_fs
+      let now = default_dt
+    end)
+  in
+  let module H = Kohai_core.Eff.Handler (FS) in
   let id = ref 0 in
   let supervise =
     "kohai/supervision/set"
@@ -116,6 +116,13 @@ let%expect_test "get transient logs when file are empty" =
 ;;
 
 let%expect_test "end-to-end test - 1" =
+  let module FS =
+    Virtfs.Make (struct
+      let fs = default_fs
+      let now = default_dt
+    end)
+  in
+  let module H = Kohai_core.Eff.Handler (FS) in
   let id = ref 0 in
   let supervise =
     "kohai/supervision/set"
@@ -244,29 +251,29 @@ let%expect_test "end-to-end test - 1" =
     {id = 2; jsonrpc = "2.0";
       result =
        {all =
-         [{duration = <null>; index = 0; label = "test of a log";
+         [{duration = <null>; index = 0; label = "test of a log"; meta = [];
             project = <null>; sector = "programming";
             start_date = "2025-02-12T11-00-00"}];
          inserted =
-          {duration = <null>; index = -1; label = "test of a log";
+          {duration = <null>; index = -1; label = "test of a log"; meta = [];
             project = <null>; sector = "programming";
             start_date = "2025-02-12T11-00-00"};
          outdated = []}}
     {id = 3; jsonrpc = "2.0";
       result =
        {all =
-         [{duration = <null>; index = 0; label = "test of a log";
+         [{duration = <null>; index = 0; label = "test of a log"; meta = [];
             project = <null>; sector = "programming";
             start_date = "2025-02-12T11-00-00"};
           {duration = <null>; index = 1; label = "test of an other log";
-            project = "kohai"; sector = "not-known";
+            meta = []; project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"}];
          inserted =
           {duration = <null>; index = -1; label = "test of an other log";
-            project = "kohai"; sector = "not-known";
+            meta = []; project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"};
          outdated =
-          [{duration = <null>; index = 0; label = "test of a log";
+          [{duration = <null>; index = 0; label = "test of a log"; meta = [];
              project = <null>; sector = "programming";
              start_date = "2025-02-12T11-00-00"}]}}
     {id = 4; jsonrpc = "2.0";
@@ -278,28 +285,31 @@ let%expect_test "end-to-end test - 1" =
         {counter = 0; description = "logs related to art"; name = "visual"}]}
     {id = 5; jsonrpc = "2.0";
       result =
-       {duration = <null>; index = 0; label = "test of a log"; project = <null>;
-         sector = "programming"; start_date = "2025-02-12T11-00-00"}}
+       {duration = <null>; index = 0; label = "test of a log"; meta = [];
+         project = <null>; sector = "programming";
+         start_date = "2025-02-12T11-00-00"}}
     {id = 6; jsonrpc = "2.0";
       result =
-       {duration = <null>; index = 1; label = "test of an other log";
+       {duration = <null>; index = 1; label = "test of an other log"; meta = [];
          project = "kohai"; sector = "not-known";
          start_date = "2025-02-12T12-00-00"}}
     {id = 7; jsonrpc = "2.0";
       result =
        {all =
-         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
-            sector = "programming"; start_date = "2025-02-12T11-00-00"};
+         [{duration = 7200; index = 0; label = "test of a log"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
           {duration = <null>; index = 1; label = "test of an other log";
-            project = "kohai"; sector = "not-known";
+            meta = []; project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"}];
          inserted = <null>; outdated = []}}
     {id = 8; jsonrpc = "2.0";
       result =
        {all =
-         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
-            sector = "programming"; start_date = "2025-02-12T11-00-00"};
-          {duration = 3600; index = 1; label = "test of an other log";
+         [{duration = 7200; index = 0; label = "test of a log"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = 3600; index = 1; label = "test of an other log"; meta = [];
             project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"}];
          inserted = <null>; outdated = []}}
@@ -308,17 +318,18 @@ let%expect_test "end-to-end test - 1" =
     {id = 10; jsonrpc = "2.0";
       result =
        {all =
-         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
-            sector = "programming"; start_date = "2025-02-12T11-00-00"};
-          {duration = 3600; index = 1; label = "test of an other log";
+         [{duration = 7200; index = 0; label = "test of a log"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = 3600; index = 1; label = "test of an other log"; meta = [];
             project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"};
           {duration = <null>; index = 2; label = "Make visual stuff on Capsule";
-            project = "capsule"; sector = "visual";
+            meta = []; project = "capsule"; sector = "visual";
             start_date = "2025-02-12T13-00-00"}];
          inserted =
           {duration = <null>; index = -1; label = "Make visual stuff on Capsule";
-            project = "capsule"; sector = "visual";
+            meta = []; project = "capsule"; sector = "visual";
             start_date = "2025-02-12T13-00-00"};
          outdated = []}}
     {id = 11; jsonrpc = "2.0";
@@ -328,24 +339,216 @@ let%expect_test "end-to-end test - 1" =
     {id = 12; jsonrpc = "2.0";
       result =
        {all =
-         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
-            sector = "programming"; start_date = "2025-02-12T11-00-00"};
-          {duration = 3600; index = 1; label = "test of an other log";
+         [{duration = 7200; index = 0; label = "test of a log"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = 3600; index = 1; label = "test of an other log"; meta = [];
             project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"};
           {duration = <null>; index = 2;
-            label = "Make visual stuff on Capsule (rewritted)";
+            label = "Make visual stuff on Capsule (rewritted)"; meta = [];
             project = "capsule"; sector = "visual";
             start_date = "2025-02-12T13-00-00"}];
          inserted = <null>; outdated = []}}
     {id = 13; jsonrpc = "2.0";
       result =
        {all =
-         [{duration = 7200; index = 0; label = "test of a log"; project = <null>;
-            sector = "programming"; start_date = "2025-02-12T11-00-00"};
-          {duration = 3600; index = 1; label = "test of an other log";
+         [{duration = 7200; index = 0; label = "test of a log"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = 3600; index = 1; label = "test of an other log"; meta = [];
             project = "kohai"; sector = "not-known";
             start_date = "2025-02-12T12-00-00"}];
          inserted = <null>; outdated = []}}
+    |}]
+;;
+
+let dump_list x =
+  List.iter (fun result -> result |> request_dump |> print_endline) x
+;;
+
+let%expect_test "end-to-end test - 2" =
+  let module FS =
+    Virtfs.Make (struct
+      let fs = default_fs
+      let now = default_dt
+    end)
+  in
+  let module H = Kohai_core.Eff.Handler (FS) in
+  let id = ref 0 in
+  let supervise =
+    "kohai/supervision/set"
+    |> input ~id ~params:{|"/supervised"|}
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  dump_list [ supervise ];
+  [%expect {| {id = 0; jsonrpc = "2.0"; result = "/supervised"} |}];
+  let first_record =
+    let params = record ~sector:"programming" "log 1" in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  dump_list [ first_record ];
+  [%expect
+    {|
+    {id = 1; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = <null>; index = 0; label = "log 1"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"}];
+         inserted =
+          {duration = <null>; index = -1; label = "log 1"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+         outdated = []}}
+    |}];
+  let () = FS.manip_time Kohai_core.Datetime.succ_hour in
+  let second_record =
+    let params = record ~project:"kohai" ~sector:"not-known" "log 2" in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  dump_list [ second_record ];
+  [%expect
+    {|
+    {id = 2; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = <null>; index = 0; label = "log 1"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = <null>; index = 1; label = "log 2"; meta = [];
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"}];
+         inserted =
+          {duration = <null>; index = -1; label = "log 2"; meta = [];
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"};
+         outdated =
+          [{duration = <null>; index = 0; label = "log 1"; meta = [];
+             project = <null>; sector = "programming";
+             start_date = "2025-02-12T11-00-00"}]}}
+    |}];
+  let () = FS.manip_time Kohai_core.Datetime.succ_hour in
+  let third_record =
+    let params = record ~project:"capsule" ~sector:"visual" "log 3" in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  dump_list [ third_record ];
+  [%expect
+    {|
+    {id = 3; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = <null>; index = 0; label = "log 1"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = <null>; index = 1; label = "log 2"; meta = [];
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"};
+          {duration = <null>; index = 2; label = "log 3"; meta = [];
+            project = "capsule"; sector = "visual";
+            start_date = "2025-02-12T13-00-00"}];
+         inserted =
+          {duration = <null>; index = -1; label = "log 3"; meta = [];
+            project = "capsule"; sector = "visual";
+            start_date = "2025-02-12T13-00-00"};
+         outdated =
+          [{duration = <null>; index = 0; label = "log 1"; meta = [];
+             project = <null>; sector = "programming";
+             start_date = "2025-02-12T11-00-00"};
+           {duration = <null>; index = 1; label = "log 2"; meta = [];
+             project = "kohai"; sector = "not-known";
+             start_date = "2025-02-12T12-00-00"}]}}
+    |}];
+  let () = FS.manip_time Kohai_core.Datetime.succ_hour in
+  let close_first =
+    let params = stop 0 in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  dump_list [ close_first ];
+  [%expect
+    {|
+    {id = 4; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = 10800; index = 0; label = "log 1"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = <null>; index = 1; label = "log 2"; meta = [];
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"};
+          {duration = <null>; index = 2; label = "log 3"; meta = [];
+            project = "capsule"; sector = "visual";
+            start_date = "2025-02-12T13-00-00"}];
+         inserted = <null>; outdated = []}}
+    |}];
+  let () = FS.manip_time Kohai_core.Datetime.succ_hour in
+  let get_list =
+    "kohai/transient-log/list"
+    |> input ~id
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  dump_list [ get_list ];
+  let fourth_record =
+    let params = record ~project:"kohai" ~sector:"programming" "log 4" in
+    "kohai/transient-log/action"
+    |> input ~id ~params
+    |> Jsonrpc.run ~services:Services.all
+    |> Kohai_core.Eff.handle (module H)
+  in
+  dump_list [ fourth_record ];
+  [%expect
+    {|
+    {id = 5; jsonrpc = "2.0";
+      result =
+       [{duration = 10800; index = 0; label = "log 1"; meta = [];
+          project = <null>; sector = "programming";
+          start_date = "2025-02-12T11-00-00"};
+        {duration = <null>; index = 1; label = "log 2"; meta = [];
+          project = "kohai"; sector = "not-known";
+          start_date = "2025-02-12T12-00-00"};
+        {duration = <null>; index = 2; label = "log 3"; meta = [];
+          project = "capsule"; sector = "visual";
+          start_date = "2025-02-12T13-00-00"}]}
+    {id = 6; jsonrpc = "2.0";
+      result =
+       {all =
+         [{duration = 10800; index = 0; label = "log 1"; meta = [];
+            project = <null>; sector = "programming";
+            start_date = "2025-02-12T11-00-00"};
+          {duration = <null>; index = 1; label = "log 2"; meta = [];
+            project = "kohai"; sector = "not-known";
+            start_date = "2025-02-12T12-00-00"};
+          {duration = <null>; index = 2; label = "log 3"; meta = [];
+            project = "capsule"; sector = "visual";
+            start_date = "2025-02-12T13-00-00"};
+          {duration = <null>; index = 3; label = "log 4"; meta = [];
+            project = "kohai"; sector = "programming";
+            start_date = "2025-02-12T15-00-00"}];
+         inserted =
+          {duration = <null>; index = -1; label = "log 4"; meta = [];
+            project = "kohai"; sector = "programming";
+            start_date = "2025-02-12T15-00-00"};
+         outdated =
+          [{duration = <null>; index = 1; label = "log 2"; meta = [];
+             project = "kohai"; sector = "not-known";
+             start_date = "2025-02-12T12-00-00"};
+           {duration = <null>; index = 2; label = "log 3"; meta = [];
+             project = "capsule"; sector = "visual";
+             start_date = "2025-02-12T13-00-00"}]}}
     |}]
 ;;

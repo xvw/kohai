@@ -27,10 +27,18 @@
 (defun kohai-project--ac (&optional projects not-empty default)
   "Get PROJECTS as a completion list.
 If NOT-EMPTY the list must be filled. DEFAULT is the default value."
-  (kohai-generic--ditem-ac "project"
-                           projects
-                           not-empty
-                           default))
+  (let* ((no-project (make-vector
+                      1 (list :name "none" :description "Nothing")))
+         (projects (or projects (kohai-req--project-list)))
+         (full-projects (if (not not-empty) (vconcat no-project projects)
+                          projects)))
+    (print full-projects)
+    (let ((result
+           (kohai-generic--ditem-ac "project"
+                                    full-projects
+                                    not-empty
+                                    default)))
+      (if (string= result "none") nil result))))
 
 
 (defun kohai-project--list (&optional given-projects)

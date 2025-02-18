@@ -54,36 +54,38 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
 (defun kohai-transient-log--list-vtable ()
   "Create the vtable displaying transient logs."
   (lambda (entries)
-    (make-vtable :divider-width kohai--vtable-default-divider
-                 :objects (mapcar #'kohai-transient-log--to-vtable-entry
-                                  entries)
-                 :columns '("Index"
-                            "Sector"
-                            "Project"
-                            "Start date"
-                            "Duration"
-                            "Label")
-                 :actions '("c" (lambda (o)
-                                  (kohai-transient-log--stop-recording
-                                   (car o)))
-                            "r" (lambda (o)
-                                  (kohai-transient-log--rewrite
-                                   (car o)))
-                            "d" (lambda (o)
-                                  (kohai-transient-log--delete
-                                   (car o)))
-                            "n" (lambda (_) (kohai-transient-log--record))
-                            "m" (lambda (o)
-                                  (kohai-transient-log--handle-meta
-                                   (car o)))))))
+    (make-vtable
+     :divider-width kohai--vtable-default-divider
+     :objects (mapcar #'kohai-transient-log--to-vtable-entry
+                      entries)
+     :columns '("Index"
+                "Sector"
+                "Project"
+                "Start date"
+                "Duration"
+                "Label")
+     :actions '("c" (lambda (o)
+                      (kohai-transient-log--stop-recording
+                       (car o)))
+                "r" (lambda (o)
+                      (kohai-transient-log--rewrite
+                       (car o)))
+                "d" (lambda (o)
+                      (kohai-transient-log--delete
+                       (car o)))
+                "n" (lambda (_) (kohai-transient-log--record))
+                "m" (lambda (o)
+                      (kohai-transient-log--handle-meta
+                       (car o)))))))
 
 (defun kohai-transient-log--list (&optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES) in log buffer."
   (let ((entries (or given-entries (kohai-req--transient-log-list))))
-    (kohai-generic-vtable "transient-log"
-                          kohai-transient-logs-buffer-name
-                          entries
-                          (kohai-transient-log--list-vtable))))
+    (kohai-generic-vtable
+     "transient-log"
+     kohai-transient-logs-buffer-name
+     entries
+     (kohai-transient-log--list-vtable))))
 
 (defun kohai-transient-log--minimize (log)
   "A very small string representation of a LOG."
@@ -128,10 +130,11 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
   (let ((entry (kohai-req--transient-log-get index)))
     (kohai--should-exists entry "transient log")
     (let* ((param
-            (kohai-transient-log--prompt-record (cl-getf entry :start_date)
-                                                (cl-getf entry :sector)
-                                                (cl-getf entry :project)
-                                                (cl-getf entry :label)))
+            (kohai-transient-log--prompt-record
+             (cl-getf entry :start_date)
+             (cl-getf entry :sector)
+             (cl-getf entry :project)
+             (cl-getf entry :label)))
            (param-with-index (append param (list :index index)))
            (logs (kohai-req--transient-log-rewrite param-with-index)))
       (kohai-transient-log--list (cl-getf logs :all)))))
@@ -154,10 +157,33 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
         (entry (kohai-req--transient-log-get index)))
     (kohai-transient-log--list-meta entry)))
 
+(defun kohai-transient-log--meta-remove (entry meta)
+  "Remove the selected META for the given ENTRY."
+  (let ((index (cl-getf entry :index)))
+    (when (yes-or-no-p (format "Delete the meta [%s] for %d ?" meta index))
+      (let ((_ (kohai-req--transient-log-remove-meta index meta))
+            (entry (kohai-req--transient-log-get index)))
+        (kohai-transient-log--list-meta entry)))))
+
 (defun kohai-transient-log--meta-entry (meta)
   "Render a META for a vtable."
   (list (kohai--bold (cl-getf meta :key))
         (cl-getf meta :value)))
+
+(defun kohai-transient-log--meta-vtable (meta entry)
+  "Create the vtable for displaying meta of an ENTRY with META."
+  (make-vtable
+   :columns '("Key" "Value")
+   :divider-width kohai--vtable-default-divider
+   :objects (mapcar #'kohai-transient-log--meta-entry
+                    meta)
+   :actions `("n" ,(lambda (_o)
+                     (kohai-transient-log--meta-add entry))
+              "d" ,(lambda (o)
+                     (kohai-transient-log--meta-remove entry (car o)))
+              "q" ,(lambda (_o)
+                     (kill-buffer
+                      kohai-transient-log-buffer-name)))))
 
 (defun kohai-transient-log--list-meta (entry)
   "List META related to ENTRY."
@@ -167,15 +193,7 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
      (let ((meta (append (cl-getf entry :meta) nil)))
        (if meta
            (progn
-             (make-vtable :columns '("Key" "Value")
-                          :divider-width kohai--vtable-default-divider
-                          :objects (mapcar #'kohai-transient-log--meta-entry
-                                           meta)
-                          :actions `("n" ,(lambda (_o)
-                                           (kohai-transient-log--meta-add entry))
-                                     "q" ,(lambda (_o)
-                                           (kill-buffer
-                                            kohai-transient-log-buffer-name))))
+             (kohai-transient-log--meta-vtable meta entry)
              (display-buffer
               kohai-transient-log-buffer-name
               '(display-buffer-in-side-window .((side . bottom))))

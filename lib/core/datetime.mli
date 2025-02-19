@@ -225,6 +225,12 @@ val equal : t -> t -> bool
 (** Simple pretty printer (compatible with validation). *)
 val pp : ?sep:string -> unit -> Format.formatter -> t -> unit
 
+(** Simple Pretty Printer for compact datetime representation. *)
+val pp_compact : Format.formatter -> t -> unit
+
+(** Pretty print a datetime in a relative way. *)
+val pp_relative : t -> Format.formatter -> t -> unit
+
 (** Simple Pretty printer for datetime (according to rfc3339). *)
 val pp_rfc3339 : ?tz:string -> unit -> Format.formatter -> t -> unit
 

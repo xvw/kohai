@@ -60,6 +60,9 @@ val from_rensai : t Rensai.Validation.t
 (** Serialize a transient log. *)
 val to_rensai : t Rensai.Ast.conv
 
+(** Serialize a transient log with relative date. *)
+val list_to_rensai : (Datetime.t * t list) Rensai.Ast.conv
+
 (** Read a list of transient logs from a file content. *)
 val from_file_content : string -> t list
 
@@ -75,7 +78,7 @@ val to_result : ?inserted:t -> t list -> result
 val sort : t list -> t list
 
 (** Serialize an insertion result. *)
-val result_to_rensai : result Rensai.Ast.conv
+val result_to_rensai : (Datetime.t * result) Rensai.Ast.conv
 
 (** Read an operation from a Rensai representation. *)
 val operation_from_rensai : operation Rensai.Validation.t

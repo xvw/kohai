@@ -134,7 +134,7 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:(A.list Kohai_model.Transient_log.to_rensai)
+        ~finalizer:Kohai_model.Transient_log.list_to_rensai
         (Operation.Transient_log.list ~body)
     ;;
 

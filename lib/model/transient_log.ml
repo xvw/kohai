@@ -87,30 +87,46 @@ let duration_repr duration =
   |> Rensai.Ast.string
 ;;
 
-let to_rensai { index; start_date; duration; project; sector; label; meta } =
+let to_rensai_record
+      { index; start_date; duration; project; sector; label; meta }
+  =
   let open Rensai.Ast in
-  record
-    [ "index", int index
-    ; "start_date", Datetime.to_compact_rensai start_date
-    ; "duration", option int duration
-    ; "project", option string project
-    ; "sector", string sector
-    ; "label", string label
-    ; "meta", Key_value.to_rensai string meta
-    ; "duration_repr", option duration_repr duration
-    ]
+  [ "index", int index
+  ; "start_date", Datetime.to_compact_rensai start_date
+  ; "duration", option int duration
+  ; "project", option string project
+  ; "sector", string sector
+  ; "label", string label
+  ; "meta", Key_value.to_rensai string meta
+  ]
 ;;
 
-let result_to_rensai { inserted; outdated; all } =
+let to_rensai log = log |> to_rensai_record |> Rensai.Ast.record
+
+let return_rensai (now, ({ start_date; duration; _ } as log)) =
+  let open Rensai.Ast in
+  record
+    (("duration_repr", option duration_repr duration)
+     :: ( "start_date_repr"
+        , string (Format.asprintf "%a" (Datetime.pp_relative now) start_date) )
+     :: to_rensai_record log)
+;;
+
+let list_to_rensai (now, logs) =
+  Rensai.Ast.list (fun x -> return_rensai (now, x)) logs
+;;
+
+let result_to_rensai (now, { inserted; outdated; all }) =
   let open Rensai.Ast in
   record
     [ "inserted", option to_rensai inserted
     ; ( "outdated"
       , list
           (fun (r, d) ->
-             record [ "record", to_rensai r; "computed_duration", int d ])
+             record
+               [ "record", return_rensai (now, r); "computed_duration", int d ])
           outdated )
-    ; "all", list to_rensai all
+    ; "all", list_to_rensai (now, all)
     ]
 ;;
 

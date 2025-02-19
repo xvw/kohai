@@ -270,6 +270,18 @@ let pp ?(sep = "-") () st { year; month; day; hour; min; sec } =
     sec
 ;;
 
+let pp_compact st { year; month; day; hour; min; sec } =
+  Format.fprintf
+    st
+    "%04d/%02d/%02d at %02d:%02d:%02d"
+    year
+    (succ @@ month_to_int month)
+    day
+    hour
+    min
+    sec
+;;
+
 let pp_rfc3339 ?(tz = "Z") () st { year; month; day; hour; min; sec } =
   Format.fprintf
     st
@@ -590,6 +602,7 @@ let to_rensai ({ year; month; day; hour; min; sec } as dt) =
           [ "rfc3339", string (Format.asprintf "%a" (pp_rfc3339 ()) dt)
           ; "rfc822", string (Format.asprintf "%a" (pp_rfc822 ()) dt)
           ; "regular", string (Format.asprintf "%a" (pp_regular ()) dt)
+          ; "compact", string (Format.asprintf "%a" pp_compact dt)
           ] )
     ]
 ;;
@@ -704,3 +717,17 @@ include Infix
 
 let min_of a b = if b > a then a else b
 let max_of a b = if a < b then a else b
+
+let pp_relative now st ({ hour; min; sec; _ } as dt) =
+  let truncate_now = begin_of_day now in
+  let truncate_cur = begin_of_day dt in
+  let yesterday_now = pred_day now in
+  let tomorrow_now = succ_day now in
+  if equal truncate_cur truncate_now
+  then Format.fprintf st "Today at %02d:%02d:%02d" hour min sec
+  else if equal yesterday_now truncate_cur
+  then Format.fprintf st "Yesterday at %02d:%02d:%02d" hour min sec
+  else if equal tomorrow_now truncate_cur
+  then Format.fprintf st "Tomorrow at %02d:%02d:%02d" hour min sec
+  else pp_compact st dt
+;;

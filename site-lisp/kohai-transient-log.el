@@ -47,7 +47,7 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
   (list (cl-getf log :index)
         (kohai--bold (cl-getf log :sector))
         (or  (cl-getf log :project) "")
-        (cl-getf log :start_date)
+        (cl-getf log :start_date_repr)
         (or (cl-getf log :duration_repr) "?")
         (cl-getf log :label)))
 

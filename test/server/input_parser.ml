@@ -52,8 +52,7 @@ let%expect_test "test-parser - 3" =
     | Error (`Msg err) -> print_endline ("Error: " ^ err)
   in
   ();
-  [%expect
-    {| Error: Unexpected data after parsing (at offset 126) |}]
+  [%expect {| Error: Unexpected data after parsing (at offset 126) |}]
 ;;
 
 let%expect_test "test-parser - 4" =

@@ -13,6 +13,7 @@ bug-reports: "https://github.com/xvw/kohai/issues"
 depends: [
   "dune" {>= "3.17"}
   "ocaml" {>= "5.3.0"}
+  "re"
   "rensai" {= version}
   "ppx_expect" {with-test}
   "mdx" {with-test}

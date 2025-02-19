@@ -34,6 +34,7 @@ for which the encoding and validation functions become generic
 (and an excuse to write OCaml and reinvent the wheel)")
  (depends
   (ocaml (>= 5.3.0))
+   re
   (rensai (= :version))
   (ppx_expect :with-test)
   (mdx :with-test)

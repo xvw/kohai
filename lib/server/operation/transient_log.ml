@@ -41,10 +41,10 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
   let file = Kohai_model.Resolver.transient_logs ~cwd in
   let now = Eff.now (module H) in
   match operation with
-  | M.Record { start_date; project; sector; label } ->
+  | M.Record { date_query; project; sector; label } ->
     let () = store_missing_data ?body ?id (module H) ~sector ~project in
     let transients = all ?body ?id (module H) in
-    let start_date = Option.value ~default:now start_date in
+    let start_date = Datetime.Query.resolve now date_query in
     let transient = M.make ~start_date ~project ~sector ~label in
     let result = M.to_result ~inserted:transient transients in
     let content = M.dump result in
@@ -62,9 +62,9 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
     let content = M.dump result in
     let () = Eff.write_file (module H) file content in
     result
-  | M.Rewrite { index; start_date; project; sector; label } ->
+  | M.Rewrite { index; date_query; project; sector; label } ->
     let () = store_missing_data ?body ?id (module H) ~sector ~project in
-    let start_date = Option.value ~default:now start_date in
+    let start_date = Datetime.Query.resolve now date_query in
     let patched_log = M.make ~start_date ~project ~sector ~label in
     let transients =
       all ?body ?id (module H)

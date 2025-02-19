@@ -103,7 +103,6 @@ DEFAULT is the prefilled value."
          (datetime (string-trim (read-string prompt value))))
     (if (or (string-blank-p datetime)
             (string= (downcase datetime) "now")) nil
-      (message "foo")
       datetime)))
 
 ;;; Messages

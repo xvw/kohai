@@ -713,7 +713,7 @@ let%expect_test "diff_duration - 1" =
     Datetime.diff_to_duration a b
   in
   dump_duration test;
-  [%expect {| 0d, 0h, 0m, 0s |}]
+  [%expect {| 0s |}]
 ;;
 
 let%expect_test "diff_duration - 2" =
@@ -728,7 +728,7 @@ let%expect_test "diff_duration - 2" =
     Datetime.diff_to_duration a b
   in
   dump_duration test;
-  [%expect {| 0d, 1h, 0m, 0s |}]
+  [%expect {| 1h |}]
 ;;
 
 let%expect_test "diff_duration - 3" =

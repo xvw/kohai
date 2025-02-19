@@ -47,7 +47,8 @@ let%expect_test "create-dir - 1" =
   let lol = Virtfs.cat fs Path.(root / "xvw" / "lol") in
   let foobar = Virtfs.cat fs Path.(root / "xvw" / "lol" / "foobar") in
   List.iter print_endline [ xvw; lol; foobar ];
-  [%expect {|
+  [%expect
+    {|
     cat: /xvw: Is a directory
     cat: /xvw/lol: Is a directory
     cat: /xvw/lol/foobar: Is a directory

@@ -114,7 +114,7 @@ In a dedicated BUFFER using KEY."
   (let ((entry (kohai-req--described-item-get key name)))
     (kohai--should-exists entry key)
     (kohai--should-be-eraseable entry)
-    (when (yes-or-no-p (format "Delete %s %s? " key name))
+    (when (y-or-n-p (format "Delete %s %s? " key name))
       (let ((values (kohai-req--described-item-delete key name)))
         (kohai--message-deleted name key)
         (kohai-generic--ditem-list key buffer values)))))

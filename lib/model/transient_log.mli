@@ -14,7 +14,7 @@ type result
     logs. *)
 type operation = private
   | Record of
-      { start_date : Datetime.t option
+      { date_query : Datetime.Query.t option
       ; project : string option
       ; sector : string
       ; label : string
@@ -25,7 +25,7 @@ type operation = private
       }
   | Rewrite of
       { index : int
-      ; start_date : Datetime.t option
+      ; date_query : Datetime.Query.t option
       ; project : string option
       ; sector : string
       ; label : string

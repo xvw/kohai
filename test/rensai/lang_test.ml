@@ -104,7 +104,8 @@ let%expect_test "Pathologic case with duration" =
   let lexbuf = Lexing.from_string input in
   let result = Rensai.Lang.from_lexingbuf_to_list ~reverse:true lexbuf in
   result |> List.map Rensai.Json.to_yojson |> dump_yojson;
-  [%expect {|
+  [%expect
+    {|
     [{
        "duration": null,
        "index": 0,

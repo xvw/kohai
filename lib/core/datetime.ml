@@ -305,7 +305,29 @@ let pp_rfc822 ?(tz = "gmt") () st ({ year; month; day; hour; min; sec } as dt) =
 ;;
 
 let pp_duration st (d, h, m, s) =
-  Format.fprintf st "%Ldd, %Ldh, %Ldm, %Lds" d h m s
+  let sum others = List.fold_left Int64.add Int64.zero others in
+  let pp_with_suffix suff others st x =
+    let coma = if Int64.(equal zero (sum others)) then "" else ", " in
+    if Int64.(equal zero x)
+    then Format.fprintf st ""
+    else Format.fprintf st "%Ld%s%s" x suff coma
+  in
+  let pp_seconds others st x =
+    if Int64.(equal zero x && not (equal (sum others) zero))
+    then Format.fprintf st ""
+    else Format.fprintf st "%Lds" x
+  in
+  Format.fprintf
+    st
+    "%a%a%a%a"
+    (pp_with_suffix "d" [ h; m; s ])
+    d
+    (pp_with_suffix "h" [ m; s ])
+    h
+    (pp_with_suffix "m" [ s ])
+    m
+    (pp_seconds [ d; h; m ])
+    s
 ;;
 
 let days_in_month { year; month; _ } = aux_days_in_month year month
@@ -501,11 +523,6 @@ module Infix = struct
   let ( <= ) x y = compare x y <= 0
 end
 
-include Infix
-
-let min_of a b = if b > a then a else b
-let max_of a b = if a < b then a else b
-
 let validate_datetime_from_string s =
   match
     Scanf.sscanf_opt
@@ -580,55 +597,110 @@ let to_rensai ({ year; month; day; hour; min; sec } as dt) =
 let to_compact_rensai dt = Rensai.Ast.string @@ Format.asprintf "%a" (pp ()) dt
 
 module Query = struct
-  (*
-     at 6am
-     yesterday
-     last monday
-     sunday at noon
-     2 march 2012
-     7 apr
-     5/20/1998 at 23:42
-     2020-05-22T15:55-04:00
-  *)
-
   type nonrec t =
     | Now
+    | At of int * int * int
     | Absolute of t
 
   let resolve datetime = function
-    | Now -> datetime
-    | Absolute other_datetime -> other_datetime
+    | None -> datetime
+    | Some x ->
+      (match x with
+       | Now -> datetime
+       | Absolute other_datetime -> other_datetime
+       | At (hour, min, sec) -> { datetime with hour; min; sec })
   ;;
 
-  let ( <|> ) a b =
+  let of_s r = Re.(r |> whole_string |> compile)
+
+  module Regex = struct
+    let trim r = Re.(seq [ rep blank; r; rep blank ])
+    let constant k = trim Re.(no_case @@ str k)
+    let time_sep = Re.set ":-/T "
+    let min_or_sec = Re.(seq [ opt (rg '0' '5'); digit ])
+    let hour = Re.(seq [ opt (rg '0' '2'); digit ])
+    let at = Re.(seq [ rep blank; opt (no_case @@ str "at"); rep blank ])
+
+    let time_full =
+      Re.(
+        seq
+          [ at
+          ; group hour
+          ; alt
+              [ no_case (char 'h')
+              ; opt
+                  (seq
+                     [ alt [ time_sep; no_case (char 'h') ]
+                     ; group min_or_sec
+                     ; opt
+                         (seq
+                            [ alt [ time_sep; no_case (char 'm') ]
+                            ; group min_or_sec
+                            ])
+                     ])
+              ]
+          ])
+      |> trim
+    ;;
+
+    let opt_int_of_group g i =
+      Option.bind (Re.Group.get_opt g i) int_of_string_opt
+    ;;
+  end
+
+  module Opt = struct
+    let ( let* ) x f = Option.bind x f
+  end
+
+  let ( <|> ) a b () =
     match a () with
     | Ok a -> Ok a
     | Error _ -> b ()
   ;;
 
-  let standardize_input input =
-    input
-    |> String.trim
-    |> String.split_on_char ' '
-    |> List.filter_map (fun fragment ->
-      let result = fragment |> String.trim |> String.lowercase_ascii in
-      if String.equal "" fragment then None else Some result)
+  let as_time_full query () =
+    let result =
+      let open Opt in
+      let* group = Re.exec_opt (of_s Regex.time_full) query in
+      let* hour = Regex.opt_int_of_group group 1 in
+      let min = Regex.opt_int_of_group group 2 |> Option.value ~default:0 in
+      let sec = Regex.opt_int_of_group group 3 |> Option.value ~default:0 in
+      if
+        (hour >= 0 && hour <= 23)
+        && (min >= 0 && min <= 59)
+        && sec >= 0
+        && sec <= 59
+      then Some (hour, min, sec)
+      else None
+    in
+    match result with
+    | Some (hour, min, sec) -> Ok (At (hour, min, sec))
+    | None -> Rensai.Validation.fail_with ~subject:query "Invalid query"
   ;;
 
-  (* let parse_time query input () = *)
-
-  let as_now query input () =
-    match input with
-    | [ "now" ] -> Ok Now
-    | _ -> Rensai.Validation.fail_with ~subject:query "Invalid query"
+  let as_now query () =
+    if Re.execp (of_s @@ Regex.constant "now") query
+    then Ok Now
+    else Rensai.Validation.fail_with ~subject:query "Invalid query"
   ;;
+
+  let as_time query () = as_time_full query ()
 
   let as_absolute query_str () =
     query_str |> from_string |> Result.map (fun x -> Absolute x)
   ;;
 
-  let from_string query_str =
-    let input = standardize_input query_str in
-    as_now query_str input <|> as_absolute query_str
+  let from_string query =
+    (as_now query <|> as_time query <|> as_absolute query) ()
+  ;;
+
+  let from_rensai =
+    let open Rensai.Validation in
+    string & from_string
   ;;
 end
+
+include Infix
+
+let min_of a b = if b > a then a else b
+let max_of a b = if a < b then a else b

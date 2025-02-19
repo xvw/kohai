@@ -257,6 +257,8 @@ module Query : sig
   (** Convert a string into a query. *)
   val from_string : (string, t) Rensai.Validation.v
 
+  val from_rensai : t Rensai.Validation.t
+
   (** Resolve a query giving a datetime. *)
-  val resolve : datetime -> t -> datetime
+  val resolve : datetime -> t option -> datetime
 end

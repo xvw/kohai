@@ -1,6 +1,6 @@
 type operation =
   | Record of
-      { start_date : Datetime.t option
+      { date_query : Datetime.Query.t option
       ; project : string option
       ; sector : string
       ; label : string
@@ -11,7 +11,7 @@ type operation =
       }
   | Rewrite of
       { index : int
-      ; start_date : Datetime.t option
+      ; date_query : Datetime.Query.t option
       ; project : string option
       ; sector : string
       ; label : string
@@ -39,7 +39,7 @@ type t =
 
 type result =
   { inserted : t option
-  ; outdated : t list
+  ; outdated : (t * int) list
   ; all : t list
   }
 
@@ -79,6 +79,14 @@ let from_rensai =
     { index; start_date; duration; project; sector; label; meta })
 ;;
 
+let duration_repr duration =
+  duration
+  |> Int64.of_int
+  |> Datetime.seconds_to_duration
+  |> Format.asprintf "%a" Datetime.pp_duration
+  |> Rensai.Ast.string
+;;
+
 let to_rensai { index; start_date; duration; project; sector; label; meta } =
   let open Rensai.Ast in
   record
@@ -89,6 +97,7 @@ let to_rensai { index; start_date; duration; project; sector; label; meta } =
     ; "sector", string sector
     ; "label", string label
     ; "meta", Key_value.to_rensai string meta
+    ; "duration_repr", option duration_repr duration
     ]
 ;;
 
@@ -96,7 +105,11 @@ let result_to_rensai { inserted; outdated; all } =
   let open Rensai.Ast in
   record
     [ "inserted", option to_rensai inserted
-    ; "outdated", list to_rensai outdated
+    ; ( "outdated"
+      , list
+          (fun (r, d) ->
+             record [ "record", to_rensai r; "computed_duration", int d ])
+          outdated )
     ; "all", list to_rensai all
     ]
 ;;
@@ -107,11 +120,11 @@ let operation_from_rensai =
     [ ( "record"
       , record (fun b ->
           let open Record in
-          let+ start_date = optional b "start_date" Datetime.from_rensai
+          let+ date_query = optional b "date_query" Datetime.Query.from_rensai
           and+ project = optional b "project" slug
           and+ sector = required b "sector" slug
           and+ label = required b "label" (string & String.is_not_blank) in
-          Record { start_date; project; sector; label }) )
+          Record { date_query; project; sector; label }) )
     ; ( "stop_recording"
       , record (fun b ->
           let open Record in
@@ -122,11 +135,11 @@ let operation_from_rensai =
       , record (fun b ->
           let open Record in
           let+ index = required b "index" positive_int
-          and+ start_date = optional b "start_date" Datetime.from_rensai
+          and+ date_query = optional b "date_query" Datetime.Query.from_rensai
           and+ project = optional b "project" slug
           and+ sector = required b "sector" slug
           and+ label = required b "label" (string & String.is_not_blank) in
-          Rewrite { index; start_date; project; sector; label }) )
+          Rewrite { index; date_query; project; sector; label }) )
     ; ( "delete"
       , record (fun b ->
           let open Record in
@@ -168,10 +181,19 @@ let to_result ?inserted all =
     let all = sort (inserted :: all) in
     let outdated =
       all
-      |> List.filter (fun log ->
+      |> List.filter_map (fun log ->
         match log.duration with
-        | Some _ -> false
-        | None -> Datetime.Infix.(inserted.start_date > log.start_date))
+        | Some _ -> None
+        | None ->
+          if Datetime.Infix.(inserted.start_date > log.start_date)
+          then (
+            let d =
+              Datetime.diff inserted.start_date log.start_date
+              |> Int64.to_int
+              |> fun x -> x / 60
+            in
+            Some (log, d))
+          else None)
     in
     { all; inserted = Some inserted; outdated }
 ;;

@@ -527,7 +527,7 @@ let validate_date_from_string s =
   | Some (year, month, day) -> make' ~year ~month ~day ()
 ;;
 
-let from_rensai_str =
+let from_string =
   let open Rensai.Validation in
   String.trim & (validate_datetime_from_string / validate_date_from_string)
 ;;
@@ -541,7 +541,7 @@ let validate_from_record =
         f
         "repr"
         (record (fun g ->
-           let+ str = required g "regular" (string & from_rensai_str) in
+           let+ str = required g "regular" (string & from_string) in
            str))
     in
     str)
@@ -549,7 +549,7 @@ let validate_from_record =
 
 let from_rensai =
   let open Rensai.Validation in
-  validate_from_record / (string & from_rensai_str)
+  validate_from_record / (string & from_string)
 ;;
 
 let pp_regular = pp
@@ -578,3 +578,57 @@ let to_rensai ({ year; month; day; hour; min; sec } as dt) =
 ;;
 
 let to_compact_rensai dt = Rensai.Ast.string @@ Format.asprintf "%a" (pp ()) dt
+
+module Query = struct
+  (*
+     at 6am
+     yesterday
+     last monday
+     sunday at noon
+     2 march 2012
+     7 apr
+     5/20/1998 at 23:42
+     2020-05-22T15:55-04:00
+  *)
+
+  type nonrec t =
+    | Now
+    | Absolute of t
+
+  let resolve datetime = function
+    | Now -> datetime
+    | Absolute other_datetime -> other_datetime
+  ;;
+
+  let ( <|> ) a b =
+    match a () with
+    | Ok a -> Ok a
+    | Error _ -> b ()
+  ;;
+
+  let standardize_input input =
+    input
+    |> String.trim
+    |> String.split_on_char ' '
+    |> List.filter_map (fun fragment ->
+      let result = fragment |> String.trim |> String.lowercase_ascii in
+      if String.equal "" fragment then None else Some result)
+  ;;
+
+  (* let parse_time query input () = *)
+
+  let as_now query input () =
+    match input with
+    | [ "now" ] -> Ok Now
+    | _ -> Rensai.Validation.fail_with ~subject:query "Invalid query"
+  ;;
+
+  let as_absolute query_str () =
+    query_str |> from_string |> Result.map (fun x -> Absolute x)
+  ;;
+
+  let from_string query_str =
+    let input = standardize_input query_str in
+    as_now query_str input <|> as_absolute query_str
+  ;;
+end

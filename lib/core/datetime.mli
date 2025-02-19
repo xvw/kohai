@@ -196,6 +196,9 @@ val to_rensai : t Rensai.Ast.conv
 (** Convert datetime to a compacted representation of rensai lang. *)
 val to_compact_rensai : t Rensai.Ast.conv
 
+(** Convert a string into a datetime. *)
+val from_string : (string, t) Rensai.Validation.v
+
 (** Convert rensai expression to datetime. *)
 val from_rensai : t Rensai.Validation.t
 
@@ -239,3 +242,21 @@ val equal_day_of_week : day_of_week -> day_of_week -> bool
 
 (** Pretty printers for day of week. *)
 val pp_day_of_week : Format.formatter -> day_of_week -> unit
+
+(** {1 Query on Datetime} *)
+
+module Query : sig
+  (** Represents a datetime query based on a relative datetime to
+      describe jumps based on a relative date. *)
+
+  type datetime := t
+
+  (** Describe a query. *)
+  type t
+
+  (** Convert a string into a query. *)
+  val from_string : (string, t) Rensai.Validation.v
+
+  (** Resolve a query giving a datetime. *)
+  val resolve : datetime -> t -> datetime
+end

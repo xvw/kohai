@@ -103,7 +103,7 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
     (let* ((record (cl-getf log :record))
            (computed_duration (cl-getf log :computed_duration))
            (index (cl-getf record :index))
-           (v (format "Close %s\t" (kohai-transient-log--minimize record))))
+           (v (format "Close %s" (kohai-transient-log--minimize record))))
       (when (y-or-n-p v)
         (let* ((duration (kohai--read-datetime
                           "Duration: " (number-to-string computed_duration)))

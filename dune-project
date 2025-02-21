@@ -35,6 +35,7 @@ for which the encoding and validation functions become generic
  (depends
   (ocaml (>= 5.3.0))
    re
+   uri
   (rensai (= :version))
   (ppx_expect :with-test)
   (mdx :with-test)

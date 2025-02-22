@@ -18,6 +18,7 @@ let uri_to_rensai uri =
   let open Rensai.Ast in
   record
     [ "scheme", option string (uri |> Uri.scheme)
+    ; "host", option string (uri |> Uri.host)
     ; "port", option int (uri |> Uri.port)
     ; "path", string (uri |> Uri.path)
     ; "query", list (pair string (list string)) (uri |> Uri.query)

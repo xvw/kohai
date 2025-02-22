@@ -55,3 +55,34 @@ let from_string s =
     and+ path = required fields "path" Path.from_rensai in
     { uri; scheme; port; host; query; path })
 ;;
+
+let from_rensai = Rensai.Validation.(string & from_string)
+
+let scheme_to_string = function
+  | Http -> "http"
+  | Https -> "https"
+  | Ftp -> "ftp"
+  | Gemini -> "gemini"
+  | Other x -> x
+;;
+
+let url_repr { host; path; _ } =
+  Format.asprintf "%s%s" host (Path.to_string path)
+;;
+
+let to_rensai ({ uri; scheme; port; host; query; path } as u) =
+  let open Rensai.Ast in
+  record
+    [ "scheme", string @@ scheme_to_string scheme
+    ; "port", option int port
+    ; "host", string host
+    ; "path", Path.to_rensai path
+    ; "query", Key_value.to_rensai (list string) query
+    ; "uri", uri_to_rensai uri
+    ; "url", string @@ Uri.to_string uri
+    ; "repr", string @@ url_repr u
+    ]
+;;
+
+let to_uri { uri; _ } = uri
+let to_compact_rensai { uri; _ } = Rensai.Ast.string (Uri.to_string uri)

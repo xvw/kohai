@@ -116,5 +116,5 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
   | M.Add_link { index; key; value } ->
     adding ?body ?id (module H) M.add_link file now index key value
   | M.Remove_link { index; key } ->
-    removing ?body ?id (module H) M.remove_meta file now index key
+    removing ?body ?id (module H) M.remove_link file now index key
 ;;

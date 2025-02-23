@@ -37,6 +37,30 @@ let store_missing_data ?body ?id (module H : Eff.HANDLER) ~sector ~project =
   ()
 ;;
 
+let adding ?body ?id (module H : Eff.HANDLER) add file now index key value =
+  let transients =
+    all ?body ?id (module H)
+    |> List.map (fun log ->
+      if M.has_index index log then add ~key ~value log else log)
+  in
+  let result = M.to_result transients in
+  let content = M.dump result in
+  let () = Eff.write_file (module H) file content in
+  now, result
+;;
+
+let removing ?body ?id (module H : Eff.HANDLER) remove file now index key =
+  let transients =
+    all ?body ?id (module H)
+    |> List.map (fun log ->
+      if M.has_index index log then remove ~key log else log)
+  in
+  let result = M.to_result transients in
+  let content = M.dump result in
+  let () = Eff.write_file (module H) file content in
+  now, result
+;;
+
 let action ?body ?id (module H : Eff.HANDLER) operation =
   let cwd = Global.ensure_supervision ?body ?id (module H) () in
   let file = Kohai_model.Resolver.transient_logs ~cwd in
@@ -86,23 +110,11 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
     let () = Eff.write_file (module H) file content in
     now, result
   | M.Add_meta { index; key; value } ->
-    let transients =
-      all ?body ?id (module H)
-      |> List.map (fun log ->
-        if M.has_index index log then M.add_meta ~key ~value log else log)
-    in
-    let result = M.to_result transients in
-    let content = M.dump result in
-    let () = Eff.write_file (module H) file content in
-    now, result
+    adding ?body ?id (module H) M.add_meta file now index key value
   | M.Remove_meta { index; key } ->
-    let transients =
-      all ?body ?id (module H)
-      |> List.map (fun log ->
-        if M.has_index index log then M.remove_meta ~key log else log)
-    in
-    let result = M.to_result transients in
-    let content = M.dump result in
-    let () = Eff.write_file (module H) file content in
-    now, result
+    removing ?body ?id (module H) M.remove_meta file now index key
+  | M.Add_link { index; key; value } ->
+    adding ?body ?id (module H) M.add_link file now index key value
+  | M.Remove_link { index; key } ->
+    removing ?body ?id (module H) M.remove_meta file now index key
 ;;

@@ -26,6 +26,15 @@ type operation =
       { index : int
       ; key : string
       }
+  | Add_link of
+      { index : int
+      ; key : string
+      ; value : Url.t
+      }
+  | Remove_link of
+      { index : int
+      ; key : string
+      }
 
 type t =
   { index : int
@@ -35,6 +44,7 @@ type t =
   ; sector : string
   ; label : string
   ; meta : string Key_value.t
+  ; links : Url.t Key_value.t
   }
 
 type result =
@@ -53,6 +63,7 @@ let make ~start_date ~project ~sector ~label =
   ; sector
   ; label
   ; meta = Key_value.empty ()
+  ; links = Key_value.empty ()
   }
 ;;
 
@@ -75,8 +86,14 @@ let from_rensai =
         b
         "meta"
         (Key_value.from_rensai string)
+    and+ links =
+      optional_or
+        ~default:(Key_value.empty ())
+        b
+        "links"
+        (Key_value.from_rensai Url.from_rensai)
     in
-    { index; start_date; duration; project; sector; label; meta })
+    { index; start_date; duration; project; sector; label; meta; links })
 ;;
 
 let duration_repr duration =
@@ -88,7 +105,7 @@ let duration_repr duration =
 ;;
 
 let to_rensai_record
-      { index; start_date; duration; project; sector; label; meta }
+      { index; start_date; duration; project; sector; label; meta; links }
   =
   let open Rensai.Ast in
   [ "index", int index
@@ -98,6 +115,7 @@ let to_rensai_record
   ; "sector", string sector
   ; "label", string label
   ; "meta", Key_value.to_rensai string meta
+  ; "links", Key_value.to_rensai Url.to_compact_rensai links
   ]
 ;;
 
@@ -128,6 +146,27 @@ let result_to_rensai (now, { inserted; outdated; all }) =
           outdated )
     ; "all", list_to_rensai (now, all)
     ]
+;;
+
+let adding_from_rensai validator f =
+  let open Rensai.Validation in
+  record (fun b ->
+    let open Record in
+    let+ index = required b "index" positive_int
+    and+ key = required b "key" (string & String.is_not_blank)
+    and+ value =
+      required b "value" (string & String.is_not_blank & validator)
+    in
+    f index key value)
+;;
+
+let removing_from_rensai f =
+  let open Rensai.Validation in
+  record (fun b ->
+    let open Record in
+    let+ index = required b "index" positive_int
+    and+ key = required b "key" (string & String.is_not_blank) in
+    f index key)
 ;;
 
 let operation_from_rensai =
@@ -162,18 +201,16 @@ let operation_from_rensai =
           let+ index = required b "index" positive_int in
           Delete { index }) )
     ; ( "add_meta"
-      , record (fun b ->
-          let open Record in
-          let+ index = required b "index" positive_int
-          and+ key = required b "key" (string & String.is_not_blank)
-          and+ value = required b "value" (string & String.is_not_blank) in
-          Add_meta { index; key; value }) )
+      , adding_from_rensai
+          (fun x -> Ok x)
+          (fun index key value -> Add_meta { index; key; value }) )
     ; ( "remove_meta"
-      , record (fun b ->
-          let open Record in
-          let+ index = required b "index" positive_int
-          and+ key = required b "key" (string & String.is_not_blank) in
-          Remove_meta { index; key }) )
+      , removing_from_rensai (fun index key -> Remove_meta { index; key }) )
+    ; ( "add_link"
+      , adding_from_rensai Url.from_string (fun index key value ->
+          Add_link { index; key; value }) )
+    ; ( "remove_link"
+      , removing_from_rensai (fun index key -> Remove_link { index; key }) )
     ]
 ;;
 
@@ -243,4 +280,9 @@ let add_meta ~key ~value log =
   { log with meta = Key_value.add key value log.meta }
 ;;
 
+let add_link ~key ~value log =
+  { log with links = Key_value.add key value log.links }
+;;
+
 let remove_meta ~key log = { log with meta = Key_value.remove key log.meta }
+let remove_link ~key log = { log with links = Key_value.remove key log.links }

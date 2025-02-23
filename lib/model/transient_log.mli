@@ -40,6 +40,15 @@ type operation = private
       { index : int
       ; key : string
       }
+  | Add_link of
+      { index : int
+      ; key : string
+      ; value : Url.t
+      }
+  | Remove_link of
+      { index : int
+      ; key : string
+      }
 
 (** {1 API} *)
 
@@ -86,5 +95,14 @@ val operation_from_rensai : operation Rensai.Validation.t
 (** Render a list of transient logs into a string to be stored in a file. *)
 val dump : result -> string
 
+(** Add complementary metadata. *)
 val add_meta : key:string -> value:string -> t -> t
+
+(** Remove complementary metadata. *)
 val remove_meta : key:string -> t -> t
+
+(** Add complementary link. *)
+val add_link : key:string -> value:Url.t -> t -> t
+
+(** Remove complementary link. *)
+val remove_link : key:string -> t -> t

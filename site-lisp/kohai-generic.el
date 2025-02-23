@@ -90,7 +90,9 @@ In BUFFER, CREATE is used to create a new entry."
                                    (kohai-generic--ditem-delete
                                     key buffer (car o)))
                             "n" ,(lambda (_o)
-                                   (kohai-generic--ditem-new key buffer))))))
+                                   (kohai-generic--ditem-new key buffer))
+                            "q" ,(lambda (_o)
+                                   (kill-buffer buffer))))))
 
 (defun kohai-generic--ditem-list (key buffer &optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES).

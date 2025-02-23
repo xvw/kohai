@@ -79,7 +79,9 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                        (car o)))
                 "l" (lambda (o)
                       (kohai-transient-log--handle-link
-                       (car o)))))))
+                       (car o)))
+                "q" (lambda (_o)
+                      (kill-buffer kohai-transient-log-buffer-name))))))
 
 (defun kohai-transient-log--list (&optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES) in log buffer."

@@ -44,9 +44,9 @@
 
 (cl-defun kohai-req--send (method
                            &optional params &key
-                                  timeout
-                                  cancel-on-input
-                                  cancel-on-input-retval)
+                           timeout
+                           cancel-on-input
+                           cancel-on-input-retval)
   "Execute the request METHOD with given PARAMS.
 TIMEOUT is a timeout time response.  CANCEL-ON-INPUT and
 CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
@@ -159,16 +159,23 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
 
 (defun kohai-req--transient-log-add-meta (index key value)
   "A request that add to log INDEX a meta using KEY and VALUE."
-  (kohai-req--transient-log-action "add_meta"
-                                   (list :index index
-                                         :key key
-                                         :value value)))
+  (kohai-req--transient-log-action
+   "add_meta" (list :index index :key key :value value)))
 
 (defun kohai-req--transient-log-remove-meta (index key)
   "A request that remove to log INDEX a meta using KEY."
-  (kohai-req--transient-log-action "remove_meta"
-                                   (list :index index
-                                         :key key)))
+  (kohai-req--transient-log-action
+   "remove_meta" (list :index index :key key)))
+
+(defun kohai-req--transient-log-add-link (index key value)
+  "A request that add to log INDEX a link using KEY and VALUE."
+  (kohai-req--transient-log-action
+   "add_link" (list :index index :key key :value value)))
+
+(defun kohai-req--transient-log-remove-link (index key)
+  "A request that remove to log INDEX a link using KEY."
+  (kohai-req--transient-log-action
+   "remove_link" (list :index index :key key)))
 
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

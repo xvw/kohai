@@ -76,6 +76,9 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                 "n" (lambda (_) (kohai-transient-log--record))
                 "m" (lambda (o)
                       (kohai-transient-log--handle-meta
+                       (car o)))
+                "l" (lambda (o)
+                      (kohai-transient-log--handle-link
                        (car o)))))))
 
 (defun kohai-transient-log--list (&optional given-entries)
@@ -162,6 +165,15 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
         (entry (kohai-req--transient-log-get index)))
     (kohai-transient-log--list-meta entry)))
 
+(defun kohai-transient-log--link-add (entry)
+  "Prompt link adding for ENTRY."
+  (let* ((key (string-trim (read-string "Name: ")))
+        (value (string-trim (read-string "Url: ")))
+        (index (cl-getf entry :index))
+        (_ (kohai-req--transient-log-add-link index key value))
+        (entry (kohai-req--transient-log-get index)))
+    (kohai-transient-log--list-link entry)))
+
 (defun kohai-transient-log--meta-remove (entry meta)
   "Remove the selected META for the given ENTRY."
   (let ((index (cl-getf entry :index)))
@@ -170,47 +182,97 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
             (entry (kohai-req--transient-log-get index)))
         (kohai-transient-log--list-meta entry)))))
 
-(defun kohai-transient-log--meta-entry (meta)
+(defun kohai-transient-log--link-remove (entry link)
+  "Remove the selected LINK for the given ENTRY."
+  (let ((index (cl-getf entry :index)))
+    (when (y-or-n-p (format "Delete the link [%s] for %d ?" link index))
+      (let ((_ (kohai-req--transient-log-remove-link index link))
+            (entry (kohai-req--transient-log-get index)))
+        (kohai-transient-log--list-link entry)))))
+
+(defun kohai-transient-log--meta-or-link-entry (meta)
   "Render a META for a vtable."
   (list (kohai--bold (cl-getf meta :key))
         (cl-getf meta :value)))
 
-(defun kohai-transient-log--meta-vtable (meta entry)
-  "Create the vtable for displaying meta of an ENTRY with META."
+(defun kohai-transient-log--meta-or-link-vtable
+    (k v obj entry adding removing)
+  "Create the vtable for displaying meta of an ENTRY with OBJ.
+K and V are used to describe the heading.
+ADDING and REMOVING are used to control which structure
+shoudl be treated."
   (make-vtable
-   :columns '("Key" "Value")
+   :columns `(,k ,v)
    :divider-width kohai--vtable-default-divider
-   :objects (mapcar #'kohai-transient-log--meta-entry
-                    meta)
-   :actions `("n" ,(lambda (_o)
-                     (kohai-transient-log--meta-add entry))
-              "d" ,(lambda (o)
-                     (kohai-transient-log--meta-remove entry (car o)))
-              "q" ,(lambda (_o)
-                     (kill-buffer
-                      kohai-transient-log-buffer-name)))))
+   :objects (mapcar #'kohai-transient-log--meta-or-link-entry obj)
+   :actions `("n" ,(lambda (_o) (funcall adding entry))
+              "d" ,(lambda (o) (funcall removing entry (car o)))
+              "q" ,(lambda (_o) (kill-buffer
+                                 kohai-transient-log-buffer-name)))))
 
-(defun kohai-transient-log--list-meta (entry)
-  "List META related to ENTRY."
+(defun kohai-transient-log--meta-vtable (meta entry)
+  "Create the VTABLE for META (related to an ENTRY)."
+  (kohai-transient-log--meta-or-link-vtable
+   "Key" "Value" meta entry
+   #'kohai-transient-log--meta-add
+   #'kohai-transient-log--meta-remove))
+
+(defun kohai-transient-log--link-vtable (link entry)
+  "Create the VTABLE for LINK (related to an ENTRY)."
+  (kohai-transient-log--meta-or-link-vtable
+   "Name" "Url" link entry
+   #'kohai-transient-log--link-add
+   #'kohai-transient-log--link-remove))
+
+(defun kohai-transient-log--list-meta-or-link
+    (name k entry fvtable adding)
+  "List K (with a NAME) related to ENTRY."
   (kohai-buffer--truncate-with
    kohai-transient-log-buffer-name
    (lambda (_buff)
-     (let ((meta (append (cl-getf entry :meta) nil)))
-       (if meta
+     (let ((obj (append (cl-getf entry k) nil)))
+       (if obj
            (progn
-             (kohai-transient-log--meta-vtable meta entry)
+             (funcall fvtable obj entry)
              (display-buffer
               kohai-transient-log-buffer-name
               '(display-buffer-in-side-window .((side . bottom))))
              (pop-to-buffer kohai-transient-log-buffer-name))
-         (when (y-or-n-p "No metadata, adding it? ")
-           (kohai-transient-log--meta-add entry)))))))
+         (when (y-or-n-p (format "No %s, adding it? " name))
+           (funcall adding entry)))))))
+
+(defun kohai-transient-log--list-meta (entry)
+  "List META related to ENTRY."
+  (kohai-transient-log--list-meta-or-link "METADATA"
+                                          :meta
+                                          entry
+                                          #'kohai-transient-log--meta-vtable
+                                          #'kohai-transient-log--meta-add))
+
+(defun kohai-transient-log--list-link (entry)
+  "List LINK related to ENTRY."
+  (kohai-transient-log--list-meta-or-link "LINK"
+                                          :links
+                                          entry
+                                          #'kohai-transient-log--link-vtable
+                                          #'kohai-transient-log--link-add))
+
+
+(defun kohai-transient-log--handle-meta-or-link (index listing)
+  "LISTING metadata or link of transient log referenced by INDEX."
+  (let ((entry (kohai-req--transient-log-get index)))
+    (kohai--should-exists entry "transient log")
+    (funcall listing entry)))
 
 (defun kohai-transient-log--handle-meta (index)
   "Handle metadata of transient log referenced by INDEX."
-  (let ((entry (kohai-req--transient-log-get index)))
-    (kohai--should-exists entry "transient log")
-    (kohai-transient-log--list-meta entry)))
+  (kohai-transient-log--handle-meta-or-link index
+                                            #'kohai-transient-log--list-meta))
+
+  (defun kohai-transient-log--handle-link (index)
+  "Handle links of transient log referenced by INDEX."
+  (kohai-transient-log--handle-meta-or-link index
+                                            #'kohai-transient-log--list-link))
 
 (provide 'kohai-transient-log)
 ;;; kohai-transient-log.el ends here

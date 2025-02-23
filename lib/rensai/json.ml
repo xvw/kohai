@@ -46,10 +46,15 @@ let rec to_yojson = function
   | Ast.Int64 x -> `Intlit (Int64.to_string x)
   | Ast.Char x -> `String (String.make 1 x)
   | Ast.String x -> `String x
-  | Ast.Pair (a, b) -> `Tuple [ to_yojson a; to_yojson b ]
+  | Ast.Pair (a, b) -> `Assoc [ "fst", to_yojson a; "snd", to_yojson b ]
+  | Ast.Constr (k, Ast.Null) | Ast.Constr (k, Ast.Unit) ->
+    `Assoc [ "ctor", `String k ]
+  | Ast.Constr (k, v) -> `Assoc [ "ctor", `String k; "value", to_yojson v ]
+  (* TODO: custom repr are not properly handled. *)
+  (* | Ast.Pair (a, b) -> `Tuple [ to_yojson a; to_yojson b ] *)
+  (* | Ast.Constr (k, Ast.Null) | Ast.Constr (k, Ast.Unit) -> `Variant (k, None) *)
+  (* | Ast.Constr (k, v) -> `Variant (k, Some (to_yojson v)) *)
   | Ast.List xs -> `List (List.map to_yojson xs)
-  | Ast.Constr (k, Ast.Null) | Ast.Constr (k, Ast.Unit) -> `Variant (k, None)
-  | Ast.Constr (k, v) -> `Variant (k, Some (to_yojson v))
   | Ast.Record record ->
     let record = Ast.record_to_assoc record in
     `Assoc (List.map (fun (k, v) -> k, to_yojson v) record)

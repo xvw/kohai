@@ -106,3 +106,13 @@ val add_link : key:string -> value:Url.t -> t -> t
 
 (** Remove complementary link. *)
 val remove_link : key:string -> t -> t
+
+(** {1 Accessors} *)
+
+val start_date : t -> Datetime.t
+val duration : t -> int option
+val project : t -> string option
+val sector : t -> string
+val label : t -> string
+val meta : t -> string Key_value.t
+val links : t -> Url.t Key_value.t

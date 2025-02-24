@@ -286,3 +286,10 @@ let add_link ~key ~value log =
 
 let remove_meta ~key log = { log with meta = Key_value.remove key log.meta }
 let remove_link ~key log = { log with links = Key_value.remove key log.links }
+let start_date { start_date; _ } = start_date
+let duration { duration; _ } = duration
+let project { project; _ } = project
+let sector { sector; _ } = sector
+let label { label; _ } = label
+let meta { meta; _ } = meta
+let links { links; _ } = links

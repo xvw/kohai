@@ -731,3 +731,20 @@ let pp_relative now st ({ hour; min; sec; _ } as dt) =
   then Format.fprintf st "Tomorrow at %02d:%02d:%02d" hour min sec
   else pp_compact st dt
 ;;
+
+let as_month_file ?ext ~cwd { year; month; _ } =
+  let ext =
+    Option.fold
+      ~none:""
+      ~some:(fun x ->
+        match x.[0] with
+        | '.' -> x
+        | _ -> "." ^ x
+        | exception _ -> "")
+      ext
+  in
+  let year = year |> Format.asprintf "%04d" in
+  let month = month_to_int month |> succ in
+  let month = Format.asprintf "%02d%s" month ext in
+  Path.(cwd / year / month)
+;;

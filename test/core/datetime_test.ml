@@ -781,3 +781,36 @@ let%expect_test "from_rensai - 3, using complexe representation" =
   dump dt;
   [%expect {| Thu, 01 Jan 1970 00:00:00 gmt |}]
 ;;
+
+let dump_file_path = function
+  | Error err ->
+    err
+    |> Format.asprintf "ERROR: %a" Rensai.Validation.pp_value_error
+    |> print_endline
+  | Ok path ->
+    path |> Path.to_string |> Format.asprintf "OK: %s" |> print_endline
+;;
+
+let%expect_test "as_month_file - 1" =
+  let cwd = Path.(pwd / ".kohai") in
+  let dt = Rensai.Ast.string "2023-12-31T11:12:56" in
+  let dt = Datetime.from_rensai dt in
+  dt |> Result.map (Datetime.as_month_file ~cwd) |> dump_file_path;
+  [%expect {| OK: ./.kohai/2023/12 |}]
+;;
+
+let%expect_test "as_month_file - 2" =
+  let cwd = Path.(pwd / ".kohai") in
+  let dt = Rensai.Ast.string "2025-02-20T11:12:56" in
+  let dt = Datetime.from_rensai dt in
+  dt |> Result.map (Datetime.as_month_file ~ext:".rens" ~cwd) |> dump_file_path;
+  [%expect {| OK: ./.kohai/2025/02.rens |}]
+;;
+
+let%expect_test "as_month_file - 3" =
+  let cwd = Path.(pwd / ".kohai") in
+  let dt = Rensai.Ast.string "2025-02-20T11:12:56" in
+  let dt = Datetime.from_rensai dt in
+  dt |> Result.map (Datetime.as_month_file ~ext:"rens" ~cwd) |> dump_file_path;
+  [%expect {| OK: ./.kohai/2025/02.rens |}]
+;;

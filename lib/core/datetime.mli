@@ -249,6 +249,9 @@ val equal_day_of_week : day_of_week -> day_of_week -> bool
 (** Pretty printers for day of week. *)
 val pp_day_of_week : Format.formatter -> day_of_week -> unit
 
+(** Compute a file path based on a datetime. *)
+val as_month_file : ?ext:string -> cwd:Path.t -> t -> Path.t
+
 (** {1 Query on Datetime} *)
 
 module Query : sig

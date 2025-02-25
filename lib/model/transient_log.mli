@@ -60,6 +60,8 @@ val make
   -> label:string
   -> t
 
+val action_delete : int -> operation
+
 (** [has_index n log] Return [true] if the given log has the given index. *)
 val has_index : int -> t -> bool
 

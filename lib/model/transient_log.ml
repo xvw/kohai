@@ -36,6 +36,8 @@ type operation =
       ; key : string
       }
 
+let action_delete index = Delete { index }
+
 type t =
   { index : int
   ; start_date : Datetime.t

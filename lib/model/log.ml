@@ -30,7 +30,7 @@ let from_rensai =
     let open Record in
     let+ start_date = required b "start_date" Datetime.from_rensai
     and+ project = optional b "project" slug
-    and+ duration = required b "duration" int
+    and+ duration = required b "duration" positive_int
     and+ sector = required b "sector" slug
     and+ label = required b "label" (string & String.is_not_blank)
     and+ meta =
@@ -65,8 +65,22 @@ let to_rensai_record
 
 let to_rensai log = log |> to_rensai_record |> Rensai.Ast.record
 
-(* let resolve_file ~cwd { start_date; _ } = *)
-(*   let year = start_date.Datetime.year in *)
-(*   let month = start_date.Datetime.month |> Datetime.month_to_int in *)
-(*   () *)
-(* ;; *)
+let ord_log a b =
+  let c = Datetime.compare a.start_date b.start_date in
+  if Int.equal 0 c then Int.compare a.duration b.duration else c
+;;
+
+let sort list = list |> List.sort ord_log
+
+let from_file_content content =
+  let lexbuf = Lexing.from_string content in
+  lexbuf
+  |> Rensai.Lang.from_lexingbuf_to_list ~reverse:false
+  |> List.filter_map (fun x -> x |> from_rensai |> Result.to_option)
+;;
+
+let find_file ~cwd { start_date; _ } =
+  Datetime.as_month_file ~ext:"rens" ~cwd start_date
+;;
+
+let dump list = list |> sort |> Rensai.Lang.dump_list to_rensai

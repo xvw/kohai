@@ -36,6 +36,15 @@ let supervised_directory_error ~body ?id message () =
   custom_error ~code:1 ~message ~body ?id ()
 ;;
 
+let no_related_transient_log ~body ?id index =
+  custom_error
+    ~code:2
+    ~message:(Format.asprintf "transient log %d does not exists" index)
+    ~body
+    ?id
+    ()
+;;
+
 let mk_error = Rensai.Validation.value_error_ast
 let opt_error = Option.map mk_error
 let mk_string = Rensai.Ast.string

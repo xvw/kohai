@@ -64,22 +64,13 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                 "Start date"
                 "Duration"
                 "Label")
-     :actions '("c" (lambda (o)
-                      (kohai-transient-log--stop-recording
-                       (car o)))
-                "r" (lambda (o)
-                      (kohai-transient-log--rewrite
-                       (car o)))
-                "d" (lambda (o)
-                      (kohai-transient-log--delete
-                       (car o)))
+     :actions '("c" (lambda (o) (kohai-transient-log--stop-recording (car o)))
+                "r" (lambda (o) (kohai-transient-log--rewrite (car o)))
+                "d" (lambda (o) (kohai-transient-log--delete (car o)))
                 "n" (lambda (_) (kohai-transient-log--record))
-                "m" (lambda (o)
-                      (kohai-transient-log--handle-meta
-                       (car o)))
-                "l" (lambda (o)
-                      (kohai-transient-log--handle-link
-                       (car o)))
+                "m" (lambda (o) (kohai-transient-log--handle-meta (car o)))
+                "l" (lambda (o) (kohai-transient-log--handle-link (car o)))
+                "p" (lambda (o) (kohai-transient-log--promote (car o)))
                 "q" (lambda (_o)
                       (kill-buffer kohai-transient-log-buffer-name))))))
 
@@ -275,6 +266,13 @@ shoudl be treated."
   "Handle links of transient log referenced by INDEX."
   (kohai-transient-log--handle-meta-or-link index
                                             #'kohai-transient-log--list-link))
+
+(defun kohai-transient-log--promote (index)
+  "Promote a transient log (via INDEX) into a real one."
+  (let* ((result (kohai-req--transient-log-promote index))
+         (transient-logs (cl-getf result :äll)))
+    (message "done (TODO: improve output)")
+    (kohai-transient-log--list transient-logs)))
 
 (provide 'kohai-transient-log)
 ;;; kohai-transient-log.el ends here

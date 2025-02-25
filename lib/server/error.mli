@@ -45,6 +45,7 @@ val custom_error
   -> unit
   -> Sigs.jsonrpc_error
 
+val no_related_transient_log : body:string -> ?id:int -> int -> t
 val no_supervised_directory : body:string -> ?id:int -> unit -> t
 val supervised_directory_error : body:string -> ?id:int -> string -> unit -> t
 val unknown_error : string -> unit -> t

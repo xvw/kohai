@@ -1,4 +1,5 @@
 module M = Kohai_model.Transient_log
+module L = Kohai_model.Log
 
 let all ?body ?id (module H : Eff.HANDLER) =
   let cwd = Global.ensure_supervision ?body ?id (module H) () in
@@ -117,4 +118,23 @@ let action ?body ?id (module H : Eff.HANDLER) operation =
     adding ?body ?id (module H) M.add_link file now index key value
   | M.Remove_link { index; key } ->
     removing ?body ?id (module H) M.remove_link file now index key
+;;
+
+let promote ?(body = "np body") ?id (module H : Eff.HANDLER) index =
+  let cwd = Global.ensure_supervision ~body ?id (module H) () in
+  let tl = get ~body ?id (module H) index in
+  let log = Option.bind tl (fun x -> L.from_transient_log x) in
+  match log with
+  | Some log ->
+    (* Dump log in the related file. *)
+    let file = L.find_file ~cwd:(Kohai_model.Resolver.logs ~cwd) log in
+    let content = Eff.read_file (module H) file in
+    let logs = L.from_file_content content in
+    let result = log :: logs |> L.sort in
+    let content = L.dump result in
+    let () = Eff.write_file (module H) file content in
+    (* Remove the current transient log. *)
+    action ~body ?id (module H) (M.action_delete index)
+  | None ->
+    Eff.raise (module H) (Error.no_related_transient_log ~body ?id index)
 ;;

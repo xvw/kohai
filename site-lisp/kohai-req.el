@@ -177,5 +177,9 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   (kohai-req--transient-log-action
    "remove_link" (list :index index :key key)))
 
+(defun kohai-req--transient-log-promote (index)
+  "A request that promote a transient log (via INDEX) into a real one."
+  (kohai-req--send :kohai/transient-log/promote index))
+
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

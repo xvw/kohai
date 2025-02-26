@@ -153,14 +153,6 @@ module Kohai = struct
         ~finalizer:Kohai_model.Transient_log.result_to_rensai
         (Operation.Transient_log.action ~body)
     ;;
-
-    let promote body =
-      Jsonrpc.service
-        ~meth:(prefix "promote")
-        ~with_params:V.int
-        ~finalizer:Kohai_model.Transient_log.result_to_rensai
-        (Operation.Transient_log.promote ~body)
-    ;;
   end
 end
 
@@ -183,7 +175,6 @@ let methods body =
   ; Kohai.Transient_log.list body
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body
-  ; Kohai.Transient_log.promote body
   ]
 ;;
 

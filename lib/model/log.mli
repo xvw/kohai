@@ -23,3 +23,6 @@ val find_file : cwd:Path.t -> t -> Path.t
 
 (** Render a list of logs into a string to be stored in a file. *)
 val dump : t list -> string
+
+(** Retreive sector and project. *)
+val sector_and_project : t -> string * string option

@@ -1,46 +1,49 @@
 type t = Sigs.jsonrpc_error
 
-let parse_error ~body () = Sigs.Parse_error { body }
+let parse_error ?(body = "no body") () = Sigs.Parse_error { body }
 
-let invalid_request ~body ?id ?error () =
+let invalid_request ?(body = "no body") ?id ?error () =
   Sigs.Invalid_request { body; id; error }
 ;;
 
-let method_not_found ~body ?id ~meth () =
+let method_not_found ?(body = "no body") ?id ~meth () =
   Sigs.Method_not_found { body; id; meth }
 ;;
 
-let invalid_params ~body ?id ~error () = Sigs.Invalid_params { body; id; error }
+let invalid_params ?(body = "no body") ?id ~error () =
+  Sigs.Invalid_params { body; id; error }
+;;
 
-let internal_error ~body ?id ?message () =
+let internal_error ?(body = "no body") ?id ?message () =
   Sigs.Internal_error { body; id; message }
 ;;
 
-let custom_error ?(with_offset = true) ~body ?id ~code ?message () =
+let custom_error ?(with_offset = true) ?(body = "no body") ?id ~code ?message ()
+  =
   let code = if with_offset then code + 32000 else code in
   Sigs.Custom_error { body; id; code; message }
 ;;
 
 let unknown_error message () = custom_error ~code:99 ~body:"{}" ~message ()
 
-let no_supervised_directory ~body ?id () =
+let no_supervised_directory ?body ?id () =
   custom_error
     ~code:0
     ~message:"No supervised directory for the current session"
-    ~body
+    ?body
     ?id
     ()
 ;;
 
-let supervised_directory_error ~body ?id message () =
-  custom_error ~code:1 ~message ~body ?id ()
+let supervised_directory_error ?body ?id message () =
+  custom_error ~code:1 ~message ?body ?id ()
 ;;
 
-let no_related_transient_log ~body ?id index =
+let no_related_transient_log ?body ?id index =
   custom_error
     ~code:2
     ~message:(Format.asprintf "transient log %d does not exists" index)
-    ~body
+    ?body
     ?id
     ()
 ;;

@@ -35,6 +35,7 @@ type operation =
       { index : int
       ; key : string
       }
+  | Promote of { index : int }
 
 let action_delete index = Delete { index }
 
@@ -213,6 +214,11 @@ let operation_from_rensai =
           Add_link { index; key; value }) )
     ; ( "remove_link"
       , removing_from_rensai (fun index key -> Remove_link { index; key }) )
+    ; ( "promote"
+      , record (fun b ->
+          let open Record in
+          let+ index = required b "index" positive_int in
+          Promote { index }) )
     ]
 ;;
 

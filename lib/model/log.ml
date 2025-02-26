@@ -8,6 +8,8 @@ type t =
   ; links : Url.t Key_value.t
   }
 
+let sector_and_project { sector; project; _ } = sector, project
+
 let from_transient_log tl =
   tl
   |> Transient_log.duration

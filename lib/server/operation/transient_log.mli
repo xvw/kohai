@@ -1,5 +1,14 @@
 (** Operation related to transient logs. *)
 
+(** Store missing data (project and sector). *)
+val store_missing_data
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> sector:string
+  -> project:string option
+  -> unit
+
 (** List all current transient logs. *)
 val list
   :  ?body:string
@@ -23,11 +32,3 @@ val get
   -> (module Sigs.EFFECT_HANDLER)
   -> int
   -> Kohai_model.Transient_log.t option
-
-(** Promote a transient log into a real one. *)
-val promote
-  :  ?body:string
-  -> ?id:int
-  -> (module Sigs.EFFECT_HANDLER)
-  -> int
-  -> Datetime.t * Kohai_model.Transient_log.result

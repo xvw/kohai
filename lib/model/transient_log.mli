@@ -49,6 +49,7 @@ type operation = private
       { index : int
       ; key : string
       }
+  | Promote of { index : int }
 
 (** {1 API} *)
 

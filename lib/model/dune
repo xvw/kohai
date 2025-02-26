@@ -2,4 +2,4 @@
  (name kohai_model)
  (public_name kohai.model)
  (flags (:standard) -open Kohai_core)
- (libraries uri kohai.core rensai))
+ (libraries uri uuidm kohai.core rensai))

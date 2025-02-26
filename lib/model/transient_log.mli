@@ -119,3 +119,4 @@ val sector : t -> string
 val label : t -> string
 val meta : t -> string Key_value.t
 val links : t -> Url.t Key_value.t
+val string_repr : t -> string

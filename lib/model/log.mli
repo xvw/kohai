@@ -19,6 +19,9 @@ val sort : t list -> t list
 val from_file_content : string -> t list
 
 (** Find the relevant file for a log. *)
+val find_file_by_month : cwd:Path.t -> t -> Path.t
+
+(** Find the file of the log. *)
 val find_file : cwd:Path.t -> t -> Path.t
 
 (** Render a list of logs into a string to be stored in a file. *)

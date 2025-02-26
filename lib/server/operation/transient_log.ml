@@ -157,19 +157,16 @@ let remove_link_action ?body ?id (module H : Eff.HANDLER) file now index key =
   removing ?body ?id (module H) M.remove_link file now index key
 ;;
 
-let promote_action ?body ?id (module H : Eff.HANDLER) _file now cwd index =
+let promote_action ?body ?id (module H : Eff.HANDLER) file now cwd index =
   let tl = get ?body ?id (module H) index in
   let log = Option.bind tl (fun x -> L.from_transient_log x) in
   match log with
   | Some log ->
     let sector, project = L.sector_and_project log in
     (* Dump log in the related file. *)
-    let file = L.find_file ~cwd:(Kohai_model.Resolver.logs ~cwd) log in
-    let content = Eff.read_file (module H) file in
-    let logs = L.from_file_content content in
-    let result = log :: logs |> L.sort in
-    let content = L.dump result in
-    let () = Eff.write_file (module H) file content in
+    let log_file = L.find_file ~cwd:(Kohai_model.Resolver.all_logs ~cwd) log in
+    let content = Format.asprintf "%a" Rensai.Lang.pp (L.to_rensai log) in
+    let () = Eff.write_file (module H) log_file content in
     (* Store missing sector and project. *)
     let () = store_missing_data ?body ?id (module H) ~sector ~project in
     (* Remove the current transient log. *)

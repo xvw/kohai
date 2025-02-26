@@ -301,3 +301,16 @@ let sector { sector; _ } = sector
 let label { label; _ } = label
 let meta { meta; _ } = meta
 let links { links; _ } = links
+
+let string_repr { start_date; duration; project; sector; label; _ } =
+  Format.asprintf
+    "%a-%a-%a-%s-%s"
+    (Datetime.pp_rfc822 ())
+    start_date
+    (Format.pp_print_option Format.pp_print_int)
+    duration
+    (Format.pp_print_option Format.pp_print_string)
+    project
+    sector
+    label
+;;

@@ -9,5 +9,8 @@ val projects : cwd:Path.t -> Path.t
 (** Returns the folder containing logs. *)
 val logs : cwd:Path.t -> Path.t
 
+(** Returns the folder containing the list of logs. *)
+val all_logs : cwd:Path.t -> Path.t
+
 (** Returns the path containing transient logs. *)
 val transient_logs : cwd:Path.t -> Path.t

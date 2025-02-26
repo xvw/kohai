@@ -6,8 +6,10 @@ type t =
   ; label : string
   ; meta : string Key_value.t
   ; links : Url.t Key_value.t
+  ; id : Uuidm.t
   }
 
+let uuid_gen s = Uuidm.v5 Uuidm.ns_oid s
 let sector_and_project { sector; project; _ } = sector, project
 
 let from_transient_log tl =
@@ -19,18 +21,31 @@ let from_transient_log tl =
     and sector = Transient_log.sector tl
     and label = Transient_log.label tl
     and meta = Transient_log.meta tl
-    and links = Transient_log.links tl in
-    { start_date; duration; project; sector; label; meta; links })
+    and links = Transient_log.links tl
+    and id = uuid_gen (Transient_log.string_repr tl) in
+    { start_date; duration; project; sector; label; meta; links; id })
 ;;
 
 let slug = Rensai.Validation.(string & String.is_non_empty_slug)
 let positive_int = Rensai.Validation.(int & Int.is_positive)
+
+let uuidm =
+  let open Rensai.Validation in
+  string
+  & fun str ->
+  str
+  |> Uuidm.of_string
+  |> function
+  | None -> fail_with ~subject:str "Not a valid uuid"
+  | Some x -> Ok x
+;;
 
 let from_rensai =
   let open Rensai.Validation in
   record (fun b ->
     let open Record in
     let+ start_date = required b "start_date" Datetime.from_rensai
+    and+ id = required b "id" uuidm
     and+ project = optional b "project" slug
     and+ duration = required b "duration" positive_int
     and+ sector = required b "sector" slug
@@ -48,14 +63,15 @@ let from_rensai =
         "links"
         (Key_value.from_rensai Url.from_rensai)
     in
-    { start_date; duration; project; sector; label; meta; links })
+    { start_date; duration; project; sector; label; meta; links; id })
 ;;
 
 let to_rensai_record
-      { start_date; duration; project; sector; label; meta; links }
+      { start_date; duration; project; sector; label; meta; links; id }
   =
   let open Rensai.Ast in
   [ "start_date", Datetime.to_compact_rensai start_date
+  ; "id", string @@ Uuidm.to_string id
   ; "duration", int duration
   ; "project", option string project
   ; "sector", string sector
@@ -81,8 +97,13 @@ let from_file_content content =
   |> List.filter_map (fun x -> x |> from_rensai |> Result.to_option)
 ;;
 
-let find_file ~cwd { start_date; _ } =
+let find_file_by_month ~cwd { start_date; _ } =
   Datetime.as_month_file ~ext:"rens" ~cwd start_date
+;;
+
+let find_file ~cwd { id; _ } =
+  let fragment = Uuidm.to_string id ^ ".rens" in
+  Path.(cwd / fragment)
 ;;
 
 let dump list = list |> sort |> Rensai.Lang.dump_list to_rensai

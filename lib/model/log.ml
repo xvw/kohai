@@ -13,6 +13,7 @@ let id { id; _ } = id
 let sector_and_project { sector; project; _ } = sector, project
 let start_date { start_date; _ } = start_date
 let end_date { start_date; duration; _ } = Datetime.(start_date + sec duration)
+let duration { duration; _ } = duration
 
 let from_transient_log tl =
   tl

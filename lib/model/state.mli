@@ -8,6 +8,9 @@ val big_bang : unit -> t
 (** Update date boundaries of the cache. *)
 val patch_date_boundaries : Datetime.t -> t -> t
 
+val increase_duration : int -> t -> t
+val decrease_duration : int -> t -> t
+
 (** {1 Serialization} *)
 
 val from_rensai : t Rensai.Validation.t

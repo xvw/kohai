@@ -22,7 +22,10 @@ let%expect_test "dump boundaries - 1" =
   let state = State.big_bang () |> State.patch_date_boundaries a_date in
   dump state;
   [%expect
-    {| <big_bang: "2025-02-18T10-00-00"; end_of_world: "2025-02-18T10-00-00"> |}]
+    {|
+    <big_bang: "2025-02-18T10-00-00"; duration: 0;
+      end_of_world: "2025-02-18T10-00-00">
+    |}]
 ;;
 
 let%expect_test "dump boundaries - 2" =
@@ -34,5 +37,8 @@ let%expect_test "dump boundaries - 2" =
   in
   dump state;
   [%expect
-    {| <big_bang: "2025-02-18T10-00-00"; end_of_world: "2025-02-18T10-30-00"> |}]
+    {|
+    <big_bang: "2025-02-18T10-00-00"; duration: 0;
+      end_of_world: "2025-02-18T10-30-00">
+    |}]
 ;;

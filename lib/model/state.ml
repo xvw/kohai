@@ -1,6 +1,7 @@
 type t =
   { big_bang : Datetime.t option
   ; end_of_world : Datetime.t option
+  ; duration : int
   }
 
 let patch_date_boundaries datetime state =
@@ -18,26 +19,36 @@ let patch_date_boundaries datetime state =
       let dt = Datetime.max_of previous_datetime datetime in
       Some dt
   in
-  { big_bang; end_of_world }
+  { state with big_bang; end_of_world }
 ;;
 
-let big_bang () = { big_bang = None; end_of_world = None }
+let increase_duration amount state =
+  { state with duration = state.duration + amount }
+;;
+
+let decrease_duration amount state =
+  { state with duration = max (state.duration + amount) 0 }
+;;
+
+let big_bang () = { big_bang = None; end_of_world = None; duration = 0 }
 
 let from_rensai =
   let open Rensai.Validation in
   record (fun fields ->
     let open Record in
     let+ big_bang = optional fields "big_bang" Datetime.from_rensai
-    and+ end_of_world = optional fields "end_of_world" Datetime.from_rensai in
-    { big_bang; end_of_world })
+    and+ end_of_world = optional fields "end_of_world" Datetime.from_rensai
+    and+ duration = optional_or ~default:0 fields "duration" int in
+    { big_bang; end_of_world; duration })
   / (null $ big_bang)
 ;;
 
-let to_compact_rensai { big_bang; end_of_world } =
+let to_compact_rensai { big_bang; end_of_world; duration } =
   let open Rensai.Ast in
   record
     [ "big_bang", option Datetime.to_compact_rensai big_bang
     ; "end_of_world", option Datetime.to_compact_rensai end_of_world
+    ; "duration", int duration
     ]
 ;;
 

@@ -15,6 +15,9 @@ val start_date : t -> Datetime.t
 (** Return the end date of a log. *)
 val end_date : t -> Datetime.t
 
+(** Return the duration of a log. *)
+val duration : t -> int
+
 (** Validate a log from a rensai expression. *)
 val from_rensai : t Rensai.Validation.t
 

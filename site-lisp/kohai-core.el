@@ -147,6 +147,12 @@ DEFAULT is the prefilled value."
     (when (> counter 0)
       (error "[%s] cannot be erased (%d occurence(s))" pname counter))))
 
+(defun kohai--should-have-duration (log)
+  "Display an error if LOG does not have duration."
+  (when (not (cl-getf log :duration))
+    (error "[Transient log %02d, %s] need to be closed with a duration"
+           (cl-getf log :index)
+           (cl-getf log :label))))
 ;;; Text propertize
 
 (defun kohai--bold (text)

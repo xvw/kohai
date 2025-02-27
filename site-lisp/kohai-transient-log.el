@@ -269,14 +269,29 @@ shoudl be treated."
   (kohai-transient-log--handle-meta-or-link index
                                             #'kohai-transient-log--list-link))
 
+;; (defun kohai-transient-log--promote (index)
+;;   "Promote a transient log (via INDEX) into a real one."
+;;   (let* (
+;;          (result (kohai-req--transient-log-promote index))
+;;          (transient-logs (cl-getf result :äll)))
+;;     (message "done")
+;;     (kohai-sector--list)
+;;     (kohai-project--list)
+;;     (kohai-transient-log--list transient-logs)))
+
 (defun kohai-transient-log--promote (index)
   "Promote a transient log (via INDEX) into a real one."
-  (let* ((result (kohai-req--transient-log-promote index))
-         (transient-logs (cl-getf result :äll)))
-    (message "done")
-    (kohai-sector--list)
-    (kohai-project--list)
-    (kohai-transient-log--list transient-logs)))
+  (let ((tlog (kohai-req--transient-log-get index)))
+    (kohai--should-exists tlog "Transient log")
+    (kohai--should-have-duration tlog)
+    (let* ((result (kohai-req--transient-log-promote index))
+           (transient-logs (cl-getf result :all))
+           (label (cl-getf tlog :label)))
+      (message "[Transient Log %02d, %s] properly promoted"
+               index label)
+      (kohai-sector--list)
+      (kohai-project--list)
+      (kohai-transient-log--list transient-logs))))
 
 (provide 'kohai-transient-log)
 ;;; kohai-transient-log.el ends here

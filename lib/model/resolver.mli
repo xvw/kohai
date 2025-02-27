@@ -17,3 +17,9 @@ val all_logs : cwd:Path.t -> Path.t
 
 (** Returns the path containing transient logs. *)
 val transient_logs : cwd:Path.t -> Path.t
+
+(** Return the path where the sector cache is stored. *)
+val sector_folder : cwd:Path.t -> Path.t
+
+(** Return the path where the project cache is stored. *)
+val project_folder : cwd:Path.t -> Path.t

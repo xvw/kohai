@@ -22,4 +22,5 @@ module Set : sig
   val from_rensai : t Rensai.Validation.t
   val push : uid -> t -> t
   val remove : uid -> t -> t
+  val from_file_content : string -> t
 end

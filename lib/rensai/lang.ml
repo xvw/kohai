@@ -49,6 +49,8 @@ let rec pp st = function
     (Fmt.box ~indent:2 (obj fields)) st record
 ;;
 
+let dump to_rensai elt = elt |> to_rensai |> Format.asprintf "%a" pp
+
 let dump_list to_rensai list =
   list
   |> List.map (fun elt -> Format.asprintf "%a" pp (to_rensai elt))

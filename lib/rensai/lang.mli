@@ -17,5 +17,8 @@ val from_lexingbuf_to_list : ?reverse:bool -> Lexing.lexbuf -> Ast.t list
     should be bi-directionnaly parsed.*)
 val pp : Format.formatter -> Ast.t -> unit
 
+(** Dump an element into a string. *)
+val dump : ('a -> Ast.t) -> 'a -> string
+
 (** Dump a list of element into a lexbuffable string. *)
 val dump_list : ('a -> Ast.t) -> 'a list -> string

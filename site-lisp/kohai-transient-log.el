@@ -42,35 +42,37 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
           :project project
           :label label)))
 
-(defun kohai-transient-log--to-vtable-entry (log)
-  "Render LOG as a vtable entry."
-  (list (cl-getf log :index)
-        (kohai--bold (cl-getf log :sector))
-        (or  (cl-getf log :project) "")
-        (cl-getf log :start_date_repr)
-        (or (cl-getf log :duration_repr) "?")
-        (cl-getf log :label)))
-
 (defun kohai-transient-log--list-vtable ()
   "Create the vtable displaying transient logs."
   (lambda (entries)
     (make-vtable
      :divider-width kohai--vtable-default-divider
-     :objects (mapcar #'kohai-transient-log--to-vtable-entry
-                      entries)
-     :columns '("Index"
-                "Sector"
+     :objects (append entries nil)
+     :columns '("Sector"
                 "Project"
                 "Start date"
                 "Duration"
                 "Label")
-     :actions '("c" (lambda (o) (kohai-transient-log--stop-recording (car o)))
-                "r" (lambda (o) (kohai-transient-log--rewrite (car o)))
-                "d" (lambda (o) (kohai-transient-log--delete (car o)))
+     :getter (lambda (o column vtable)
+               (pcase (vtable-column vtable column)
+                 ("Sector" (kohai--bold (cl-getf o :sector)))
+                 ("Project" (or (cl-getf o :project) ""))
+                 ("Start date" (cl-getf o :start_date_repr))
+                 ("Duration" (or (cl-getf o :duration_repr) "?"))
+                 ("Label" (cl-getf o :label))))
+     :actions '("c" (lambda (o) (kohai-transient-log--stop-recording
+                                 (cl-getf o :index)))
+                "r" (lambda (o) (kohai-transient-log--rewrite
+                                 (cl-getf o :index)))
+                "d" (lambda (o) (kohai-transient-log--delete
+                                 (cl-getf o :index)))
+                "m" (lambda (o) (kohai-transient-log--handle-meta
+                                 (cl-getf o :index)))
+                "l" (lambda (o) (kohai-transient-log--handle-link
+                                 (cl-getf o :index)))
+                "p" (lambda (o) (kohai-transient-log--promote
+                                 (cl-getf o :index)))
                 "n" (lambda (_) (kohai-transient-log--record))
-                "m" (lambda (o) (kohai-transient-log--handle-meta (car o)))
-                "l" (lambda (o) (kohai-transient-log--handle-link (car o)))
-                "p" (lambda (o) (kohai-transient-log--promote (car o)))
                 "q" (lambda (_o)
                       (kill-buffer kohai-transient-log-buffer-name))))))
 

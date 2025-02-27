@@ -52,13 +52,6 @@ If NOT-EMPTY the list must be filled.  DEFAULT is the default value."
                                       nil nil default t)))
       (or (alist-get selected formatted-entries nil nil #'equal) selected))))
 
-(defun kohai-generic--ditem-to-vtable-entry (item)
-  "Render an ITEM into a vtable column."
-  (list (kohai--bold (cl-getf item :name))
-        (or (cl-getf item :description) "")
-        (if (> (cl-getf item :counter) 0) "X" " ")))
-
-
 (defun kohai-generic--ditem-save (key buffer name desc)
   "Smartly save a ditem (with NAME and DESC) using KEY.
 Into BUFFER."
@@ -82,14 +75,19 @@ In BUFFER, CREATE is used to create a new entry."
   (lambda (entries)
     (make-vtable :columns '("Name" "Description" "Deleteable")
                  :divider-width kohai--vtable-default-divider
-                 :objects (mapcar #'kohai-generic--ditem-to-vtable-entry
-                                  entries)
+                 :objects (append entries nil)
+                 :getter (lambda (o column vtable)
+                              (pcase (vtable-column vtable column)
+                                ("Name" (kohai--bold (cl-getf o :name)))
+                                ("Description" (or (cl-getf o :description) ""))
+                                ("Deleteable"
+                                 (if (> (cl-getf o :counter) 0) "X" " "))))
                  :actions `("u" ,(lambda (o)
                                    (kohai-generic--ditem-update-desc
-                                    key buffer (car o)))
+                                    key buffer (cl-getf o :name)))
                             "d" ,(lambda (o)
                                    (kohai-generic--ditem-delete
-                                    key buffer (car o)))
+                                    key buffer (cl-getf o :name)))
                             "n" ,(lambda (_o)
                                    (kohai-generic--ditem-new key buffer))
                             "q" ,(lambda (_o)

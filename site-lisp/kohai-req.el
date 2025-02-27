@@ -181,5 +181,9 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "A request that promote a transient log (via INDEX) into a real one."
   (kohai-req--transient-log-action "promote" (list :index index)))
 
+(defun kohai-req--state-get ()
+  "Return the current state of the recording."
+  (kohai-req--send :kohai/state/get))
+
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

@@ -9,6 +9,12 @@ val from_transient_log : Transient_log.t -> t option
 (** Return the ID of a log. *)
 val id : t -> Uuid.t
 
+(** Return the start date of a log. *)
+val start_date : t -> Datetime.t
+
+(** Return the end date of a log. *)
+val end_date : t -> Datetime.t
+
 (** Validate a log from a rensai expression. *)
 val from_rensai : t Rensai.Validation.t
 

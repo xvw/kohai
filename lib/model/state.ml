@@ -40,3 +40,17 @@ let to_compact_rensai { big_bang; end_of_world } =
     ; "end_of_world", option Datetime.to_compact_rensai end_of_world
     ]
 ;;
+
+let dump state =
+  state |> to_compact_rensai |> Format.asprintf "%a" Rensai.Lang.pp
+;;
+
+let from_string string =
+  let lexbuf = Lexing.from_string string in
+  match
+    Option.bind (lexbuf |> Rensai.Lang.from_lexingbuf) (fun x ->
+      x |> from_rensai |> Result.to_option)
+  with
+  | Some x -> x
+  | None -> big_bang ()
+;;

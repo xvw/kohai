@@ -1,5 +1,13 @@
 open Kohai_core
 
+let mk_date s =
+  s
+  |> Datetime.from_string
+  (* Since it is a test, we can discard
+     the error case *)
+  |> Result.get_ok
+;;
+
 let check_day_of_week ~expected = function
   | Ok dt ->
     let dow = Datetime.day_of_week dt in
@@ -36,6 +44,30 @@ let dump_duration = function
     err
     |> Format.asprintf "Invalid datetime: %a" Rensai.Validation.pp_value_error
     |> print_endline
+;;
+
+let%expect_test "min_of - 1" =
+  let a = mk_date "2025-02-18:10:00:00"
+  and b = mk_date "2026-02-18:10:00:00" in
+  let r = Datetime.min_of a b in
+  r |> Format.asprintf "%a" Datetime.pp_compact |> print_endline;
+  [%expect {| 2025/02/18 at 10:00:00 |}]
+;;
+
+let%expect_test "min_of - 2" =
+  let a = mk_date "2025-02-18:10:00:00"
+  and b = mk_date "2025-02-18:10:00:01" in
+  let r = Datetime.min_of a b in
+  r |> Format.asprintf "%a" Datetime.pp_compact |> print_endline;
+  [%expect {| 2025/02/18 at 10:00:00 |}]
+;;
+
+let%expect_test "max_of - 2" =
+  let a = mk_date "2025-02-18:10:00:00"
+  and b = mk_date "2026-02-18:10:00:00" in
+  let r = Datetime.max_of a b in
+  r |> Format.asprintf "%a" Datetime.pp_compact |> print_endline;
+  [%expect {| 2026/02/18 at 10:00:00 |}]
 ;;
 
 let%expect_test "day of week of Unix time" =

@@ -154,6 +154,18 @@ module Kohai = struct
         (Operation.Transient_log.action ~body)
     ;;
   end
+
+  module State = struct
+    let prefix = String.cat (prefix "state/")
+
+    let get body =
+      Jsonrpc.service
+        ~meth:(prefix "get")
+        ~with_params:discard
+        ~finalizer:Kohai_model.State.to_compact_rensai
+        (Operation.State.get ~body)
+    ;;
+  end
 end
 
 let methods body =
@@ -175,6 +187,7 @@ let methods body =
   ; Kohai.Transient_log.list body
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body
+  ; Kohai.State.get body
   ]
 ;;
 

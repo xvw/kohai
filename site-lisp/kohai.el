@@ -21,6 +21,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'jsonrpc)
 (require 'rens-mode)
 (require 'kohai-core)
@@ -113,6 +114,20 @@
   (kohai--ensure-supervision)
   (kohai-transient-log--record)
   (pop-to-buffer kohai-transient-logs-buffer-name))
+
+(defun kohai-get-big-bang ()
+  "Print when the recording started."
+  (interactive)
+  (kohai--ensure-supervision)
+  (let ((state (kohai-req--state-get)))
+    (message "everything started on %s" (cl-getf state :big_bang))))
+
+(defun kohai-get-end-of-world ()
+  "Print when the recording stopped."
+  (interactive)
+  (kohai--ensure-supervision)
+  (let ((state (kohai-req--state-get)))
+    (message "everything started on %s" (cl-getf state :end_of_world))))
 
 
 (defun kohai ()

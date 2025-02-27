@@ -1,3 +1,4 @@
+let state ~cwd = Path.(cwd / "state.rens")
 let sectors ~cwd = Path.(cwd / "list" / "sectors.rens")
 let projects ~cwd = Path.(cwd / "list" / "projects.rens")
 let logs ~cwd = Path.(cwd / "logs")

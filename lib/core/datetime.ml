@@ -716,7 +716,7 @@ end
 include Infix
 
 let min_of a b = if b > a then a else b
-let max_of a b = if a < b then a else b
+let max_of a b = if a < b then b else a
 
 let pp_relative now st ({ hour; min; sec; _ } as dt) =
   let truncate_now = begin_of_day now in

@@ -12,3 +12,5 @@ val patch_date_boundaries : Datetime.t -> t -> t
 
 val from_rensai : t Rensai.Validation.t
 val to_compact_rensai : t Rensai.Ast.conv
+val from_string : string -> t
+val dump : t -> string

@@ -60,4 +60,20 @@ module Set = struct
 
   let find name set = S.find_opt { name; description = None; counter = 0 } set
   let remove name set = S.remove { name; description = None; counter = 0 } set
+
+  let increase name set =
+    match find name set with
+    | None -> S.add { name; description = None; counter = 0 } set
+    | Some item ->
+      set |> remove name |> S.add { item with counter = succ item.counter }
+  ;;
+
+  let decrease name set =
+    match find name set with
+    | None -> S.add { name; description = None; counter = 0 } set
+    | Some item ->
+      set
+      |> remove name
+      |> S.add { item with counter = max (pred item.counter) 0 }
+  ;;
 end

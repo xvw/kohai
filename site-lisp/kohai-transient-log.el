@@ -271,7 +271,9 @@ shoudl be treated."
   "Promote a transient log (via INDEX) into a real one."
   (let* ((result (kohai-req--transient-log-promote index))
          (transient-logs (cl-getf result :äll)))
-    (message "done (TODO: improve output)")
+    (message "done")
+    (kohai-sector--list)
+    (kohai-project--list)
     (kohai-transient-log--list transient-logs)))
 
 (provide 'kohai-transient-log)

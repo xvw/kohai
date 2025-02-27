@@ -29,7 +29,8 @@
 (defun kohai-generic-vtable (key buffer entries vtable)
   "Fill a BUFFER with ENTRIES into a VTABLE (KEY is used for reporting)."
   (if (kohai--vector-empty-p entries)
-      (kohai--error-no-entries (format "%s list" key))
+      (progn (kohai-buffer--empty buffer t)
+             (kohai--error-no-entries (format "%s list" key)))
     (kohai-buffer--truncate-with
      buffer (lambda (_buf) (funcall vtable entries)))))
 

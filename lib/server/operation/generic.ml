@@ -11,7 +11,7 @@ module type DESCRIBED_ITEM = sig
     -> unit
     -> Kohai_model.Described_item.Set.t
 
-  (** Smartly save a sector into the item set. *)
+  (** Smartly save into the item set. *)
   val save
     :  ?body:string
     -> ?id:int
@@ -19,7 +19,7 @@ module type DESCRIBED_ITEM = sig
     -> Kohai_model.Described_item.t
     -> Kohai_model.Described_item.Set.t
 
-  (** Find a sector by his name. *)
+  (** Find by his name. *)
   val get
     :  ?body:string
     -> ?id:int
@@ -27,8 +27,24 @@ module type DESCRIBED_ITEM = sig
     -> string
     -> Kohai_model.Described_item.t option
 
-  (** Delete a sector by his name. *)
+  (** Delete by his name. *)
   val delete
+    :  ?body:string
+    -> ?id:int
+    -> (module Sigs.EFFECT_HANDLER)
+    -> string
+    -> Kohai_model.Described_item.Set.t
+
+  (** Increase by name. *)
+  val increase
+    :  ?body:string
+    -> ?id:int
+    -> (module Sigs.EFFECT_HANDLER)
+    -> string
+    -> Kohai_model.Described_item.Set.t
+
+  (** Decrease by name. *)
+  val decrease
     :  ?body:string
     -> ?id:int
     -> (module Sigs.EFFECT_HANDLER)

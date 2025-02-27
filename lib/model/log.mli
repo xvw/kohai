@@ -6,6 +6,9 @@ type t
 (** Convert a log into a transient one. *)
 val from_transient_log : Transient_log.t -> t option
 
+(** Return the ID of a log. *)
+val id : t -> Uuid.t
+
 (** Validate a log from a rensai expression. *)
 val from_rensai : t Rensai.Validation.t
 

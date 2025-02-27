@@ -2,4 +2,4 @@
  (name kohai_core)
  (public_name kohai.core)
  (modules_without_implementation sigs)
- (libraries re rensai))
+ (libraries uuidm re rensai))

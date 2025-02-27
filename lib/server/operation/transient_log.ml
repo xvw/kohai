@@ -162,13 +162,8 @@ let promote_action ?body ?id (module H : Eff.HANDLER) file now cwd index =
   let log = Option.bind tl (fun x -> L.from_transient_log x) in
   match log with
   | Some log ->
-    let sector, project = L.sector_and_project log in
     (* Dump log in the related file. *)
-    let log_file = L.find_file ~cwd:(Kohai_model.Resolver.all_logs ~cwd) log in
-    let content = Format.asprintf "%a" Rensai.Lang.pp (L.to_rensai log) in
-    let () = Eff.write_file (module H) log_file content in
-    (* Store missing sector and project. *)
-    let () = store_missing_data ?body ?id (module H) ~sector ~project in
+    let () = Log.promote ?body ?id (module H) cwd log in
     (* Remove the current transient log. *)
     delete_action ?body ?id (module H) file now index
   | None ->

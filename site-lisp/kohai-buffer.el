@@ -31,6 +31,12 @@
       (when action (funcall action buff))
       (setq buffer-read-only t))))
 
+(defun kohai-buffer--empty (buffer-name &optional close)
+  "Truncate a given BUFFER-NAME.  If CLOSE is given, the buffer will be closed."
+  (kohai-buffer--truncate-with
+   buffer-name (lambda (buff)
+                 (when close (kill-buffer buff)))))
+
 (defun kohai-buffer--with (buffer-name  &optional action)
   "Switch to truncated BUFFER-NAME and perform ACTION (if non nil)."
   (let ((buff (get-buffer-create buffer-name)))

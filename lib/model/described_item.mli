@@ -38,4 +38,10 @@ module Set : sig
 
   (** Remove an item from the given set.*)
   val remove : string -> t -> t
+
+  (** Increase an item counter. *)
+  val increase : string -> t -> t
+
+  (** Decrease an item counter. *)
+  val decrease : string -> t -> t
 end

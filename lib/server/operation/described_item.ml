@@ -37,4 +37,17 @@ module Make (D : Generic.SIMPLE_RESOLVER) = struct
       items
     | None | Some _ -> items
   ;;
+
+  let manip_counter f ?body ?id (module H : Eff.HANDLER) item_name =
+    let cwd = Global.ensure_supervision ?body ?id (module H) () in
+    let file = D.resolver ~cwd in
+    let items = list ?body ?id (module H : Eff.HANDLER) () in
+    let items = f item_name items in
+    let content = Kohai_model.Described_item.Set.dump items in
+    let () = Eff.write_file (module H) file content in
+    items
+  ;;
+
+  let increase = manip_counter Kohai_model.Described_item.Set.increase
+  let decrease = manip_counter Kohai_model.Described_item.Set.decrease
 end

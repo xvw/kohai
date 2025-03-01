@@ -1,3 +1,5 @@
+open Util
+
 let base_filesystem =
   let open Virtfs in
   from_list [ dir ".kohai" [] ]
@@ -25,6 +27,51 @@ let%expect_test
     end)
   in
   let module H = Kohai_core.Eff.Handler (F) in
-  print_endline "Done";
-  [%expect {| Done |}]
+  let step = step (module H) in
+  let id = ref 0 in
+  let _ =
+    {|
+     As no supervised directory has been submitted, retrieving the
+     supervised directory should return `null`.
+    |}
+  in
+  let () =
+    step
+      ~desc:
+        {| As no supervised directory has been submitted,
+         retrieving the supervised directory should return `null`.
+        |}
+      ~should_fail:false
+      ~id
+      call_supervise_get
+  in
+  [%expect {| [OK]: <id: 0; jsonrpc: "2.0"; result: null> |}];
+  let () =
+    step
+      ~desc:
+        {|Assigns a non-existing supervision directory.
+             So the request should fail.|}
+      ~should_fail:true
+      ~id
+      (call_supervise ~path:"/.logging")
+  in
+  [%expect
+    {|
+    [OK]: <error:
+            <code: -32001; data: "The given directory does not exists";
+              input:
+               "{"jsonrpc": "2.0", "method": "kohai/supervision/set", "id": 1, "params": "/.logging"}";
+              message: "Server error">;
+            id: 1; jsonrpc: "2.0">
+    |}];
+  let () =
+    step
+      ~desc:{|Assigns an existing supervision directory.|}
+      ~should_fail:false
+      ~id
+      (call_supervise ~path:"/.kohai")
+  in
+  [%expect {| [OK]: <id: 2; jsonrpc: "2.0"; result: "/.kohai"> |}];
+  print_endline "[DONE]";
+  [%expect {| [DONE] |}]
 ;;

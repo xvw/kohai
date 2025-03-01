@@ -27,8 +27,10 @@ val to_rensai : t -> Rensai.Ast.t
 (** Properly sort a list of logs. *)
 val sort : t list -> t list
 
+val from_file_content : (string, t) Rensai.Validation.v
+
 (** Read a list of logs from a file content. *)
-val from_file_content : string -> t list
+val list_from_file_content : string -> t list
 
 (** Find the relevant file for a log. *)
 val find_file_by_month : cwd:Path.t -> t -> Path.t

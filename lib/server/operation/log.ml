@@ -34,3 +34,10 @@ let promote ?body ?id (module H : Eff.HANDLER) cwd log =
   let () = propagate (module H) cwd log in
   State.update ?body ?id (module H) cwd log
 ;;
+
+let get ?body ?id (module H : Eff.HANDLER) uuid =
+  let uuid = Uuid.to_string uuid in
+  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+  let file = Path.(R.all_logs ~cwd / (uuid ^ ".rens")) in
+  file |> Eff.read_file (module H) |> L.from_file_content |> Result.to_option
+;;

@@ -8,6 +8,10 @@ let from_lexingbuf lexing_buf =
   | _ -> None
 ;;
 
+let from_lexingbuf_or_null lexing_buf =
+  lexing_buf |> from_lexingbuf |> Option.fold ~some:Fun.id ~none:(Ast.null ())
+;;
+
 let from_lexingbuf_to_list ?(reverse = false) lexing_buf =
   let rec aux acc =
     match from_lexingbuf lexing_buf with

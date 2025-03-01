@@ -84,6 +84,11 @@ let sort list = list |> List.sort ord_log
 
 let from_file_content content =
   let lexbuf = Lexing.from_string content in
+  lexbuf |> Rensai.Lang.from_lexingbuf_or_null |> from_rensai
+;;
+
+let list_from_file_content content =
+  let lexbuf = Lexing.from_string content in
   lexbuf
   |> Rensai.Lang.from_lexingbuf_to_list ~reverse:false
   |> List.filter_map (fun x -> x |> from_rensai |> Result.to_option)

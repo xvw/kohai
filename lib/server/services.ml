@@ -166,6 +166,18 @@ module Kohai = struct
         (Operation.State.get ~body)
     ;;
   end
+
+  module Log = struct
+    let prefix = String.cat (prefix "log/")
+
+    let get body =
+      Jsonrpc.service
+        ~meth:(prefix "get")
+        ~with_params:Uuid.from_rensai
+        ~finalizer:(A.option Kohai_model.Log.to_rensai)
+        (Operation.Log.get ~body)
+    ;;
+  end
 end
 
 let methods body =
@@ -188,6 +200,7 @@ let methods body =
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body
   ; Kohai.State.get body
+  ; Kohai.Log.get body
   ]
 ;;
 

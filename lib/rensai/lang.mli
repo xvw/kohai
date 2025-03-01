@@ -7,6 +7,10 @@ val from_string : string -> Ast.t option
 (** Read a lexingbuf into a Rensai expression. *)
 val from_lexingbuf : Lexing.lexbuf -> Ast.t option
 
+(** Read a lexingbuf into a Rensai expression (or null if there is no valid expression).
+*)
+val from_lexingbuf_or_null : Lexing.lexbuf -> Ast.t
+
 (** Lex the content of a lexing buf and collect every result in a
     string. By default, the result is not reversed. Use [?reverse] to
     trigger [List.rev]. *)

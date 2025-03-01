@@ -43,6 +43,13 @@ val call_sector_save
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
+val call_sector_delete
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> name:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
 val call_project_save
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref
@@ -54,6 +61,13 @@ val call_project_save
 val call_project_list
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_project_delete
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> name:string
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 

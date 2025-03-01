@@ -17,16 +17,16 @@ let request_dump = function
 let dump_result ?(should_fail = false) result =
   match result with
   | Ok result when not should_fail ->
-    result |> Format.asprintf "[OK]: %a" Rensai.Lang.pp
-  | Ok result -> result |> Format.asprintf "[ERROR]: %a" Rensai.Lang.pp
+    result |> Format.asprintf "[DONE]: %a" Rensai.Lang.pp
+  | Ok result -> result |> Format.asprintf "[FIXME]: %a" Rensai.Lang.pp
   | Error err when should_fail ->
     err
     |> Kohai_server.Error.to_rensai
-    |> Format.asprintf "[OK]: %a" Rensai.Lang.pp
+    |> Format.asprintf "[DONE]: %a" Rensai.Lang.pp
   | Error err ->
     err
     |> Kohai_server.Error.to_rensai
-    |> Format.asprintf "[ERROR]: %a" Rensai.Lang.pp
+    |> Format.asprintf "[FIXME]: %a" Rensai.Lang.pp
 ;;
 
 let print_result ?should_fail result =
@@ -82,6 +82,16 @@ let call_project_save (module H : Kohai_core.Eff.HANDLER) ~id ~name ?desc () =
     record [ "name", string name; "description", option string desc ]
   in
   "kohai/project/save" |> call (module H) ~id ~params
+;;
+
+let call_project_delete (module H : Kohai_core.Eff.HANDLER) ~id ~name () =
+  let params = Rensai.Ast.string name in
+  "kohai/project/delete" |> call (module H) ~id ~params
+;;
+
+let call_sector_delete (module H : Kohai_core.Eff.HANDLER) ~id ~name () =
+  let params = Rensai.Ast.string name in
+  "kohai/sector/delete" |> call (module H) ~id ~params
 ;;
 
 let step

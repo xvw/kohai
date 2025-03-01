@@ -45,7 +45,7 @@ let%expect_test
       ~id
       call_supervise_get
   in
-  [%expect {| [OK]: <id: 0; jsonrpc: "2.0"; result: null> |}];
+  [%expect {| [DONE]: <id: 0; jsonrpc: "2.0"; result: null> |}];
   let () =
     step
       ~desc:
@@ -57,12 +57,12 @@ let%expect_test
   in
   [%expect
     {|
-    [OK]: <error:
-            <code: -32001; data: "The given directory does not exists";
-              input:
-               "{"jsonrpc": "2.0", "method": "kohai/supervision/set", "id": 1, "params": "/.logging"}";
-              message: "Server error">;
-            id: 1; jsonrpc: "2.0">
+    [DONE]: <error:
+              <code: -32001; data: "The given directory does not exists";
+                input:
+                 "{"jsonrpc": "2.0", "method": "kohai/supervision/set", "id": 1, "params": "/.logging"}";
+                message: "Server error">;
+              id: 1; jsonrpc: "2.0">
     |}];
   let () =
     step
@@ -71,7 +71,7 @@ let%expect_test
       ~id
       (call_supervise ~path:"/.kohai")
   in
-  [%expect {| [OK]: <id: 2; jsonrpc: "2.0"; result: "/.kohai"> |}];
+  [%expect {| [DONE]: <id: 2; jsonrpc: "2.0"; result: "/.kohai"> |}];
   let () =
     step
       ~desc:{|Get the list of sector (should be empty).|}
@@ -79,7 +79,7 @@ let%expect_test
       ~id
       call_sector_list
   in
-  [%expect {| [OK]: <id: 3; jsonrpc: "2.0"; result: []> |}];
+  [%expect {| [DONE]: <id: 3; jsonrpc: "2.0"; result: []> |}];
   let () =
     step
       ~desc:{|Get the list of project (should be empty).|}
@@ -87,7 +87,7 @@ let%expect_test
       ~id
       call_project_list
   in
-  [%expect {| [OK]: <id: 4; jsonrpc: "2.0"; result: []> |}];
+  [%expect {| [DONE]: <id: 4; jsonrpc: "2.0"; result: []> |}];
   let () =
     step
       ~desc:{|Save a sector.|}
@@ -99,11 +99,11 @@ let%expect_test
   in
   [%expect
     {|
-    [OK]: <id: 5; jsonrpc: "2.0";
-            result:
-             [<counter: 0; description: "Category related to programming";
-                name: "programming">]>
-            |}];
+    [DONE]: <id: 5; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "Category related to programming";
+                  name: "programming">]>
+    |}];
   let () =
     step
       ~desc:{|Save an other sector.|}
@@ -113,12 +113,12 @@ let%expect_test
   in
   [%expect
     {|
-    [OK]: <id: 6; jsonrpc: "2.0";
-            result:
-             [<counter: 0; description: "Category related to programming";
-                name: "programming">,
-              <counter: 0; description: null; name: "visual">]>
-     |}];
+    [DONE]: <id: 6; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "Category related to programming";
+                  name: "programming">,
+                <counter: 0; description: null; name: "visual">]>
+    |}];
   let () =
     step
       ~desc:{|Patch an existing sector without updates.|}
@@ -128,11 +128,11 @@ let%expect_test
   in
   [%expect
     {|
-    [OK]: <id: 7; jsonrpc: "2.0";
-            result:
-             [<counter: 0; description: "Category related to programming";
-                name: "programming">,
-              <counter: 0; description: null; name: "visual">]>
+    [DONE]: <id: 7; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "Category related to programming";
+                  name: "programming">,
+                <counter: 0; description: null; name: "visual">]>
     |}];
   let () =
     step
@@ -143,12 +143,12 @@ let%expect_test
   in
   [%expect
     {|
-    [OK]: <id: 8; jsonrpc: "2.0";
-            result:
-             [<counter: 0; description: "Category related to programming";
-                name: "programming">,
-              <counter: 0; description: "A description"; name: "visual">]>
-     |}];
+    [DONE]: <id: 8; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "Category related to programming";
+                  name: "programming">,
+                <counter: 0; description: "A description"; name: "visual">]>
+    |}];
   let () =
     step
       ~desc:{|Get the list of sector (should be filled with 2 entries).|}
@@ -156,12 +156,159 @@ let%expect_test
       ~id
       call_sector_list
   in
-  [%expect {|
-    [OK]: <id: 9; jsonrpc: "2.0";
-            result:
-             [<counter: 0; description: "Category related to programming";
-                name: "programming">,
-              <counter: 0; description: "A description"; name: "visual">]>
+  [%expect
+    {|
+    [DONE]: <id: 9; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "Category related to programming";
+                  name: "programming">,
+                <counter: 0; description: "A description"; name: "visual">]>
+            |}];
+  let () =
+    step
+      ~desc:{|Save a project.|}
+      ~should_fail:false
+      ~id
+      (call_project_save ~name:"kohai" ~desc:"An opinionated timetracker")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 10; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "An opinionated timetracker";
+                  name: "kohai">]>
+    |}];
+  let () =
+    step
+      ~desc:{|Save an other project.|}
+      ~should_fail:false
+      ~id
+      (call_project_save ~name:"capsule" ?desc:None)
+  in
+  [%expect
+    {|
+    [DONE]: <id: 11; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: null; name: "capsule">,
+                <counter: 0; description: "An opinionated timetracker";
+                  name: "kohai">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Patch project without updates.|}
+      ~should_fail:false
+      ~id
+      (call_project_save ~name:"kohai" ?desc:None)
+  in
+  [%expect
+    {|
+    [DONE]: <id: 12; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: null; name: "capsule">,
+                <counter: 0; description: "An opinionated timetracker";
+                  name: "kohai">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Patch project with updates.|}
+      ~should_fail:false
+      ~id
+      (call_project_save
+         ~name:"capsule"
+         ~desc:"My personnal website built with OCaml")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 13; jsonrpc: "2.0";
+              result:
+               [<counter: 0;
+                  description: "My personnal website built with OCaml";
+                  name: "capsule">,
+                <counter: 0; description: "An opinionated timetracker";
+                  name: "kohai">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the list of project (should be filled with 2 entries).|}
+      ~should_fail:false
+      ~id
+      call_project_list
+  in
+  [%expect
+    {|
+    [DONE]: <id: 14; jsonrpc: "2.0";
+              result:
+               [<counter: 0;
+                  description: "My personnal website built with OCaml";
+                  name: "capsule">,
+                <counter: 0; description: "An opinionated timetracker";
+                  name: "kohai">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Save a project (in order to be deleted).|}
+      ~should_fail:false
+      ~id
+      (call_project_save ~name:"preface" ~desc:"A library")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 15; jsonrpc: "2.0";
+              result:
+               [<counter: 0;
+                  description: "My personnal website built with OCaml";
+                  name: "capsule">,
+                <counter: 0; description: "An opinionated timetracker";
+                  name: "kohai">,
+                <counter: 0; description: "A library"; name: "preface">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Delete the project.|}
+      ~should_fail:false
+      ~id
+      (call_project_delete ~name:"preface")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 16; jsonrpc: "2.0";
+              result:
+               [<counter: 0;
+                  description: "My personnal website built with OCaml";
+                  name: "capsule">,
+                <counter: 0; description: "An opinionated timetracker";
+                  name: "kohai">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Save a sector (in order to be deleted).|}
+      ~should_fail:false
+      ~id
+      (call_sector_save ~name:"painting" ~desc:"desc")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 17; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "desc"; name: "painting">,
+                <counter: 0; description: "Category related to programming";
+                  name: "programming">,
+                <counter: 0; description: "A description"; name: "visual">]>
+    |}];
+  let () =
+    step
+      ~desc:{|Delete the sector.|}
+      ~should_fail:false
+      ~id
+      (call_sector_delete ~name:"painting")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 18; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: "Category related to programming";
+                  name: "programming">,
+                <counter: 0; description: "A description"; name: "visual">]>
     |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]

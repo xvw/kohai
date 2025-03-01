@@ -75,23 +75,9 @@ let to_rensai_record
 
 let to_rensai log = log |> to_rensai_record |> Rensai.Ast.record
 
-let ord_log a b =
-  let c = Datetime.compare a.start_date b.start_date in
-  if Int.equal 0 c then Int.compare a.duration b.duration else c
-;;
-
-let sort list = list |> List.sort ord_log
-
 let from_file_content content =
   let lexbuf = Lexing.from_string content in
   lexbuf |> Rensai.Lang.from_lexingbuf_or_null |> from_rensai
-;;
-
-let list_from_file_content content =
-  let lexbuf = Lexing.from_string content in
-  lexbuf
-  |> Rensai.Lang.from_lexingbuf_to_list ~reverse:false
-  |> List.filter_map (fun x -> x |> from_rensai |> Result.to_option)
 ;;
 
 let find_file_by_month ~cwd { start_date; _ } =
@@ -102,5 +88,3 @@ let find_file ~cwd { id; _ } =
   let fragment = Uuid.to_string id ^ ".rens" in
   Path.(cwd / fragment)
 ;;
-
-let dump list = list |> sort |> Rensai.Lang.dump_list to_rensai

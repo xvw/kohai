@@ -24,22 +24,13 @@ val from_rensai : t Rensai.Validation.t
 (** Lift a log into a dumpable rensai expression. *)
 val to_rensai : t -> Rensai.Ast.t
 
-(** Properly sort a list of logs. *)
-val sort : t list -> t list
-
 val from_file_content : (string, t) Rensai.Validation.v
-
-(** Read a list of logs from a file content. *)
-val list_from_file_content : string -> t list
 
 (** Find the relevant file for a log. *)
 val find_file_by_month : cwd:Path.t -> t -> Path.t
 
 (** Find the file of the log. *)
 val find_file : cwd:Path.t -> t -> Path.t
-
-(** Render a list of logs into a string to be stored in a file. *)
-val dump : t list -> string
 
 (** Retreive sector and project. *)
 val sector_and_project : t -> string * string option

@@ -1,6 +1,38 @@
 module R = Kohai_model.Resolver
 module L = Kohai_model.Log
 
+let get ?body ?id (module H : Eff.HANDLER) uuid =
+  let uuid = Uuid.to_string uuid in
+  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+  let file = Path.(R.all_logs ~cwd / (uuid ^ ".rens")) in
+  file |> Eff.read_file (module H) |> L.from_file_content |> Result.to_option
+;;
+
+let compute_last_list cwd ?body ?id (module H : Eff.HANDLER) log =
+  let folder = R.logs ~cwd in
+  let file = R.last_logs ~cwd:folder in
+  let set =
+    Eff.read_file (module H) file
+    |> Uuid.Set.from_file_content
+    |> Uuid.Set.to_list
+    |> List.filter_map (get ?body ?id (module H))
+    |> L.truncate_list log
+  in
+  let content = Uuid.Set.dump set in
+  Eff.write_file (module H) file content
+;;
+
+let compute_last_cache ?body ?id (module H : Eff.HANDLER) cwd log =
+  let sector, project = L.sector_and_project log in
+  [ compute_last_list cwd
+  ; compute_last_list Path.(R.sector_folder ~cwd / sector)
+  ]
+  @ List.map
+      (fun project -> compute_last_list Path.(R.project_folder ~cwd / project))
+      (Option.to_list project)
+  |> List.iter (fun f -> f ?body ?id (module H : Eff.HANDLER) log)
+;;
+
 let propagate_into (module H : Eff.HANDLER) cwd log =
   let folder = R.logs ~cwd in
   let file = L.find_file_by_month ~cwd:folder log in
@@ -32,12 +64,6 @@ let promote ?body ?id (module H : Eff.HANDLER) cwd log =
   let content = Rensai.Lang.dump L.to_rensai log in
   let () = Eff.write_file (module H) log_file content in
   let () = propagate (module H) cwd log in
+  let () = compute_last_cache ?body ?id (module H) cwd log in
   State.update ?body ?id (module H) cwd log
-;;
-
-let get ?body ?id (module H : Eff.HANDLER) uuid =
-  let uuid = Uuid.to_string uuid in
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
-  let file = Path.(R.all_logs ~cwd / (uuid ^ ".rens")) in
-  file |> Eff.read_file (module H) |> L.from_file_content |> Result.to_option
 ;;

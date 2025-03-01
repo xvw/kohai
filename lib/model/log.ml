@@ -88,3 +88,14 @@ let find_file ~cwd { id; _ } =
   let fragment = Uuid.to_string id ^ ".rens" in
   Path.(cwd / fragment)
 ;;
+
+let ord_log a b =
+  let c = Datetime.compare b.start_date a.start_date in
+  if Int.equal 0 c then Int.compare b.duration a.duration else c
+;;
+
+let sort list = list |> List.sort ord_log
+
+let truncate_list ?(len = 50) log list =
+  log :: list |> sort |> List.take len |> List.map id |> Uuid.Set.from_list
+;;

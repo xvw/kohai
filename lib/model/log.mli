@@ -32,5 +32,8 @@ val find_file_by_month : cwd:Path.t -> t -> Path.t
 (** Find the file of the log. *)
 val find_file : cwd:Path.t -> t -> Path.t
 
+(** Create an ordered set of logs. *)
+val truncate_list : ?len:int -> t -> t list -> Uuid.Set.t
+
 (** Retreive sector and project. *)
 val sector_and_project : t -> string * string option

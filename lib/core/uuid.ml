@@ -25,12 +25,7 @@ module Set = struct
 
   type t = S.t
 
-  let from_list list =
-    list
-    |> List.filter_map (fun ast -> ast |> from_rensai |> Result.to_option)
-    |> S.of_list
-  ;;
-
+  let from_list = S.of_list
   let to_list = S.to_list
 
   let dump items =

@@ -15,6 +15,9 @@ val logs : cwd:Path.t -> Path.t
 (** Returns the folder containing the list of logs. *)
 val all_logs : cwd:Path.t -> Path.t
 
+(** Return the list of last logs. *)
+val last_logs : cwd:Path.t -> Path.t
+
 (** Returns the path containing transient logs. *)
 val transient_logs : cwd:Path.t -> Path.t
 

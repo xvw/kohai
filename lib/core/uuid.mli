@@ -15,7 +15,7 @@ module Set : sig
   type uid := t
   type t
 
-  val from_list : Rensai.Ast.t list -> t
+  val from_list : uid list -> t
   val to_list : t -> uid list
   val dump : t -> string
   val to_rensai : t Rensai.Ast.conv

@@ -263,6 +263,11 @@ module Query : sig
   (** Describe a query. *)
   type t
 
+  val now : t
+  val at : int -> int -> int -> t
+  val absolute : datetime -> t
+  val to_rensai : t Rensai.Ast.conv
+
   (** Convert a string into a query. *)
   val from_string : (string, t) Rensai.Validation.v
 

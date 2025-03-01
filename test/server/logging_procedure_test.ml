@@ -1,3 +1,4 @@
+open Kohai_core
 open Util
 
 let base_filesystem =
@@ -17,6 +18,7 @@ let%expect_test
        - Set up a supervised directory
        - Store sectors
        - store projects
+       - Manipulation of sectors and project
        - log some stuff 
     |}
   =
@@ -309,7 +311,118 @@ let%expect_test
                [<counter: 0; description: "Category related to programming";
                   name: "programming">,
                 <counter: 0; description: "A description"; name: "visual">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the transient log list (should be empty).|}
+      ~should_fail:false
+      ~id
+      call_transient_log_list
+  in
+  [%expect {| [DONE]: <id: 19; jsonrpc: "2.0"; result: []> |}];
+  let () =
+    step
+      ~desc:
+        {|Store a transient log with an existing project and an existing sector.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_record
+         ?date_query:None
+         ~project:"kohai"
+         ~sector:"programming"
+         ~label:"A first transient log!")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 20; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">];
+                 inserted:
+                  <duration: null; index: -1; label: "A first transient log!";
+                    links: []; meta: []; project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T11-00-00">;
+                 outdated: []>>
     |}];
+  let () =
+    step
+      ~desc:{|Get the transient log list (should be filled with one element).|}
+      ~should_fail:false
+      ~id
+      call_transient_log_list
+  in
+  [%expect
+    {|
+    [DONE]: <id: 21; jsonrpc: "2.0";
+              result:
+               [<duration: null; duration_repr: null; index: 0;
+                  label: "A first transient log!"; links: []; meta: [];
+                  project: "kohai"; sector: "programming";
+                  start_date: "2025-03-01T11-00-00";
+                  start_date_repr: "Today at 11:00:00">]>
+     |}];
+  let () = F.manip_time Datetime.succ_hour in
+  let () =
+    step
+      ~desc:
+        {|Store an other transient log without project and an non-existing sector.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_record
+         ?date_query:None
+         ?project:None
+         ~sector:"a-new-sector"
+         ~label:"A first transient log!")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 22; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">,
+                  <duration: null; duration_repr: null; index: 1;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: null; sector: "a-new-sector";
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">];
+                 inserted:
+                  <duration: null; index: -1; label: "A first transient log!";
+                    links: []; meta: []; project: null; sector: "a-new-sector";
+                    start_date: "2025-03-01T12-00-00">;
+                 outdated:
+                  [<computed_duration: 60;
+                     record:
+                      <duration: null; duration_repr: null; index: 0;
+                        label: "A first transient log!"; links: []; meta: [];
+                        project: "kohai"; sector: "programming";
+                        start_date: "2025-03-01T11-00-00";
+                        start_date_repr: "Today at 11:00:00">>]>>
+    |}];
+  let () =
+    step
+      ~desc:{|Get the list of sector (should be filled with 3 entries).|}
+      ~should_fail:false
+      ~id
+      call_sector_list
+  in
+  [%expect
+    {|
+    [DONE]: <id: 23; jsonrpc: "2.0";
+              result:
+               [<counter: 0; description: null; name: "a-new-sector">,
+                <counter: 0; description: "Category related to programming";
+                  name: "programming">,
+                <counter: 0; description: "A description"; name: "visual">]>
+     |}];
+  let () = F.manip_time Datetime.succ_hour in
   print_endline "[DONE]";
   [%expect {| [DONE] |}]
 ;;

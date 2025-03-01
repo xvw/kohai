@@ -71,6 +71,22 @@ val call_project_delete
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
+val call_transient_log_list
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_transient_log_record
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> ?date_query:Kohai_core.Datetime.Query.t
+  -> ?project:string
+  -> sector:string
+  -> label:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
 val step
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> ?should_fail:bool

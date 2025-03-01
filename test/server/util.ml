@@ -1,3 +1,5 @@
+open Kohai_core
+
 let request_input ?(id = 1) ?params meth =
   Format.asprintf
     {j|{"jsonrpc": "2.0", "method": "%s", "id": %d%s}|j}
@@ -92,6 +94,35 @@ let call_project_delete (module H : Kohai_core.Eff.HANDLER) ~id ~name () =
 let call_sector_delete (module H : Kohai_core.Eff.HANDLER) ~id ~name () =
   let params = Rensai.Ast.string name in
   "kohai/sector/delete" |> call (module H) ~id ~params
+;;
+
+let call_transient_log_list (module H : Kohai_core.Eff.HANDLER) ~id () =
+  "kohai/transient-log/list" |> call (module H) ~id
+;;
+
+let call_transient_log_record
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ?date_query
+      ?project
+      ~sector
+      ~label
+      ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum
+      (fun () ->
+         ( "record"
+         , record
+             [ "date_query", option Datetime.Query.to_rensai date_query
+             ; "project", option string project
+             ; "sector", string sector
+             ; "label", string label
+             ] ))
+      ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
 ;;
 
 let step

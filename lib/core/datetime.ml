@@ -615,6 +615,10 @@ module Query = struct
     | At of int * int * int
     | Absolute of t
 
+  let now = Now
+  let at a b c = At (a, b, c)
+  let absolute dt = Absolute dt
+
   let resolve datetime = function
     | None -> datetime
     | Some x ->
@@ -710,6 +714,17 @@ module Query = struct
   let from_rensai =
     let open Rensai.Validation in
     string & from_string
+  ;;
+
+  let to_string = function
+    | Now -> "now"
+    | At (a, b, c) -> Format.asprintf "%02d:%02d%02d" a b c
+    | Absolute dt -> Format.asprintf "%a" (pp ()) dt
+  ;;
+
+  let to_rensai x =
+    let open Rensai.Ast in
+    x |> to_string |> string
   ;;
 end
 

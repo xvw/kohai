@@ -12,7 +12,7 @@ val print_result
 val call
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref
-  -> ?params:Yojson.t
+  -> ?params:Rensai.Ast.t
   -> string
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
@@ -32,6 +32,22 @@ val call_supervise_get
 val call_sector_list
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_sector_save
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> name:string
+  -> ?desc:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_project_save
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> name:string
+  -> ?desc:string
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 

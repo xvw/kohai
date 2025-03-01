@@ -88,6 +88,81 @@ let%expect_test
       call_project_list
   in
   [%expect {| [OK]: <id: 4; jsonrpc: "2.0"; result: []> |}];
+  let () =
+    step
+      ~desc:{|Save a sector.|}
+      ~should_fail:false
+      ~id
+      (call_sector_save
+         ~name:"programming"
+         ~desc:"Category related to programming")
+  in
+  [%expect
+    {|
+    [OK]: <id: 5; jsonrpc: "2.0";
+            result:
+             [<counter: 0; description: "Category related to programming";
+                name: "programming">]>
+            |}];
+  let () =
+    step
+      ~desc:{|Save an other sector.|}
+      ~should_fail:false
+      ~id
+      (call_sector_save ~name:"visual" ?desc:None)
+  in
+  [%expect
+    {|
+    [OK]: <id: 6; jsonrpc: "2.0";
+            result:
+             [<counter: 0; description: "Category related to programming";
+                name: "programming">,
+              <counter: 0; description: null; name: "visual">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Patch an existing sector without updates.|}
+      ~should_fail:false
+      ~id
+      (call_sector_save ~name:"programming" ?desc:None)
+  in
+  [%expect
+    {|
+    [OK]: <id: 7; jsonrpc: "2.0";
+            result:
+             [<counter: 0; description: "Category related to programming";
+                name: "programming">,
+              <counter: 0; description: null; name: "visual">]>
+    |}];
+  let () =
+    step
+      ~desc:{|Patch an existing sector with updates.|}
+      ~should_fail:false
+      ~id
+      (call_sector_save ~name:"visual" ~desc:"A description")
+  in
+  [%expect
+    {|
+    [OK]: <id: 8; jsonrpc: "2.0";
+            result:
+             [<counter: 0; description: "Category related to programming";
+                name: "programming">,
+              <counter: 0; description: "A description"; name: "visual">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the list of sector (should be filled with 2 entries).|}
+      ~should_fail:false
+      ~id
+      call_sector_list
+  in
+  [%expect {|
+    [OK]: <id: 9; jsonrpc: "2.0";
+            result:
+             [<counter: 0; description: "Category related to programming";
+                name: "programming">,
+              <counter: 0; description: "A description"; name: "visual">]>
+    |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]
 ;;

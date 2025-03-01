@@ -41,13 +41,18 @@ let request ~id ?params meth =
 
 let call (module H : Kohai_core.Eff.HANDLER) ~id ?params meth =
   meth
-  |> request ~id ?params:(Option.map Yojson.to_string params)
+  |> request
+       ~id
+       ?params:
+         (Option.map
+            (fun x -> x |> Rensai.Json.to_yojson |> Yojson.Safe.to_string)
+            params)
   |> Kohai_server.Jsonrpc.run ~services:Kohai_server.Services.all
   |> Kohai_core.Eff.handle (module H)
 ;;
 
 let call_supervise (module H : Kohai_core.Eff.HANDLER) ~id ~path () =
-  let params = `String path in
+  let params = Rensai.Ast.string path in
   "kohai/supervision/set" |> call (module H) ~id ~params
 ;;
 
@@ -61,6 +66,22 @@ let call_sector_list (module H : Kohai_core.Eff.HANDLER) ~id () =
 
 let call_project_list (module H : Kohai_core.Eff.HANDLER) ~id () =
   "kohai/project/list" |> call (module H) ~id
+;;
+
+let call_sector_save (module H : Kohai_core.Eff.HANDLER) ~id ~name ?desc () =
+  let params =
+    let open Rensai.Ast in
+    record [ "name", string name; "description", option string desc ]
+  in
+  "kohai/sector/save" |> call (module H) ~id ~params
+;;
+
+let call_project_save (module H : Kohai_core.Eff.HANDLER) ~id ~name ?desc () =
+  let params =
+    let open Rensai.Ast in
+    record [ "name", string name; "description", option string desc ]
+  in
+  "kohai/project/save" |> call (module H) ~id ~params
 ;;
 
 let step

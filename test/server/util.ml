@@ -55,6 +55,14 @@ let call_supervise_get (module H : Kohai_core.Eff.HANDLER) ~id () =
   "kohai/supervision/get" |> call (module H) ~id
 ;;
 
+let call_sector_list (module H : Kohai_core.Eff.HANDLER) ~id () =
+  "kohai/sector/list" |> call (module H) ~id
+;;
+
+let call_project_list (module H : Kohai_core.Eff.HANDLER) ~id () =
+  "kohai/project/list" |> call (module H) ~id
+;;
+
 let step
       (module H : Kohai_core.Eff.HANDLER)
       ?should_fail

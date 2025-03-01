@@ -72,6 +72,22 @@ let%expect_test
       (call_supervise ~path:"/.kohai")
   in
   [%expect {| [OK]: <id: 2; jsonrpc: "2.0"; result: "/.kohai"> |}];
+  let () =
+    step
+      ~desc:{|Get the list of sector (should be empty).|}
+      ~should_fail:false
+      ~id
+      call_sector_list
+  in
+  [%expect {| [OK]: <id: 3; jsonrpc: "2.0"; result: []> |}];
+  let () =
+    step
+      ~desc:{|Get the list of project (should be empty).|}
+      ~should_fail:false
+      ~id
+      call_project_list
+  in
+  [%expect {| [OK]: <id: 4; jsonrpc: "2.0"; result: []> |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]
 ;;

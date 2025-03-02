@@ -87,6 +87,14 @@ val call_transient_log_record
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
+val call_transient_log_stop_recording
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> ?duration:int
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
 val step
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> ?should_fail:bool

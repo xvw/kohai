@@ -423,6 +423,30 @@ let%expect_test
                 <counter: 0; description: "A description"; name: "visual">]>
      |}];
   let () = F.manip_time Datetime.succ_hour in
+  let () =
+    step
+      ~desc:{|Close a the log (indexed-0) with the default duration.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_stop_recording ~index:0 ?duration:None)
+  in
+  [%expect
+    {|
+    [DONE]: <id: 24; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: 7200; duration_repr: "2h"; index: 0;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">,
+                  <duration: null; duration_repr: null; index: 1;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: null; sector: "a-new-sector";
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">];
+                 inserted: null; outdated: []>>
+    |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]
 ;;

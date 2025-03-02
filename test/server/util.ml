@@ -125,6 +125,24 @@ let call_transient_log_record
   "kohai/transient-log/action" |> call (module H) ~id ~params
 ;;
 
+let call_transient_log_stop_recording
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ~index
+      ?duration
+      ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum
+      (fun () ->
+         ( "stop_recording"
+         , record [ "index", int index; "duration", option int duration ] ))
+      ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
 let step
       (module H : Kohai_core.Eff.HANDLER)
       ?should_fail

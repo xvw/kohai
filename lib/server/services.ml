@@ -165,6 +165,22 @@ module Kohai = struct
         ~finalizer:Kohai_model.State.to_compact_rensai
         (Operation.State.get ~body)
     ;;
+
+    let get_for_sector body =
+      Jsonrpc.service
+        ~meth:(prefix "get/sector")
+        ~with_params:V.string
+        ~finalizer:Kohai_model.State.to_compact_rensai
+        (Operation.State.get_for_sector ~body)
+    ;;
+
+    let get_for_project body =
+      Jsonrpc.service
+        ~meth:(prefix "get/project")
+        ~with_params:V.string
+        ~finalizer:Kohai_model.State.to_compact_rensai
+        (Operation.State.get_for_project ~body)
+    ;;
   end
 
   module Log = struct
@@ -200,6 +216,8 @@ let methods body =
   ; Kohai.Transient_log.get body
   ; Kohai.Transient_log.action body
   ; Kohai.State.get body
+  ; Kohai.State.get_for_sector body
+  ; Kohai.State.get_for_project body
   ; Kohai.Log.get body
   ]
 ;;

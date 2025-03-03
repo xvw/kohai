@@ -62,6 +62,26 @@ let call_supervise_get (module H : Kohai_core.Eff.HANDLER) ~id () =
   "kohai/supervision/get" |> call (module H) ~id
 ;;
 
+let call_state_get (module H : Kohai_core.Eff.HANDLER) ~id () =
+  "kohai/state/get" |> call (module H) ~id
+;;
+
+let call_state_get_for_sector (module H : Kohai_core.Eff.HANDLER) ~id ~sector ()
+  =
+  let params = Rensai.Ast.string sector in
+  "kohai/state/get/sector" |> call (module H) ~id ~params
+;;
+
+let call_state_get_for_project
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ~project
+      ()
+  =
+  let params = Rensai.Ast.string project in
+  "kohai/state/get/project" |> call (module H) ~id ~params
+;;
+
 let call_sector_list (module H : Kohai_core.Eff.HANDLER) ~id () =
   "kohai/sector/list" |> call (module H) ~id
 ;;
@@ -174,6 +194,15 @@ let call_transient_log_delete (module H : Kohai_core.Eff.HANDLER) ~id ~index () 
   let params =
     let open Rensai.Ast in
     sum (fun () -> "delete", record [ "index", int index ]) ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
+let call_transient_log_promote (module H : Kohai_core.Eff.HANDLER) ~id ~index ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum (fun () -> "promote", record [ "index", int index ]) ()
   in
   "kohai/transient-log/action" |> call (module H) ~id ~params
 ;;

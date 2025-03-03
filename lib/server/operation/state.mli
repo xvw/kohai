@@ -13,3 +13,17 @@ val get
   -> (module Sigs.EFFECT_HANDLER)
   -> unit
   -> Kohai_model.State.t
+
+val get_for_sector
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> string
+  -> Kohai_model.State.t
+
+val get_for_project
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> string
+  -> Kohai_model.State.t

@@ -10,6 +10,8 @@ val patch_date_boundaries : Datetime.t -> t -> t
 
 val increase_duration : int -> t -> t
 val decrease_duration : int -> t -> t
+val increase_counter : int -> t -> t
+val decrease_counter : int -> t -> t
 
 (** {1 Serialization} *)
 

@@ -24,7 +24,7 @@ let%expect_test "dump boundaries - 1" =
   [%expect
     {|
     <big_bang: "2025-02-18T10-00-00"; duration: 0;
-      end_of_world: "2025-02-18T10-00-00">
+      end_of_world: "2025-02-18T10-00-00"; number_of_logs: 0>
     |}]
 ;;
 
@@ -39,6 +39,6 @@ let%expect_test "dump boundaries - 2" =
   [%expect
     {|
     <big_bang: "2025-02-18T10-00-00"; duration: 0;
-      end_of_world: "2025-02-18T10-30-00">
+      end_of_world: "2025-02-18T10-30-00"; number_of_logs: 0>
     |}]
 ;;

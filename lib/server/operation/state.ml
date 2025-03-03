@@ -13,6 +13,7 @@ let update_state (module H : Eff.HANDLER) cwd log =
   |> S.patch_date_boundaries start_date
   |> S.patch_date_boundaries end_date
   |> S.increase_duration duration
+  |> S.increase_counter 1
   |> S.dump
   |> Eff.write_file (module H) state_file
 ;;
@@ -40,9 +41,25 @@ let update ?body ?id (module H : Eff.HANDLER) cwd log =
   update_project_state ?body ?id (module H) cwd log
 ;;
 
-let get ?body ?id (module H : Eff.HANDLER) () =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let get_by_cwd (module H : Eff.HANDLER) cwd =
   let file = R.state ~cwd in
   let content = Eff.read_file (module H) file in
   content |> S.from_string
+;;
+
+let get ?body ?id (module H : Eff.HANDLER) () =
+  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+  get_by_cwd (module H) cwd
+;;
+
+let get_for_sector ?body ?id (module H : Eff.HANDLER) sector =
+  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+  let sector = Path.(R.sector_folder ~cwd / sector) in
+  get_by_cwd (module H) sector
+;;
+
+let get_for_project ?body ?id (module H : Eff.HANDLER) project =
+  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+  let project = Path.(R.project_folder ~cwd / project) in
+  get_by_cwd (module H) project
 ;;

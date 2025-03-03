@@ -29,6 +29,26 @@ val call_supervise_get
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
+val call_state_get
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_state_get_for_sector
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> sector:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_state_get_for_project
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> project:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
 val call_sector_list
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref
@@ -107,6 +127,13 @@ val call_transient_log_stop_recording
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
 val call_transient_log_delete
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_transient_log_promote
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref
   -> index:int

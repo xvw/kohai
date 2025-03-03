@@ -1,6 +1,7 @@
 type t =
   { big_bang : Datetime.t option
   ; end_of_world : Datetime.t option
+  ; number_of_logs : int
   ; duration : int
   }
 
@@ -30,7 +31,17 @@ let decrease_duration amount state =
   { state with duration = max (state.duration + amount) 0 }
 ;;
 
-let big_bang () = { big_bang = None; end_of_world = None; duration = 0 }
+let increase_counter amount state =
+  { state with number_of_logs = state.number_of_logs + amount }
+;;
+
+let decrease_counter amount state =
+  { state with number_of_logs = max (state.number_of_logs - amount) 0 }
+;;
+
+let big_bang () =
+  { big_bang = None; end_of_world = None; duration = 0; number_of_logs = 0 }
+;;
 
 let from_rensai =
   let open Rensai.Validation in
@@ -38,17 +49,19 @@ let from_rensai =
     let open Record in
     let+ big_bang = optional fields "big_bang" Datetime.from_rensai
     and+ end_of_world = optional fields "end_of_world" Datetime.from_rensai
+    and+ number_of_logs = optional_or ~default:0 fields "number_of_logs" int
     and+ duration = optional_or ~default:0 fields "duration" int in
-    { big_bang; end_of_world; duration })
+    { big_bang; end_of_world; duration; number_of_logs })
   / (null $ big_bang)
 ;;
 
-let to_compact_rensai { big_bang; end_of_world; duration } =
+let to_compact_rensai { big_bang; end_of_world; duration; number_of_logs } =
   let open Rensai.Ast in
   record
     [ "big_bang", option Datetime.to_compact_rensai big_bang
     ; "end_of_world", option Datetime.to_compact_rensai end_of_world
     ; "duration", int duration
+    ; "number_of_logs", int number_of_logs
     ]
 ;;
 

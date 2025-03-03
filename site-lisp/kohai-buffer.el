@@ -43,6 +43,11 @@
     (kohai-buffer--truncate-with buffer-name action)
     (pop-to-buffer buff)))
 
+(defun kohai-buffer--kill (buffer-name)
+  "Kill BUFFER-NAME if it exists."
+  (when (get-buffer buffer-name)
+    (kill-buffer buffer-name)))
+
 (provide 'kohai-buffer)
 ;;; kohai-buffer.el ends here
 

@@ -30,6 +30,7 @@
 (require 'kohai-project)
 (require 'kohai-transient-log)
 (require 'kohai-transient)
+(require 'kohai-state)
 
 ;;; Features
 
@@ -115,20 +116,23 @@
   (kohai-transient-log--record)
   (pop-to-buffer kohai-transient-logs-buffer-name))
 
-(defun kohai-get-big-bang ()
-  "Print when the recording started."
+(defun kohai-get-state ()
+  "Display the current state of the supervised directory."
   (interactive)
   (kohai--ensure-supervision)
-  (let ((state (kohai-req--state-get)))
-    (message "everything started on %s" (cl-getf state :big_bang))))
+  (kohai-state--get))
 
-(defun kohai-get-end-of-world ()
-  "Print when the recording stopped."
+(defun kohai-get-state-by-sector ()
+  "Display the current state of the supervised directory of a given sector."
   (interactive)
   (kohai--ensure-supervision)
-  (let ((state (kohai-req--state-get)))
-    (message "everything started on %s" (cl-getf state :end_of_world))))
+  (kohai-state--get-by-sector))
 
+(defun kohai-get-state-by-project ()
+  "Display the current state of the supervised directory of a given project."
+  (interactive)
+  (kohai--ensure-supervision)
+  (kohai-state--get-by-project))
 
 (defun kohai ()
   "Launch Kohai."

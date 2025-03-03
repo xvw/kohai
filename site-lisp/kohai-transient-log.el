@@ -21,8 +21,11 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+(require 'vtable)
 (require 'kohai-core)
 (require 'kohai-req)
+(require 'kohai-buffer)
 (require 'kohai-generic)
 (require 'kohai-sector)
 (require 'kohai-project)
@@ -74,12 +77,12 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                                  (cl-getf o :index)))
                 "n" (lambda (_) (kohai-transient-log--record))
                 "q" (lambda (_o)
-                      (kill-buffer kohai-transient-log-buffer-name))))))
+                      (kohai-buffer--kill kohai-transient-log-buffer-name))))))
 
 (defun kohai-transient-log--list (&optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES) in log buffer."
   (let ((entries (or given-entries (kohai-req--transient-log-list))))
-    (kohai-generic-vtable
+    (kohai-generic--vtable
      "transient-log"
      kohai-transient-logs-buffer-name
      entries
@@ -202,7 +205,7 @@ shoudl be treated."
    :objects (mapcar #'kohai-transient-log--meta-or-link-entry obj)
    :actions `("n" ,(lambda (_o) (funcall adding entry))
               "d" ,(lambda (o) (funcall removing entry (car o)))
-              "q" ,(lambda (_o) (kill-buffer
+              "q" ,(lambda (_o) (kohai-buffer--kill
                                  kohai-transient-log-buffer-name)))))
 
 (defun kohai-transient-log--meta-vtable (meta entry)
@@ -269,15 +272,6 @@ shoudl be treated."
   (kohai-transient-log--handle-meta-or-link index
                                             #'kohai-transient-log--list-link))
 
-;; (defun kohai-transient-log--promote (index)
-;;   "Promote a transient log (via INDEX) into a real one."
-;;   (let* (
-;;          (result (kohai-req--transient-log-promote index))
-;;          (transient-logs (cl-getf result :äll)))
-;;     (message "done")
-;;     (kohai-sector--list)
-;;     (kohai-project--list)
-;;     (kohai-transient-log--list transient-logs)))
 
 (defun kohai-transient-log--promote (index)
   "Promote a transient log (via INDEX) into a real one."

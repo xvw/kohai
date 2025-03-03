@@ -41,8 +41,13 @@
     ("pn" "new" kohai-new-project)]
 
    ["Transient logs"
-    ("tll" "list" kohai-list-transient-log)
-    ("tlr" "record" kohai-record-transient-log)]
+    ("t" "list" kohai-list-transient-log)
+    ("r" "record" kohai-record-transient-log)]
+
+   ["State"
+    ("st" "current" kohai-get-state)
+    ("ss" "by sector" kohai-get-state-by-sector)
+    ("sp" "by project" kohai-get-state-by-project)]
 
    ["Other"
     ("q" "close" transient-quit-one)]])

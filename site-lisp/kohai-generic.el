@@ -26,7 +26,7 @@
 (require 'kohai-req)
 (require 'kohai-buffer)
 
-(defun kohai-generic-vtable (key buffer entries vtable)
+(defun kohai-generic--vtable (key buffer entries vtable)
   "Fill a BUFFER with ENTRIES into a VTABLE (KEY is used for reporting)."
   (if (kohai--vector-empty-p entries)
       (progn (kohai-buffer--empty buffer t)
@@ -91,13 +91,13 @@ In BUFFER, CREATE is used to create a new entry."
                             "n" ,(lambda (_o)
                                    (kohai-generic--ditem-new key buffer))
                             "q" ,(lambda (_o)
-                                   (kill-buffer buffer))))))
+                                   (kohai-buffer--kill buffer))))))
 
 (defun kohai-generic--ditem-list (key buffer &optional given-entries)
   "Return the list of entries (or GIVEN-ENTRIES).
 In a dedicated BUFFER using KEY."
   (let ((entries (or given-entries (kohai-req--described-item-list key))))
-    (kohai-generic-vtable key
+    (kohai-generic--vtable key
                           buffer
                           entries
                           (kohai-generic--ditem-list-vtable key buffer))))

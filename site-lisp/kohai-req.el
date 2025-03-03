@@ -185,5 +185,25 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "Return the current state of the recording."
   (kohai-req--send :kohai/state/get))
 
+(defun kohai-req--state-get-sector (sector)
+  "Return the current state for a given SECTOR."
+  (kohai-req--send :kohai/state/get/sector sector))
+
+(defun kohai-req--state-get-project (project)
+  "Return the current state for a given PROJECT."
+  (kohai-req--send :kohai/state/get/project project))
+
+(defun kohai-req--log-tail ()
+  "Return the list of latest logs."
+  (kohai-req--send :kohai/log/last))
+
+(defun kohai-req--log-tail-sector (sector)
+  "Return the list of latest logs for a given SECTOR."
+  (kohai-req--send :kohai/log/last/sector sector))
+
+(defun kohai-req--log-tail-project (project)
+  "Return the list of latest logs for a given PROJECT."
+  (kohai-req--send :kohai/log/last/project project))
+
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

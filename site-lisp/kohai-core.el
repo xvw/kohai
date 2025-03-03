@@ -60,7 +60,15 @@
   :group 'kohai :type 'string)
 
 (defcustom kohai-transient-log-buffer-name "*kohai-a-transient-log*"
-  "the name of the buffer displaying a specific transient log."
+  "The name of the buffer displaying a specific transient log."
+  :group 'kohai :type 'string)
+
+(defcustom kohai-logs-buffer-name "*kohai-logs*"
+  "The name of the buffer listing logs."
+  :group 'kohai :type 'string)
+
+(defcustom kohai-state-buffer-name "*kohai-state*"
+  "The name of the buffer displaying state."
   :group 'kohai :type 'string)
 
 ;;; Variables
@@ -153,6 +161,13 @@ DEFAULT is the prefilled value."
     (error "[Transient log %02d, %s] need to be closed with a duration"
            (cl-getf log :index)
            (cl-getf log :label))))
+
+(defun kohai--should-not-be-zero (value message &optional callback)
+  "Fire an error (MESSAGE) and raise CALLBACK if a VALUE is zero."
+  (when (zerop value)
+    (when callback (funcall callback))
+    (error "%s" message)))
+
 ;;; Text propertize
 
 (defun kohai--bold (text)

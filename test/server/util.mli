@@ -106,6 +106,47 @@ val call_transient_log_stop_recording
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
+val call_transient_log_delete
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_transient_log_add_meta
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> key:string
+  -> value:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_transient_log_add_link
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> key:string
+  -> value:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_transient_log_remove_meta
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> key:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_transient_log_remove_link
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> key:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
 val step
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> ?should_fail:bool

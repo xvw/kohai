@@ -500,6 +500,310 @@ let%expect_test
                     start_date: "2025-03-01T13-00-00";
                     start_date_repr: "Today at 13:00:00">];
                  inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Add meta into index-1-log.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_add_meta ~index:1 ~key:"Foo" ~value:"Bar")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 27; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: null; sector: "a-new-sector";
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !"; links: [];
+                    meta: [<key: "Foo"; value: "Bar">]; project: "kohai";
+                    sector: "programming"; start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Today at 13:00:00">];
+                 inserted: null; outdated: []>>
+    |}];
+  let () =
+    step
+      ~desc:{|Add meta into index-1-log.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_add_meta ~index:1 ~key:"a meta" ~value:"hehehe")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 28; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: null; sector: "a-new-sector";
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !"; links: [];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Today at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Add meta into index-0-log.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_add_meta ~index:0 ~key:"location" ~value:"Nantes")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 29; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !"; links: [];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Today at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () = F.manip_time Datetime.succ_day in
+  let () =
+    step
+      ~desc:{|Store a new log (to be removed).|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_record
+         ?date_query:None
+         ?project:None
+         ~sector:"programming"
+         ~label:"TO BE DELETED !!!!!")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 30; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !"; links: [];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Yesterday at 13:00:00">,
+                  <duration: null; duration_repr: null; index: 2;
+                    label: "TO BE DELETED !!!!!"; links: []; meta: [];
+                    project: null; sector: "programming";
+                    start_date: "2025-03-02T01-00-00";
+                    start_date_repr: "Today at 01:00:00">];
+                 inserted:
+                  <duration: null; index: -1; label: "TO BE DELETED !!!!!";
+                    links: []; meta: []; project: null; sector: "programming";
+                    start_date: "2025-03-02T01-00-00">;
+                 outdated:
+                  [<computed_duration: 780;
+                     record:
+                      <duration: null; duration_repr: null; index: 0;
+                        label: "A first transient log!"; links: [];
+                        meta: [<key: "location"; value: "Nantes">];
+                        project: null; sector: "a-new-sector";
+                        start_date: "2025-03-01T12-00-00";
+                        start_date_repr: "Yesterday at 12:00:00">>]>>
+     |}];
+  let () =
+    step
+      ~desc:{|Delete the freshly added log.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_delete ~index:2)
+  in
+  [%expect
+    {|
+    [DONE]: <id: 31; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !"; links: [];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Yesterday at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Add link to index 1.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_add_link
+         ~index:1
+         ~key:"homepage"
+         ~value:"https://xvw.lol")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 32; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !";
+                    links: [<key: "homepage"; value: "https://xvw.lol">];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Yesterday at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Add link other to index 1.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_add_link
+         ~index:1
+         ~key:"google"
+         ~value:"https://google.com")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 33; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !";
+                    links:
+                     [<key: "google"; value: "https://google.com">,
+                      <key: "homepage"; value: "https://xvw.lol">];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Yesterday at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Update link other to index 1.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_add_link
+         ~index:1
+         ~key:"google"
+         ~value:"https://www.google.com")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 34; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !";
+                    links:
+                     [<key: "google"; value: "https://www.google.com">,
+                      <key: "homepage"; value: "https://xvw.lol">];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Yesterday at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Remove link to index 1.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_remove_link ~index:1 ~key:"google")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 35; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !";
+                    links: [<key: "homepage"; value: "https://xvw.lol">];
+                    meta:
+                     [<key: "Foo"; value: "Bar">,
+                      <key: "a meta"; value: "hehehe">];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Yesterday at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Remove meta index 1.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_remove_meta ~index:1 ~key:"Foo")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 36; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !";
+                    links: [<key: "homepage"; value: "https://xvw.lol">];
+                    meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
+                    sector: "programming"; start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Yesterday at 13:00:00">];
+                 inserted: null; outdated: []>>
     |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]

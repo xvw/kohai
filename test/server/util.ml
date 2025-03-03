@@ -170,6 +170,88 @@ let call_transient_log_rewrite
   "kohai/transient-log/action" |> call (module H) ~id ~params
 ;;
 
+let call_transient_log_delete (module H : Kohai_core.Eff.HANDLER) ~id ~index () =
+  let params =
+    let open Rensai.Ast in
+    sum (fun () -> "delete", record [ "index", int index ]) ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
+let call_transient_log_add_meta
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ~index
+      ~key
+      ~value
+      ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum
+      (fun () ->
+         ( "add_meta"
+         , record
+             [ "index", int index; "key", string key; "value", string value ] ))
+      ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
+let call_transient_log_add_link
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ~index
+      ~key
+      ~value
+      ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum
+      (fun () ->
+         ( "add_link"
+         , record
+             [ "index", int index; "key", string key; "value", string value ] ))
+      ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
+let call_transient_log_remove_meta
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ~index
+      ~key
+      ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum
+      (fun () ->
+         "remove_meta", record [ "index", int index; "key", string key ])
+      ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
+let call_transient_log_remove_link
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ~index
+      ~key
+      ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum
+      (fun () ->
+         "remove_link", record [ "index", int index; "key", string key ])
+      ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
 let step
       (module H : Kohai_core.Eff.HANDLER)
       ?should_fail

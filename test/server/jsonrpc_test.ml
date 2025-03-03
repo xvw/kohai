@@ -167,7 +167,8 @@ let%expect_test "List of methods - without prefix" =
         "kohai/project/save"; "kohai/project/get"; "kohai/project/delete";
         "kohai/transient-log/list"; "kohai/transient-log/get";
         "kohai/transient-log/action"; "kohai/state/get";
-        "kohai/state/get/sector"; "kohai/state/get/project"; "kohai/log/get"]}
+        "kohai/state/get/sector"; "kohai/state/get/project"; "kohai/log/get";
+        "kohai/log/last"; "kohai/log/last/sector"; "kohai/log/last/project"]}
     |}]
 ;;
 

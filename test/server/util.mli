@@ -9,6 +9,17 @@ val print_result
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
   -> unit
 
+val step
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> ?should_fail:bool
+  -> ?desc:string
+  -> id:int ref
+  -> ((module Kohai_core.Sigs.EFFECT_HANDLER)
+      -> id:int ref
+      -> unit
+      -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result)
+  -> unit
+
 val call
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref
@@ -174,13 +185,22 @@ val call_transient_log_remove_link
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
-val step
+val call_log_last
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
-  -> ?should_fail:bool
-  -> ?desc:string
   -> id:int ref
-  -> ((module Kohai_core.Sigs.EFFECT_HANDLER)
-      -> id:int ref
-      -> unit
-      -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result)
   -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_log_last_for_sector
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> sector:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
+val call_log_last_for_project
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> project:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result

@@ -190,8 +190,32 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:Uuid.from_rensai
-        ~finalizer:(A.option Kohai_model.Log.to_rensai)
+        ~finalizer:(A.option Kohai_model.Log.return_rensai)
         (Operation.Log.get ~body)
+    ;;
+
+    let last body =
+      Jsonrpc.service
+        ~meth:(prefix "last")
+        ~with_params:discard
+        ~finalizer:Kohai_model.Log.list_to_rensai
+        (Operation.Log.get_last ~body)
+    ;;
+
+    let last_for_sector body =
+      Jsonrpc.service
+        ~meth:(prefix "last/sector")
+        ~with_params:V.string
+        ~finalizer:Kohai_model.Log.list_to_rensai
+        (Operation.Log.get_last_for_sector ~body)
+    ;;
+
+    let last_for_project body =
+      Jsonrpc.service
+        ~meth:(prefix "last/project")
+        ~with_params:V.string
+        ~finalizer:Kohai_model.Log.list_to_rensai
+        (Operation.Log.get_last_for_project ~body)
     ;;
   end
 end
@@ -219,6 +243,9 @@ let methods body =
   ; Kohai.State.get_for_sector body
   ; Kohai.State.get_for_project body
   ; Kohai.Log.get body
+  ; Kohai.Log.last body
+  ; Kohai.Log.last_for_sector body
+  ; Kohai.Log.last_for_project body
   ]
 ;;
 

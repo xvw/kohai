@@ -21,6 +21,12 @@ val duration : t -> int
 (** Validate a log from a rensai expression. *)
 val from_rensai : t Rensai.Validation.t
 
+(** Serialize a log result. *)
+val return_rensai : (Datetime.t * t) Rensai.Ast.conv
+
+(** Serialize a log with relative date. *)
+val list_to_rensai : (Datetime.t * t list) Rensai.Ast.conv
+
 (** Lift a log into a dumpable rensai expression. *)
 val to_rensai : t -> Rensai.Ast.t
 

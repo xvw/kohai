@@ -13,4 +13,28 @@ val get
   -> ?id:int
   -> (module Sigs.EFFECT_HANDLER)
   -> Uuid.t
-  -> Kohai_model.Log.t option
+  -> (Datetime.t * Kohai_model.Log.t) option
+
+(** Get the last log. *)
+val get_last
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> unit
+  -> Datetime.t * Kohai_model.Log.t list
+
+(** Get the last log for a sector. *)
+val get_last_for_sector
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> string
+  -> Datetime.t * Kohai_model.Log.t list
+
+(** Get the last log for a project. *)
+val get_last_for_project
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> string
+  -> Datetime.t * Kohai_model.Log.t list

@@ -996,6 +996,145 @@ let%expect_test
                   name: "capsule">,
                 <counter: 1; description: "An opinionated timetracker";
                   name: "kohai">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the list of last logs.|}
+      ~should_fail:false
+      ~id
+      call_log_last
+  in
+  [%expect
+    {|
+    [DONE]: <id: 50; jsonrpc: "2.0";
+              result:
+               [<duration: 1500; duration_repr: "25m";
+                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  label: "A new label !";
+                  links: [<key: "homepage"; value: "https://xvw.lol">];
+                  meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
+                  sector: "programming"; start_date: "2025-03-01T13-00-00";
+                  start_date_repr: "Yesterday at 13:00:00">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Close the last log.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_stop_recording ~index:0 ?duration:None)
+  in
+  [%expect
+    {|
+    [DONE]: <id: 51; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: 46800; duration_repr: "13h"; index: 0;
+                    label: "A first transient log!"; links: [];
+                    meta: [<key: "location"; value: "Nantes">]; project: null;
+                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">];
+                 inserted: null; outdated: []>>
+    |}];
+  let () =
+    step
+      ~desc:{|Close the last log.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_promote ~index:0)
+  in
+  [%expect
+    {|
+    [DONE]: <id: 52; jsonrpc: "2.0";
+              result: <all: []; inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the list of last logs.|}
+      ~should_fail:false
+      ~id
+      call_log_last
+  in
+  [%expect
+    {|
+    [DONE]: <id: 53; jsonrpc: "2.0";
+              result:
+               [<duration: 1500; duration_repr: "25m";
+                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  label: "A new label !";
+                  links: [<key: "homepage"; value: "https://xvw.lol">];
+                  meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
+                  sector: "programming"; start_date: "2025-03-01T13-00-00";
+                  start_date_repr: "Yesterday at 13:00:00">,
+                <duration: 46800; duration_repr: "13h";
+                  id: "fee72312-846f-5b0a-9ccf-317722f1eba6";
+                  label: "A first transient log!"; links: [];
+                  meta: [<key: "location"; value: "Nantes">]; project: null;
+                  sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the list of last logs for project kohai.|}
+      ~should_fail:false
+      ~id
+      (call_log_last_for_project ~project:"programming")
+  in
+  [%expect {| [DONE]: <id: 54; jsonrpc: "2.0"; result: []> |}];
+  let () =
+    step
+      ~desc:{|Get the list of last logs for project kohai.|}
+      ~should_fail:false
+      ~id
+      (call_log_last_for_project ~project:"kohai")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 55; jsonrpc: "2.0";
+              result:
+               [<duration: 1500; duration_repr: "25m";
+                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  label: "A new label !";
+                  links: [<key: "homepage"; value: "https://xvw.lol">];
+                  meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
+                  sector: "programming"; start_date: "2025-03-01T13-00-00";
+                  start_date_repr: "Yesterday at 13:00:00">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the list of last logs for sector programming.|}
+      ~should_fail:false
+      ~id
+      (call_log_last_for_sector ~sector:"programming")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 56; jsonrpc: "2.0";
+              result:
+               [<duration: 1500; duration_repr: "25m";
+                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  label: "A new label !";
+                  links: [<key: "homepage"; value: "https://xvw.lol">];
+                  meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
+                  sector: "programming"; start_date: "2025-03-01T13-00-00";
+                  start_date_repr: "Yesterday at 13:00:00">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the list of last logs for sector a-new-sector.|}
+      ~should_fail:false
+      ~id
+      (call_log_last_for_sector ~sector:"a-new-sector")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 57; jsonrpc: "2.0";
+              result:
+               [<duration: 46800; duration_repr: "13h";
+                  id: "fee72312-846f-5b0a-9ccf-317722f1eba6";
+                  label: "A first transient log!"; links: [];
+                  meta: [<key: "location"; value: "Nantes">]; project: null;
+                  sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">]>
     |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]

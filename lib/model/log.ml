@@ -75,6 +75,27 @@ let to_rensai_record
 
 let to_rensai log = log |> to_rensai_record |> Rensai.Ast.record
 
+let duration_repr duration =
+  duration
+  |> Int64.of_int
+  |> Datetime.seconds_to_duration
+  |> Format.asprintf "%a" Datetime.pp_duration
+  |> Rensai.Ast.string
+;;
+
+let return_rensai (now, ({ start_date; duration; _ } as log)) =
+  let open Rensai.Ast in
+  record
+    (("duration_repr", duration_repr duration)
+     :: ( "start_date_repr"
+        , string (Format.asprintf "%a" (Datetime.pp_relative now) start_date) )
+     :: to_rensai_record log)
+;;
+
+let list_to_rensai (now, logs) =
+  Rensai.Ast.list (fun x -> return_rensai (now, x)) logs
+;;
+
 let from_file_content content =
   let lexbuf = Lexing.from_string content in
   lexbuf |> Rensai.Lang.from_lexingbuf_or_null |> from_rensai

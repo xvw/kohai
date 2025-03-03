@@ -41,6 +41,18 @@ let request ~id ?params meth =
   request_input ~id:i ?params meth
 ;;
 
+let step
+      (module H : Kohai_core.Eff.HANDLER)
+      ?should_fail
+      ?(desc = "No description")
+      ~id
+      callback
+  =
+  let _ = desc in
+  let req = callback (module H : Kohai_core.Eff.HANDLER) ~id () in
+  print_result ?should_fail req
+;;
+
 let call (module H : Kohai_core.Eff.HANDLER) ~id ?params meth =
   meth
   |> request
@@ -281,14 +293,21 @@ let call_transient_log_remove_link
   "kohai/transient-log/action" |> call (module H) ~id ~params
 ;;
 
-let step
+let call_log_last (module H : Kohai_core.Eff.HANDLER) ~id () =
+  "kohai/log/last" |> call (module H) ~id
+;;
+
+let call_log_last_for_sector (module H : Kohai_core.Eff.HANDLER) ~id ~sector () =
+  let params = Rensai.Ast.string sector in
+  "kohai/log/last/sector" |> call (module H) ~id ~params
+;;
+
+let call_log_last_for_project
       (module H : Kohai_core.Eff.HANDLER)
-      ?should_fail
-      ?(desc = "No description")
       ~id
-      callback
+      ~project
+      ()
   =
-  let _ = desc in
-  let req = callback (module H : Kohai_core.Eff.HANDLER) ~id () in
-  print_result ?should_fail req
+  let params = Rensai.Ast.string project in
+  "kohai/log/last/project" |> call (module H) ~id ~params
 ;;

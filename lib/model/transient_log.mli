@@ -55,10 +55,13 @@ type operation = private
 
 (** Build a transient log. *)
 val make
-  :  start_date:Datetime.t
+  :  ?meta:string Key_value.t
+  -> ?links:Url.t Key_value.t
+  -> start_date:Datetime.t
   -> project:string option
   -> sector:string
   -> label:string
+  -> unit
   -> t
 
 val action_delete : int -> operation

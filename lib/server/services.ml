@@ -217,6 +217,14 @@ module Kohai = struct
         ~finalizer:Kohai_model.Log.list_to_rensai
         (Operation.Log.get_last_for_project ~body)
     ;;
+
+    let unpromote body =
+      Jsonrpc.service
+        ~meth:(prefix "unpromote")
+        ~with_params:Uuid.from_rensai
+        ~finalizer:Kohai_model.Transient_log.list_to_rensai
+        (Operation.Cross_log.unpromote_log ~body)
+    ;;
   end
 end
 
@@ -246,6 +254,7 @@ let methods body =
   ; Kohai.Log.last body
   ; Kohai.Log.last_for_sector body
   ; Kohai.Log.last_for_project body
+  ; Kohai.Log.unpromote body
   ]
 ;;
 

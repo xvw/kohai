@@ -73,6 +73,22 @@ struct
         | _ -> ()
       ;;
 
+      let delete_file path =
+        let p = path_to_eio path in
+        try Eio.Path.unlink p with
+        | _ -> ()
+      ;;
+
+      let delete_dir ?(recursive = false) path =
+        let p = path_to_eio path in
+        try
+          if recursive
+          then Eio.Path.rmtree ~missing_ok:true p
+          else Eio.Path.rmdir p
+        with
+        | _ -> ()
+      ;;
+
       let now () = Eio.Time.now env#clock
 
       let datetime_from_float time =

@@ -25,6 +25,15 @@ val action
   -> Kohai_model.Transient_log.operation
   -> Datetime.t * Kohai_model.Transient_log.result
 
+val save
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> Path.t
+  -> Datetime.t
+  -> Kohai_model.Transient_log.t
+  -> Datetime.t * Kohai_model.Transient_log.result
+
 (** Get a current log by index. *)
 val get
   :  ?body:string

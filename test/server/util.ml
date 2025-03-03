@@ -311,3 +311,8 @@ let call_log_last_for_project
   let params = Rensai.Ast.string project in
   "kohai/log/last/project" |> call (module H) ~id ~params
 ;;
+
+let call_log_unpromote (module H : Kohai_core.Eff.HANDLER) ~id ~uuid () =
+  let params = Rensai.Ast.string uuid in
+  "kohai/log/unpromote" |> call (module H) ~id ~params
+;;

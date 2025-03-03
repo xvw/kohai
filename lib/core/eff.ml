@@ -91,6 +91,12 @@ let now (module H : HANDLER) =
           Sigs.Custom_error { body = ""; id = None; code = 99; message })
 ;;
 
+let delete (module H : HANDLER) path =
+  if is_dir (module H) path
+  then H.delete_dir ~recursive:true path
+  else H.delete_file path
+;;
+
 let handle (module H : HANDLER) program =
   let program () = program (module H : HANDLER) in
   H.handle_with_error program

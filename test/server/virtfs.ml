@@ -189,6 +189,12 @@ struct
     fs := new_fs
   ;;
 
+  let delete_file path =
+    let new_fs = update !fs path (fun ~target:_ ?previous:_ () -> None) in
+    fs := new_fs
+  ;;
+
+  let delete_dir ?recursive:_ path = delete_file path
   let set_supervised_directory v = supervised_directory := v
   let get_supervised_directory () = !supervised_directory
 end

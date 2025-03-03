@@ -62,6 +62,17 @@ let removing ?body ?id (module H : Eff.HANDLER) remove file now index key =
   now, result
 ;;
 
+let save ?body ?id (module H : Eff.HANDLER) file now transient =
+  let sector = M.sector transient in
+  let project = M.project transient in
+  let () = store_missing_data ?body ?id (module H) ~sector ~project in
+  let transients = all ?body ?id (module H) in
+  let result = M.to_result ~inserted:transient transients in
+  let content = M.dump result in
+  let () = Eff.write_file (module H) file content in
+  now, result
+;;
+
 let action_record
       ?body
       ?id
@@ -74,13 +85,9 @@ let action_record
       label
   =
   let () = store_missing_data ?body ?id (module H) ~sector ~project in
-  let transients = all ?body ?id (module H) in
   let start_date = Datetime.Query.resolve now date_query in
-  let transient = M.make ~start_date ~project ~sector ~label in
-  let result = M.to_result ~inserted:transient transients in
-  let content = M.dump result in
-  let () = Eff.write_file (module H) file content in
-  now, result
+  let transient = M.make ~start_date ~project ~sector ~label () in
+  save ?body ?id (module H) file now transient
 ;;
 
 let stop_recording_action
@@ -119,7 +126,7 @@ let rewrite_action
   =
   let () = store_missing_data ?body ?id (module H) ~sector ~project in
   let start_date = Datetime.Query.resolve now date_query in
-  let patched_log = M.make ~start_date ~project ~sector ~label in
+  let patched_log = M.make ~start_date ~project ~sector ~label () in
   let transients =
     all ?body ?id (module H)
     |> List.map (fun log -> if M.has_index index log then patched_log else log)

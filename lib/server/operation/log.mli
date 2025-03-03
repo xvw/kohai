@@ -7,6 +7,15 @@ val promote
   -> Kohai_model.Log.t
   -> unit
 
+(** Promote a log into a transient one. *)
+val unpromote
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> Path.t
+  -> Kohai_model.Log.t
+  -> unit
+
 (** Get a log by ID.*)
 val get
   :  ?body:string

@@ -26,6 +26,18 @@ let compute_last_list cwd (module H : Eff.HANDLER) log =
   Eff.write_file (module H) file content
 ;;
 
+let recompute_last_list cwd (module H : Eff.HANDLER) log =
+  let file = R.last_logs ~cwd in
+  let id = L.id log in
+  let set =
+    Eff.read_file (module H) file
+    |> Uuid.Set.from_file_content
+    |> Uuid.Set.remove id
+  in
+  let content = Uuid.Set.dump set in
+  Eff.write_file (module H) file content
+;;
+
 let compute_last_cache (module H : Eff.HANDLER) cwd log =
   let sector, project = L.sector_and_project log in
   [ compute_last_list cwd
@@ -35,6 +47,31 @@ let compute_last_cache (module H : Eff.HANDLER) cwd log =
       (fun project -> compute_last_list Path.(R.project_folder ~cwd / project))
       (Option.to_list project)
   |> List.iter (fun f -> f (module H : Eff.HANDLER) log)
+;;
+
+let recompute_last_cache (module H : Eff.HANDLER) cwd log =
+  let sector, project = L.sector_and_project log in
+  [ recompute_last_list cwd
+  ; recompute_last_list Path.(R.sector_folder ~cwd / sector)
+  ]
+  @ List.map
+      (fun project ->
+         recompute_last_list Path.(R.project_folder ~cwd / project))
+      (Option.to_list project)
+  |> List.iter (fun f -> f (module H : Eff.HANDLER) log)
+;;
+
+let unpropagate_from (module H : Eff.HANDLER) cwd log =
+  let folder = R.logs ~cwd in
+  let file = L.find_file_by_month ~cwd:folder log in
+  let id = L.id log in
+  let set =
+    Eff.read_file (module H) file
+    |> Uuid.Set.from_file_content
+    |> Uuid.Set.remove id
+  in
+  let content = Uuid.Set.dump set in
+  Eff.write_file (module H) file content
 ;;
 
 let propagate_into (module H : Eff.HANDLER) cwd log =
@@ -63,13 +100,38 @@ let propagate (module H : Eff.HANDLER) cwd log =
   |> List.iter (fun f -> f log)
 ;;
 
+let unpropagate (module H : Eff.HANDLER) cwd log =
+  let sector, project = L.sector_and_project log in
+  [ unpropagate_from (module H) cwd
+  ; unpropagate_from (module H) Path.(R.sector_folder ~cwd / sector)
+  ; (fun log ->
+      Option.iter
+        (fun project ->
+           unpropagate_from
+             (module H)
+             Path.(R.project_folder ~cwd / project)
+             log)
+        project)
+  ]
+  |> List.iter (fun f -> f log)
+;;
+
 let promote ?body ?id (module H : Eff.HANDLER) cwd log =
   let log_file = L.find_file ~cwd:(R.all_logs ~cwd) log in
   let content = Rensai.Lang.dump L.to_rensai log in
   let () = Eff.write_file (module H) log_file content in
   let () = propagate (module H) cwd log in
   let () = compute_last_cache (module H) cwd log in
-  State.update ?body ?id (module H) cwd log
+  State.upgrade ?body ?id (module H) cwd log
+;;
+
+let unpromote ?body ?id (module H : Eff.HANDLER) cwd log =
+  let log_file = L.find_file ~cwd:(R.all_logs ~cwd) log in
+  let content = Rensai.Lang.dump L.to_rensai log in
+  let () = Eff.write_file (module H) log_file content in
+  let () = unpropagate (module H) cwd log in
+  let () = recompute_last_cache (module H) cwd log in
+  State.downgrade ?body ?id (module H) cwd log
 ;;
 
 let from_set ?body ?id (module H : Eff.HANDLER) set =

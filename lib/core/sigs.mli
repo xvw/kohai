@@ -41,6 +41,8 @@ module type EFFECT_REQUIREMENT = sig
   val read_file : Path.t -> string
   val write_file : Path.t -> string -> unit
   val append_to_file : Path.t -> string -> unit
+  val delete_file : Path.t -> unit
+  val delete_dir : ?recursive:bool -> Path.t -> unit
 
   (** {1 Time function} *)
 

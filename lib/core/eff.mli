@@ -57,6 +57,7 @@ val read_file : handler -> Path.t -> string
 val create_dir : handler -> Path.t -> unit
 val write_file : handler -> Path.t -> string -> unit
 val append_to_file : handler -> Path.t -> string -> unit
+val delete : handler -> Path.t -> unit
 
 (** {2 Time management} *)
 

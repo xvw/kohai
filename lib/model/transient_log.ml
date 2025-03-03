@@ -58,15 +58,23 @@ type result =
 
 let has_index i { index; _ } = Int.equal i index
 
-let make ~start_date ~project ~sector ~label =
+let make
+      ?(meta = Key_value.empty ())
+      ?(links = Key_value.empty ())
+      ~start_date
+      ~project
+      ~sector
+      ~label
+      ()
+  =
   { index = -1
   ; start_date
   ; duration = None
   ; project
   ; sector
   ; label
-  ; meta = Key_value.empty ()
-  ; links = Key_value.empty ()
+  ; meta
+  ; links
   }
 ;;
 

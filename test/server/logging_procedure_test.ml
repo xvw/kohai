@@ -1135,6 +1135,110 @@ let%expect_test
                   meta: [<key: "location"; value: "Nantes">]; project: null;
                   sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
                   start_date_repr: "Yesterday at 12:00:00">]>
+     |}];
+  let () =
+    step
+      ~desc:{|Get the transient log list.|}
+      ~should_fail:false
+      ~id
+      call_transient_log_list
+  in
+  [%expect {| [DONE]: <id: 58; jsonrpc: "2.0"; result: []> |}];
+  let () =
+    step
+      ~desc:
+        {|Retreive state
+       (to see if it was removed).|}
+      ~should_fail:false
+      ~id
+      call_state_get
+  in
+  [%expect
+    {|
+    [DONE]: <id: 59; jsonrpc: "2.0";
+              result:
+               <big_bang: "2025-03-01T12-00-00"; duration: 48300;
+                 end_of_world: "2025-03-02T01-00-00"; number_of_logs: 2>>
+    |}];
+  let () =
+    step
+      ~desc:{|Unpromote promoted log.|}
+      ~should_fail:false
+      ~id
+      (call_log_unpromote ~uuid:"fee72312-846f-5b0a-9ccf-317722f1eba6")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 60; jsonrpc: "2.0";
+              result:
+               [<duration: null; duration_repr: null; index: 0;
+                  label: "A first transient log!"; links: [];
+                  meta: [<key: "location"; value: "Nantes">]; project: null;
+                  sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">]>
+    |}];
+  let () =
+    step
+      ~desc:
+        {|Get the list of last logs
+       (to see if it was removed).|}
+      ~should_fail:false
+      ~id
+      call_log_last
+  in
+  [%expect
+    {|
+    [DONE]: <id: 61; jsonrpc: "2.0";
+              result:
+               [<duration: 1500; duration_repr: "25m";
+                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  label: "A new label !";
+                  links: [<key: "homepage"; value: "https://xvw.lol">];
+                  meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
+                  sector: "programming"; start_date: "2025-03-01T13-00-00";
+                  start_date_repr: "Yesterday at 13:00:00">]>
+    |}];
+  let () =
+    step
+      ~desc:
+        {|Get the list of last logs for sector a-new-sector
+       (to see if it was removed).|}
+      ~should_fail:false
+      ~id
+      (call_log_last_for_sector ~sector:"a-new-sector")
+  in
+  [%expect {| [DONE]: <id: 62; jsonrpc: "2.0"; result: []> |}];
+  let () =
+    step
+      ~desc:
+        {|Retreive state
+       (to see if it was removed).|}
+      ~should_fail:false
+      ~id
+      call_state_get
+  in
+  [%expect
+    {|
+    [DONE]: <id: 63; jsonrpc: "2.0";
+              result:
+               <big_bang: "2025-03-01T12-00-00"; duration: 95100;
+                 end_of_world: "2025-03-02T01-00-00"; number_of_logs: 1>>
+     |}];
+  let () =
+    step
+      ~desc:
+        {|Retreive state for a sector
+       (to see if it was removed).|}
+      ~should_fail:false
+      ~id
+      (call_state_get_for_sector ~sector:"a-new-sector")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 64; jsonrpc: "2.0";
+              result:
+               <big_bang: "2025-03-01T12-00-00"; duration: 93600;
+                 end_of_world: "2025-03-02T01-00-00"; number_of_logs: 0>>
     |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]

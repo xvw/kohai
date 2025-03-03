@@ -6,6 +6,8 @@ type t
 (** Convert a log into a transient one. *)
 val from_transient_log : Transient_log.t -> t option
 
+val to_transient_log : t -> Transient_log.t
+
 (** Return the ID of a log. *)
 val id : t -> Uuid.t
 

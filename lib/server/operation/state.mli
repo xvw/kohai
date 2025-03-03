@@ -1,5 +1,13 @@
 (** Update the state cache. *)
-val update
+val upgrade
+  :  ?body:string
+  -> ?id:int
+  -> (module Sigs.EFFECT_HANDLER)
+  -> Path.t
+  -> Kohai_model.Log.t
+  -> unit
+
+val downgrade
   :  ?body:string
   -> ?id:int
   -> (module Sigs.EFFECT_HANDLER)

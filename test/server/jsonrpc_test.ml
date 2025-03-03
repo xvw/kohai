@@ -9,6 +9,8 @@ module Handler = Eff.Handler (struct
     let create_dir _ = ()
     let write_file _ _ = ()
     let append_to_file _ _ = ()
+    let delete_file _ = ()
+    let delete_dir ?recursive:_ _ = ()
     let now () = 0.0
     let datetime_from_float _ = Ok Datetime.unix
     let set_supervised_directory _ = ()
@@ -168,7 +170,8 @@ let%expect_test "List of methods - without prefix" =
         "kohai/transient-log/list"; "kohai/transient-log/get";
         "kohai/transient-log/action"; "kohai/state/get";
         "kohai/state/get/sector"; "kohai/state/get/project"; "kohai/log/get";
-        "kohai/log/last"; "kohai/log/last/sector"; "kohai/log/last/project"]}
+        "kohai/log/last"; "kohai/log/last/sector"; "kohai/log/last/project";
+        "kohai/log/unpromote"]}
     |}]
 ;;
 

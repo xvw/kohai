@@ -205,5 +205,9 @@ CANCEL-ON-INPUT-RETVAL are hooks for cancellation."
   "Return the list of latest logs for a given PROJECT."
   (kohai-req--send :kohai/log/last/project project))
 
+(defun kohai-req--log-unpromote (uuid)
+  "Unpromote a log referenced by UUID."
+  (kohai-req--send :kohai/log/unpromote uuid))
+
 (provide 'kohai-req)
 ;;; kohai-req.el ends here

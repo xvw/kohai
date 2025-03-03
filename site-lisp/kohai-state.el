@@ -29,11 +29,20 @@
 (require 'kohai-generic)
 (require 'kohai-sector)
 (require 'kohai-project)
+(require 'kohai-transient-log)
 
 (defun kohai-state--kill-buffer (&optional _)
   "Kill buffer related to state."
   (kohai-buffer--kill kohai-logs-buffer-name)
   (kohai-buffer--kill kohai-state-buffer-name))
+
+(defun kohai-state--log-unpromote (uuid)
+  "Unpromote the log referenced by UUID."
+  (when (yes-or-no-p (format "Unpromote log %s?" uuid))
+    (let ((_ (kohai-req--log-unpromote uuid)))
+      (kohai-state--kill-buffer)
+      (kohai-transient-log--list)
+      (pop-to-buffer kohai-transient-logs-buffer-name))))
 
 (defun kohai-state--list-logs-vtable ()
   "Create a vtable displaying logs."
@@ -53,7 +62,8 @@
                  ("Start date" (cl-getf o :start_date_repr))
                  ("Duration" (cl-getf o :duration_repr))
                  ("Label" (cl-getf o :label))))
-     :actions '("q" (lambda (_) (kohai-state--kill-buffer))))))
+     :actions '("u" (lambda (o) (kohai-state--log-unpromote (cl-getf o :id)))
+                "q" (lambda (_) (kohai-state--kill-buffer))))))
 
 (defun kohai-state--list-state-enum ()
   "Create a vtable displaying state information."

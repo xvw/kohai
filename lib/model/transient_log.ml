@@ -61,21 +61,14 @@ let has_index i { index; _ } = Int.equal i index
 let make
       ?(meta = Key_value.empty ())
       ?(links = Key_value.empty ())
+      ?duration
       ~start_date
       ~project
       ~sector
       ~label
       ()
   =
-  { index = -1
-  ; start_date
-  ; duration = None
-  ; project
-  ; sector
-  ; label
-  ; meta
-  ; links
-  }
+  { index = -1; start_date; duration; project; sector; label; meta; links }
 ;;
 
 let slug = Rensai.Validation.(string & String.is_non_empty_slug)

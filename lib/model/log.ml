@@ -29,8 +29,18 @@ let from_transient_log tl =
     { start_date; duration; project; sector; label; meta; links; id })
 ;;
 
-let to_transient_log { start_date; project; sector; label; meta; links; _ } =
-  Transient_log.make ~meta ~links ~start_date ~project ~sector ~label ()
+let to_transient_log
+      { start_date; project; sector; label; meta; links; duration; _ }
+  =
+  Transient_log.make
+    ~meta
+    ~duration
+    ~links
+    ~start_date
+    ~project
+    ~sector
+    ~label
+    ()
 ;;
 
 let slug = Rensai.Validation.(string & String.is_non_empty_slug)

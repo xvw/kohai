@@ -57,6 +57,7 @@ type operation = private
 val make
   :  ?meta:string Key_value.t
   -> ?links:Url.t Key_value.t
+  -> ?duration:int
   -> start_date:Datetime.t
   -> project:string option
   -> sector:string

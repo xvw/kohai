@@ -1171,7 +1171,7 @@ let%expect_test
     {|
     [DONE]: <id: 60; jsonrpc: "2.0";
               result:
-               [<duration: null; duration_repr: null; index: 0;
+               [<duration: 46800; duration_repr: "13h"; index: 0;
                   label: "A first transient log!"; links: [];
                   meta: [<key: "location"; value: "Nantes">]; project: null;
                   sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";

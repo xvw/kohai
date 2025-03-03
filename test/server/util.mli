@@ -87,6 +87,17 @@ val call_transient_log_record
   -> unit
   -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
 
+val call_transient_log_rewrite
+  :  (module Kohai_core.Sigs.EFFECT_HANDLER)
+  -> id:int ref
+  -> index:int
+  -> ?date_query:Kohai_core.Datetime.Query.t
+  -> ?project:string
+  -> sector:string
+  -> label:string
+  -> unit
+  -> (Rensai.Ast.t, Kohai_core.Sigs.jsonrpc_error) result
+
 val call_transient_log_stop_recording
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> id:int ref

@@ -143,6 +143,33 @@ let call_transient_log_stop_recording
   "kohai/transient-log/action" |> call (module H) ~id ~params
 ;;
 
+let call_transient_log_rewrite
+      (module H : Kohai_core.Eff.HANDLER)
+      ~id
+      ~index
+      ?date_query
+      ?project
+      ~sector
+      ~label
+      ()
+  =
+  let params =
+    let open Rensai.Ast in
+    sum
+      (fun () ->
+         ( "rewrite"
+         , record
+             [ "index", int index
+             ; "date_query", option Datetime.Query.to_rensai date_query
+             ; "project", option string project
+             ; "sector", string sector
+             ; "label", string label
+             ] ))
+      ()
+  in
+  "kohai/transient-log/action" |> call (module H) ~id ~params
+;;
+
 let step
       (module H : Kohai_core.Eff.HANDLER)
       ?should_fail

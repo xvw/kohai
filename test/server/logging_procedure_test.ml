@@ -446,6 +446,60 @@ let%expect_test
                     start_date: "2025-03-01T12-00-00";
                     start_date_repr: "Today at 12:00:00">];
                  inserted: null; outdated: []>>
+     |}];
+  let () =
+    step
+      ~desc:{|Rewrite the 0-indexed log.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_rewrite
+         ~index:0
+         ~sector:"programming"
+         ?date_query:None
+         ~project:"kohai"
+         ~label:"A new label !")
+  in
+  [%expect
+    {|
+    [DONE]: <id: 25; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: null; sector: "a-new-sector";
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">,
+                  <duration: null; duration_repr: null; index: 1;
+                    label: "A new label !"; links: []; meta: [];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Today at 13:00:00">];
+                 inserted: null; outdated: []>>
+     |}];
+  let () = F.manip_time Datetime.succ_hour in
+  let () =
+    step
+      ~desc:{|Close a the log (indexed-1) with a given duration.|}
+      ~should_fail:false
+      ~id
+      (call_transient_log_stop_recording ~index:1 ~duration:25)
+  in
+  [%expect
+    {|
+    [DONE]: <id: 26; jsonrpc: "2.0";
+              result:
+               <all:
+                 [<duration: null; duration_repr: null; index: 0;
+                    label: "A first transient log!"; links: []; meta: [];
+                    project: null; sector: "a-new-sector";
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">,
+                  <duration: 1500; duration_repr: "25m"; index: 1;
+                    label: "A new label !"; links: []; meta: [];
+                    project: "kohai"; sector: "programming";
+                    start_date: "2025-03-01T13-00-00";
+                    start_date_repr: "Today at 13:00:00">];
+                 inserted: null; outdated: []>>
     |}];
   print_endline "[DONE]";
   [%expect {| [DONE] |}]

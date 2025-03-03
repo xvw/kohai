@@ -1221,9 +1221,9 @@ let%expect_test
     {|
     [DONE]: <id: 63; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T12-00-00"; duration: 95100;
+               <big_bang: "2025-03-01T12-00-00"; duration: 1500;
                  end_of_world: "2025-03-02T01-00-00"; number_of_logs: 1>>
-     |}];
+    |}];
   let () =
     step
       ~desc:
@@ -1237,7 +1237,7 @@ let%expect_test
     {|
     [DONE]: <id: 64; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T12-00-00"; duration: 93600;
+               <big_bang: "2025-03-01T12-00-00"; duration: 0;
                  end_of_world: "2025-03-02T01-00-00"; number_of_logs: 0>>
     |}];
   print_endline "[DONE]";

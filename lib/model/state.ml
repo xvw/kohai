@@ -28,7 +28,7 @@ let increase_duration amount state =
 ;;
 
 let decrease_duration amount state =
-  { state with duration = max (state.duration + amount) 0 }
+  { state with duration = max (state.duration - amount) 0 }
 ;;
 
 let increase_counter amount state =

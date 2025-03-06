@@ -332,12 +332,12 @@ let%expect_test
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: []; meta: [];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T11-00-00";
-                    start_date_repr: "Today at 11:00:00">];
+                    start_date: "2025-03-01T10-00-00";
+                    start_date_repr: "Today at 10:00:00">];
                  inserted:
                   <duration: null; index: -1; label: "A first transient log!";
                     links: []; meta: []; project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T11-00-00">;
+                    start_date: "2025-03-01T10-00-00">;
                  outdated: []>>
     |}]
 ;;
@@ -357,8 +357,8 @@ let%expect_test
                [<duration: null; duration_repr: null; index: 0;
                   label: "A first transient log!"; links: []; meta: [];
                   project: "kohai"; sector: "programming";
-                  start_date: "2025-03-01T11-00-00";
-                  start_date_repr: "Today at 11:00:00">]>
+                  start_date: "2025-03-01T10-00-00";
+                  start_date_repr: "Today at 10:00:00">]>
     |}]
 ;;
 
@@ -384,25 +384,25 @@ let%expect_test
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: []; meta: [];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T11-00-00";
-                    start_date_repr: "Today at 11:00:00">,
+                    start_date: "2025-03-01T10-00-00";
+                    start_date_repr: "Today at 10:00:00">,
                   <duration: null; duration_repr: null; index: 1;
                     label: "A first transient log!"; links: []; meta: [];
                     project: null; sector: "a-new-sector";
-                    start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Today at 12:00:00">];
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">];
                  inserted:
                   <duration: null; index: -1; label: "A first transient log!";
                     links: []; meta: []; project: null; sector: "a-new-sector";
-                    start_date: "2025-03-01T12-00-00">;
+                    start_date: "2025-03-01T11-00-00">;
                  outdated:
                   [<computed_duration: 60;
                      record:
                       <duration: null; duration_repr: null; index: 0;
                         label: "A first transient log!"; links: []; meta: [];
                         project: "kohai"; sector: "programming";
-                        start_date: "2025-03-01T11-00-00";
-                        start_date_repr: "Today at 11:00:00">>]>>
+                        start_date: "2025-03-01T10-00-00";
+                        start_date_repr: "Today at 10:00:00">>]>>
     |}]
 ;;
 
@@ -434,13 +434,13 @@ let%expect_test {| Close a the log (indexed-0) with the default duration. |} =
                  [<duration: 7200; duration_repr: "2h"; index: 0;
                     label: "A first transient log!"; links: []; meta: [];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T11-00-00";
-                    start_date_repr: "Today at 11:00:00">,
+                    start_date: "2025-03-01T10-00-00";
+                    start_date_repr: "Today at 10:00:00">,
                   <duration: null; duration_repr: null; index: 1;
                     label: "A first transient log!"; links: []; meta: [];
                     project: null; sector: "a-new-sector";
-                    start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Today at 12:00:00">];
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -463,13 +463,13 @@ let%expect_test {| Rewrite the 0-indexed log. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: []; meta: [];
                     project: null; sector: "a-new-sector";
-                    start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Today at 12:00:00">,
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">,
                   <duration: null; duration_repr: null; index: 1;
                     label: "A new label !"; links: []; meta: [];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Today at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -487,13 +487,13 @@ let%expect_test {| Close a the log (indexed-1) with a given duration. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: []; meta: [];
                     project: null; sector: "a-new-sector";
-                    start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Today at 12:00:00">,
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !"; links: []; meta: [];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Today at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -510,13 +510,13 @@ let%expect_test {| Add meta into index-1-log. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: []; meta: [];
                     project: null; sector: "a-new-sector";
-                    start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Today at 12:00:00">,
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !"; links: [];
                     meta: [<key: "Foo"; value: "Bar">]; project: "kohai";
-                    sector: "programming"; start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Today at 13:00:00">];
+                    sector: "programming"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -534,16 +534,16 @@ let%expect_test {| Add meta into index-1-log. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: []; meta: [];
                     project: null; sector: "a-new-sector";
-                    start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Today at 12:00:00">,
+                    start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !"; links: [];
                     meta:
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Today at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -561,16 +561,16 @@ let%expect_test {| Add meta into index-0-log. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Today at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Today at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !"; links: [];
                     meta:
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Today at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Today at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -593,25 +593,25 @@ let%expect_test {| Store a new log (to be removed). |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !"; links: [];
                     meta:
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Yesterday at 13:00:00">,
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">,
                   <duration: null; duration_repr: null; index: 2;
                     label: "TO BE DELETED !!!!!"; links: []; meta: [];
                     project: null; sector: "programming";
-                    start_date: "2025-03-02T01-00-00";
-                    start_date_repr: "Today at 01:00:00">];
+                    start_date: "2025-03-02T00-00-00";
+                    start_date_repr: "Today at 00:00:00">];
                  inserted:
                   <duration: null; index: -1; label: "TO BE DELETED !!!!!";
                     links: []; meta: []; project: null; sector: "programming";
-                    start_date: "2025-03-02T01-00-00">;
+                    start_date: "2025-03-02T00-00-00">;
                  outdated:
                   [<computed_duration: 780;
                      record:
@@ -619,8 +619,8 @@ let%expect_test {| Store a new log (to be removed). |} =
                         label: "A first transient log!"; links: [];
                         meta: [<key: "location"; value: "Nantes">];
                         project: null; sector: "a-new-sector";
-                        start_date: "2025-03-01T12-00-00";
-                        start_date_repr: "Yesterday at 12:00:00">>]>>
+                        start_date: "2025-03-01T11-00-00";
+                        start_date_repr: "Yesterday at 11:00:00">>]>>
     |}]
 ;;
 
@@ -636,16 +636,16 @@ let%expect_test {| Delete the freshly added log. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !"; links: [];
                     meta:
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Yesterday at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -666,8 +666,8 @@ let%expect_test {| Add link to index 1. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !";
                     links: [<key: "homepage"; value: "https://xvw.lol">];
@@ -675,8 +675,8 @@ let%expect_test {| Add link to index 1. |} =
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Yesterday at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -697,8 +697,8 @@ let%expect_test {| Add other link to index 1. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !";
                     links:
@@ -708,8 +708,8 @@ let%expect_test {| Add other link to index 1. |} =
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Yesterday at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -730,8 +730,8 @@ let%expect_test {| Update link to index 1. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !";
                     links:
@@ -741,8 +741,8 @@ let%expect_test {| Update link to index 1. |} =
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Yesterday at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -759,8 +759,8 @@ let%expect_test {| Remove link to index 1. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !";
                     links: [<key: "homepage"; value: "https://xvw.lol">];
@@ -768,8 +768,8 @@ let%expect_test {| Remove link to index 1. |} =
                      [<key: "Foo"; value: "Bar">,
                       <key: "a meta"; value: "hehehe">];
                     project: "kohai"; sector: "programming";
-                    start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Yesterday at 13:00:00">];
+                    start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -786,14 +786,14 @@ let%expect_test {| Remove meta to index 1. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">,
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">,
                   <duration: 1500; duration_repr: "25m"; index: 1;
                     label: "A new label !";
                     links: [<key: "homepage"; value: "https://xvw.lol">];
                     meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
-                    sector: "programming"; start_date: "2025-03-01T13-00-00";
-                    start_date_repr: "Yesterday at 13:00:00">];
+                    sector: "programming"; start_date: "2025-03-01T12-00-00";
+                    start_date_repr: "Yesterday at 12:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -823,8 +823,8 @@ let%expect_test {| Promote the log index-1. |} =
                  [<duration: null; duration_repr: null; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">];
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -837,8 +837,8 @@ let%expect_test {| Fetch the state that should be filled. |} =
     {|
     [DONE]: <id: 41; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T13-00-00"; duration: 1500;
-                 end_of_world: "2025-03-01T13-25-00"; number_of_logs: 1>>
+               <big_bang: "2025-03-01T12-00-00"; duration: 1500;
+                 end_of_world: "2025-03-01T12-25-00"; number_of_logs: 1>>
     |}]
 ;;
 
@@ -850,8 +850,8 @@ let%expect_test {| Fetch the state for a regular sector. |} =
     {|
     [DONE]: <id: 42; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T13-00-00"; duration: 1500;
-                 end_of_world: "2025-03-01T13-25-00"; number_of_logs: 1>>
+               <big_bang: "2025-03-01T12-00-00"; duration: 1500;
+                 end_of_world: "2025-03-01T12-25-00"; number_of_logs: 1>>
     |}]
 ;;
 
@@ -863,8 +863,8 @@ let%expect_test {| Fetch the state for a regular project. |} =
     {|
     [DONE]: <id: 43; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T13-00-00"; duration: 1500;
-                 end_of_world: "2025-03-01T13-25-00"; number_of_logs: 1>>
+               <big_bang: "2025-03-01T12-00-00"; duration: 1500;
+                 end_of_world: "2025-03-01T12-25-00"; number_of_logs: 1>>
     |}]
 ;;
 
@@ -971,12 +971,12 @@ let%expect_test {| Get the list of last logs. |} =
     [DONE]: <id: 50; jsonrpc: "2.0";
               result:
                [<duration: 1500; duration_repr: "25m";
-                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  id: "3b2c3def-c539-538f-9619-9c15c30500af";
                   label: "A new label !";
                   links: [<key: "homepage"; value: "https://xvw.lol">];
                   meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
-                  sector: "programming"; start_date: "2025-03-01T13-00-00";
-                  start_date_repr: "Yesterday at 13:00:00">]>
+                  sector: "programming"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">]>
     |}]
 ;;
 
@@ -992,8 +992,8 @@ let%expect_test {| Close the remaining transient log. |} =
                  [<duration: 46800; duration_repr: "13h"; index: 0;
                     label: "A first transient log!"; links: [];
                     meta: [<key: "location"; value: "Nantes">]; project: null;
-                    sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                    start_date_repr: "Yesterday at 12:00:00">];
+                    sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                    start_date_repr: "Yesterday at 11:00:00">];
                  inserted: null; outdated: []>>
     |}]
 ;;
@@ -1018,18 +1018,18 @@ let%expect_test {| Get the list of last logs. |} =
     [DONE]: <id: 53; jsonrpc: "2.0";
               result:
                [<duration: 1500; duration_repr: "25m";
-                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  id: "3b2c3def-c539-538f-9619-9c15c30500af";
                   label: "A new label !";
                   links: [<key: "homepage"; value: "https://xvw.lol">];
                   meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
-                  sector: "programming"; start_date: "2025-03-01T13-00-00";
-                  start_date_repr: "Yesterday at 13:00:00">,
+                  sector: "programming"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">,
                 <duration: 46800; duration_repr: "13h";
-                  id: "fee72312-846f-5b0a-9ccf-317722f1eba6";
+                  id: "62d4a935-45f2-502e-864c-d0cf62ec8146";
                   label: "A first transient log!"; links: [];
                   meta: [<key: "location"; value: "Nantes">]; project: null;
-                  sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                  start_date_repr: "Yesterday at 12:00:00">]>
+                  sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                  start_date_repr: "Yesterday at 11:00:00">]>
     |}]
 ;;
 
@@ -1042,12 +1042,12 @@ let%expect_test {| Get the list of last logs for sector programming. |} =
     [DONE]: <id: 54; jsonrpc: "2.0";
               result:
                [<duration: 1500; duration_repr: "25m";
-                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  id: "3b2c3def-c539-538f-9619-9c15c30500af";
                   label: "A new label !";
                   links: [<key: "homepage"; value: "https://xvw.lol">];
                   meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
-                  sector: "programming"; start_date: "2025-03-01T13-00-00";
-                  start_date_repr: "Yesterday at 13:00:00">]>
+                  sector: "programming"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">]>
     |}]
 ;;
 
@@ -1060,12 +1060,12 @@ let%expect_test {| Get the list of last logs for project kohai. |} =
     [DONE]: <id: 55; jsonrpc: "2.0";
               result:
                [<duration: 1500; duration_repr: "25m";
-                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  id: "3b2c3def-c539-538f-9619-9c15c30500af";
                   label: "A new label !";
                   links: [<key: "homepage"; value: "https://xvw.lol">];
                   meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
-                  sector: "programming"; start_date: "2025-03-01T13-00-00";
-                  start_date_repr: "Yesterday at 13:00:00">]>
+                  sector: "programming"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">]>
     |}]
 ;;
 
@@ -1078,11 +1078,11 @@ let%expect_test {| Get the list of last logs for sector a-new-sector. |} =
     [DONE]: <id: 56; jsonrpc: "2.0";
               result:
                [<duration: 46800; duration_repr: "13h";
-                  id: "fee72312-846f-5b0a-9ccf-317722f1eba6";
+                  id: "62d4a935-45f2-502e-864c-d0cf62ec8146";
                   label: "A first transient log!"; links: [];
                   meta: [<key: "location"; value: "Nantes">]; project: null;
-                  sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                  start_date_repr: "Yesterday at 12:00:00">]>
+                  sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                  start_date_repr: "Yesterday at 11:00:00">]>
     |}]
 ;;
 
@@ -1101,13 +1101,13 @@ let%expect_test {| Retreive state (to see if it was removed). |} =
     {|
     [DONE]: <id: 58; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T12-00-00"; duration: 48300;
-                 end_of_world: "2025-03-02T01-00-00"; number_of_logs: 2>>
+               <big_bang: "2025-03-01T11-00-00"; duration: 48300;
+                 end_of_world: "2025-03-02T00-00-00"; number_of_logs: 2>>
     |}]
 ;;
 
 let%expect_test {| Unpromote a promoted log. |} =
-  let action = call_log_unpromote ~uuid:"fee72312-846f-5b0a-9ccf-317722f1eba6"
+  let action = call_log_unpromote ~uuid:"62d4a935-45f2-502e-864c-d0cf62ec8146"
   and should_fail = false in
   exec ~should_fail action;
   [%expect
@@ -1117,8 +1117,8 @@ let%expect_test {| Unpromote a promoted log. |} =
                [<duration: 46800; duration_repr: "13h"; index: 0;
                   label: "A first transient log!"; links: [];
                   meta: [<key: "location"; value: "Nantes">]; project: null;
-                  sector: "a-new-sector"; start_date: "2025-03-01T12-00-00";
-                  start_date_repr: "Yesterday at 12:00:00">]>
+                  sector: "a-new-sector"; start_date: "2025-03-01T11-00-00";
+                  start_date_repr: "Yesterday at 11:00:00">]>
     |}]
 ;;
 
@@ -1131,12 +1131,12 @@ let%expect_test {| Get the list of last logs (to see if it was removed). |} =
     [DONE]: <id: 60; jsonrpc: "2.0";
               result:
                [<duration: 1500; duration_repr: "25m";
-                  id: "6e2b10c7-a6f1-5b60-8166-7ecf4906d2f1";
+                  id: "3b2c3def-c539-538f-9619-9c15c30500af";
                   label: "A new label !";
                   links: [<key: "homepage"; value: "https://xvw.lol">];
                   meta: [<key: "a meta"; value: "hehehe">]; project: "kohai";
-                  sector: "programming"; start_date: "2025-03-01T13-00-00";
-                  start_date_repr: "Yesterday at 13:00:00">]>
+                  sector: "programming"; start_date: "2025-03-01T12-00-00";
+                  start_date_repr: "Yesterday at 12:00:00">]>
     |}]
 ;;
 
@@ -1155,8 +1155,8 @@ let%expect_test {| Retreive state. |} =
     {|
     [DONE]: <id: 62; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T12-00-00"; duration: 1500;
-                 end_of_world: "2025-03-02T01-00-00"; number_of_logs: 1>>
+               <big_bang: "2025-03-01T11-00-00"; duration: 1500;
+                 end_of_world: "2025-03-02T00-00-00"; number_of_logs: 1>>
     |}]
 ;;
 
@@ -1168,7 +1168,7 @@ let%expect_test {| Retreive state for a sector `a-new-sector` |} =
     {|
     [DONE]: <id: 63; jsonrpc: "2.0";
               result:
-               <big_bang: "2025-03-01T12-00-00"; duration: 0;
-                 end_of_world: "2025-03-02T01-00-00"; number_of_logs: 0>>
+               <big_bang: "2025-03-01T11-00-00"; duration: 0;
+                 end_of_world: "2025-03-02T00-00-00"; number_of_logs: 0>>
     |}]
 ;;

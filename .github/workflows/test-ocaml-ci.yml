@@ -1,0 +1,95 @@
+name: Test
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - '**.el'
+      - 'media/**'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - '**.el'
+      - 'media/**'
+
+jobs:
+
+  build-and-test:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ ubuntu-latest ]
+        ocaml-compiler: [ ocaml-base-compiler.5.3.0 ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Tree
+        uses: actions/checkout@v4
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: |
+          opam install . --deps-only --with-test
+          opam exec -- dune build
+          opam exec -- dune runtest
+
+  lint-doc:
+    build-and-test:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ ubuntu-latest ]
+        ocaml-compiler: [ ocaml-base-compiler.5.3.0 ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Tree
+        uses: actions/checkout@v4
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+      - uses: ocaml/setup-ocaml/lint-doc@v3
+
+  lint-fmt:
+    build-and-test:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ ubuntu-latest ]
+        ocaml-compiler: [ ocaml-base-compiler.5.3.0 ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Tree
+        uses: actions/checkout@v4
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+      - uses: ocaml/setup-ocaml/lint-fmt@v3
+
+  lint-opam:
+    build-and-test:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ ubuntu-latest ]
+        ocaml-compiler: [ ocaml-base-compiler.5.3.0 ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Tree
+        uses: actions/checkout@v4
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+      - uses: ocaml/setup-ocaml/lint-opam@v3

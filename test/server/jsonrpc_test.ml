@@ -24,23 +24,23 @@ let dump = function
 
 let nop = Rensai.Validation.const ()
 
-let services _body =
+let services =
   Jsonrpc.
     [ service
         ~meth:"test/ping"
         ~with_params:nop
         ~finalizer:Rensai.Ast.string
-        (fun ?id:_ (module _ : Eff.HANDLER) () -> "pong")
+        (fun ?id:_ ~body:_ (module _ : Eff.HANDLER) () -> "pong")
     ; service
         ~meth:"test/echo"
         ~with_params:Rensai.Validation.string
         ~finalizer:Rensai.Ast.string
-        (fun ?id:_ (module _ : Eff.HANDLER) value -> value)
+        (fun ?id:_ ~body:_ (module _ : Eff.HANDLER) value -> value)
     ; service
         ~meth:"test/rev"
         ~with_params:Rensai.Validation.string
         ~finalizer:Rensai.Ast.string
-        (fun ?id:_ (module _ : Eff.HANDLER) value ->
+        (fun ?id:_ ~body:_ (module _ : Eff.HANDLER) value ->
            value
            |> String.to_seq
            |> List.of_seq
@@ -50,7 +50,7 @@ let services _body =
     ]
 ;;
 
-let run ?(services = fun _ -> []) input = Jsonrpc.run ~services input
+let run ?(services = []) input = Jsonrpc.run ~services input
 
 let%expect_test "reacting to an input - 1" =
   let input = {json||json} in

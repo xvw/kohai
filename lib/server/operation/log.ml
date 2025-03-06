@@ -7,8 +7,8 @@ let get_by_uuid (module H : Eff.HANDLER) cwd uuid =
   file |> Eff.read_file (module H) |> L.from_file_content |> Result.to_option
 ;;
 
-let get ?body ?id (module H : Eff.HANDLER) uuid =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let get ?id ~body (module H : Eff.HANDLER) uuid =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   let now = Eff.now (module H) in
   get_by_uuid (module H) cwd uuid |> Option.map (fun x -> now, x)
 ;;
@@ -116,49 +116,49 @@ let unpropagate (module H : Eff.HANDLER) cwd log =
   |> List.iter (fun f -> f log)
 ;;
 
-let promote ?body ?id (module H : Eff.HANDLER) cwd log =
+let promote ?id ~body (module H : Eff.HANDLER) cwd log =
   let log_file = L.find_file ~cwd:(R.all_logs ~cwd) log in
   let content = Rensai.Lang.dump L.to_rensai log in
   let () = Eff.write_file (module H) log_file content in
   let () = propagate (module H) cwd log in
   let () = compute_last_cache (module H) cwd log in
-  State.upgrade ?body ?id (module H) cwd log
+  State.upgrade ?id ~body (module H) cwd log
 ;;
 
-let unpromote ?body ?id (module H : Eff.HANDLER) cwd log =
+let unpromote ?id ~body (module H : Eff.HANDLER) cwd log =
   let log_file = L.find_file ~cwd:(R.all_logs ~cwd) log in
   let content = Rensai.Lang.dump L.to_rensai log in
   let () = Eff.write_file (module H) log_file content in
   let () = unpropagate (module H) cwd log in
   let () = recompute_last_cache (module H) cwd log in
-  State.downgrade ?body ?id (module H) cwd log
+  State.downgrade ?id ~body (module H) cwd log
 ;;
 
-let from_set ?body ?id (module H : Eff.HANDLER) set =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let from_set ?id ~body (module H : Eff.HANDLER) set =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   set |> Uuid.Set.to_list |> List.filter_map (get_by_uuid (module H) cwd)
 ;;
 
-let get_list_by_cwd ?body ?id (module H : Eff.HANDLER) cwd =
+let get_list_by_cwd ?id ~body (module H : Eff.HANDLER) cwd =
   let now = Eff.now (module H) in
   let file = R.last_logs ~cwd in
   let content = Eff.read_file (module H) file in
-  now, content |> Uuid.Set.from_file_content |> from_set ?body ?id (module H)
+  now, content |> Uuid.Set.from_file_content |> from_set ?id ~body (module H)
 ;;
 
-let get_last ?body ?id (module H : Eff.HANDLER) () =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
-  get_list_by_cwd ?body ?id (module H) cwd
+let get_last ?id ~body (module H : Eff.HANDLER) () =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
+  get_list_by_cwd ?id ~body (module H) cwd
 ;;
 
-let get_last_for_sector ?body ?id (module H : Eff.HANDLER) sector =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let get_last_for_sector ?id ~body (module H : Eff.HANDLER) sector =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   let sector = Path.(R.sector_folder ~cwd / sector) in
-  get_list_by_cwd ?body ?id (module H) sector
+  get_list_by_cwd ?id ~body (module H) sector
 ;;
 
-let get_last_for_project ?body ?id (module H : Eff.HANDLER) project =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let get_last_for_project ?id ~body (module H : Eff.HANDLER) project =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   let sector = Path.(R.project_folder ~cwd / project) in
-  get_list_by_cwd ?body ?id (module H) sector
+  get_list_by_cwd ?id ~body (module H) sector
 ;;

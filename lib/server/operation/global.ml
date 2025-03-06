@@ -1,4 +1,4 @@
-let check_supervised_path ?(body = "no body") ?id (module H : Eff.HANDLER) path =
+let check_supervised_path ?id ~body (module H : Eff.HANDLER) path =
   if Path.is_relative path
   then
     Eff.raise (module H)
@@ -18,15 +18,15 @@ let check_supervised_path ?(body = "no body") ?id (module H : Eff.HANDLER) path 
   else path
 ;;
 
-let ensure_supervision ?(body = "no body") ?id (module H : Eff.HANDLER) () =
+let ensure_supervision ?id ~body (module H : Eff.HANDLER) () =
   match Eff.get_supervised_directory (module H) with
   | None -> Eff.raise (module H) @@ Error.no_supervised_directory ?id ~body ()
   | Some path ->
-    let _ = check_supervised_path ~body ?id (module H) path in
+    let _ = check_supervised_path ?id ~body (module H) path in
     path
 ;;
 
-let with_supervision ?body ?id (module H : Eff.HANDLER) callback arg =
-  let _ = ensure_supervision ?body ?id (module H) () in
-  callback ?body ?id (module H : Eff.HANDLER) arg
+let with_supervision ?id ~body (module H : Eff.HANDLER) callback arg =
+  let _ = ensure_supervision ~body ?id (module H) () in
+  callback ?id ~body (module H : Eff.HANDLER) arg
 ;;

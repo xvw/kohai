@@ -2,8 +2,8 @@
 
 (** Store missing data (project and sector). *)
 val store_missing_data
-  :  ?body:string
-  -> ?id:int
+  :  ?id:int
+  -> body:string
   -> (module Sigs.EFFECT_HANDLER)
   -> sector:string
   -> project:string option
@@ -11,23 +11,23 @@ val store_missing_data
 
 (** List all current transient logs. *)
 val list
-  :  ?body:string
-  -> ?id:int
+  :  ?id:int
+  -> body:string
   -> (module Sigs.EFFECT_HANDLER)
   -> unit
   -> Datetime.t * Kohai_model.Transient_log.t list
 
 (** Perform update on transient log. *)
 val action
-  :  ?body:string
-  -> ?id:int
+  :  ?id:int
+  -> body:string
   -> (module Sigs.EFFECT_HANDLER)
   -> Kohai_model.Transient_log.operation
   -> Datetime.t * Kohai_model.Transient_log.result
 
 val save
-  :  ?body:string
-  -> ?id:int
+  :  ?id:int
+  -> body:string
   -> (module Sigs.EFFECT_HANDLER)
   -> Path.t
   -> Datetime.t
@@ -36,8 +36,8 @@ val save
 
 (** Get a current log by index. *)
 val get
-  :  ?body:string
-  -> ?id:int
+  :  ?id:int
+  -> body:string
   -> (module Sigs.EFFECT_HANDLER)
   -> int
   -> Kohai_model.Transient_log.t option

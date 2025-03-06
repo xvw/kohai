@@ -30,50 +30,50 @@ let downgrade_state (module H : Eff.HANDLER) cwd log =
   |> Eff.write_file (module H) state_file
 ;;
 
-let upgrade_sector_state ?body ?id (module H : Eff.HANDLER) cwd log =
+let upgrade_sector_state ?id ~body (module H : Eff.HANDLER) cwd log =
   let sector, _ = L.sector_and_project log in
-  let _ = Sector.increase ?body ?id (module H) sector in
+  let _ = Sector.increase ?id ~body (module H) sector in
   (* Create state into sectors *)
   let sector_cwd = Path.(R.sector_folder ~cwd / sector) in
   upgrade_state (module H) sector_cwd log
 ;;
 
-let downgrade_sector_state ?body ?id (module H : Eff.HANDLER) cwd log =
+let downgrade_sector_state ?id ~body (module H : Eff.HANDLER) cwd log =
   let sector, _ = L.sector_and_project log in
-  let _ = Sector.decrease ?body ?id (module H) sector in
+  let _ = Sector.decrease ?id ~body (module H) sector in
   (* Create state into sectors *)
   let sector_cwd = Path.(R.sector_folder ~cwd / sector) in
   downgrade_state (module H) sector_cwd log
 ;;
 
-let upgrade_project_state ?body ?id (module H : Eff.HANDLER) cwd log =
+let upgrade_project_state ?id ~body (module H : Eff.HANDLER) cwd log =
   let _, project = L.sector_and_project log in
   project
   |> Option.iter (fun project ->
-    let _ = Project.increase ?body ?id (module H) project in
+    let _ = Project.increase ?id ~body (module H) project in
     let project_cwd = Path.(R.project_folder ~cwd / project) in
     upgrade_state (module H) project_cwd log)
 ;;
 
-let downgrade_project_state ?body ?id (module H : Eff.HANDLER) cwd log =
+let downgrade_project_state ?id ~body (module H : Eff.HANDLER) cwd log =
   let _, project = L.sector_and_project log in
   project
   |> Option.iter (fun project ->
-    let _ = Project.decrease ?body ?id (module H) project in
+    let _ = Project.decrease ?id ~body (module H) project in
     let project_cwd = Path.(R.project_folder ~cwd / project) in
     downgrade_state (module H) project_cwd log)
 ;;
 
-let upgrade ?body ?id (module H : Eff.HANDLER) cwd log =
+let upgrade ?id ~body (module H : Eff.HANDLER) cwd log =
   let () = upgrade_state (module H) cwd log in
-  let () = upgrade_sector_state ?body ?id (module H) cwd log in
-  upgrade_project_state ?body ?id (module H) cwd log
+  let () = upgrade_sector_state ?id ~body (module H) cwd log in
+  upgrade_project_state ?id ~body (module H) cwd log
 ;;
 
-let downgrade ?body ?id (module H : Eff.HANDLER) cwd log =
+let downgrade ?id ~body (module H : Eff.HANDLER) cwd log =
   let () = downgrade_state (module H) cwd log in
-  let () = downgrade_sector_state ?body ?id (module H) cwd log in
-  downgrade_project_state ?body ?id (module H) cwd log
+  let () = downgrade_sector_state ?id ~body (module H) cwd log in
+  downgrade_project_state ?id ~body (module H) cwd log
 ;;
 
 let get_by_cwd (module H : Eff.HANDLER) cwd =
@@ -82,19 +82,19 @@ let get_by_cwd (module H : Eff.HANDLER) cwd =
   content |> S.from_string
 ;;
 
-let get ?body ?id (module H : Eff.HANDLER) () =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let get ?id ~body (module H : Eff.HANDLER) () =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   get_by_cwd (module H) cwd
 ;;
 
-let get_for_sector ?body ?id (module H : Eff.HANDLER) sector =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let get_for_sector ?id ~body (module H : Eff.HANDLER) sector =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   let sector = Path.(R.sector_folder ~cwd / sector) in
   get_by_cwd (module H) sector
 ;;
 
-let get_for_project ?body ?id (module H : Eff.HANDLER) project =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let get_for_project ?id ~body (module H : Eff.HANDLER) project =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   let project = Path.(R.project_folder ~cwd / project) in
   get_by_cwd (module H) project
 ;;

@@ -2,7 +2,7 @@ type service =
   | Handler :
       'a Rensai.Validation.t
       * ('b -> Rensai.Ast.t)
-      * (?id:int -> (module Eff.HANDLER) -> 'a -> 'b)
+      * (?id:int -> body:string -> (module Eff.HANDLER) -> 'a -> 'b)
       -> service
 
 let validate_request_body =
@@ -40,7 +40,6 @@ let succeed ?id value =
 ;;
 
 let run ~services body (module H : Eff.HANDLER) =
-  let services = services body in
   let meth, id, params = from_response (module H) body in
   match List.assoc_opt meth services with
   | None -> Eff.raise (module H) (Error.method_not_found ~body ?id ~meth ())
@@ -52,6 +51,6 @@ let run ~services body (module H : Eff.HANDLER) =
            (module H)
            (fun error -> Error.invalid_params ~body ?id ~error ())
     in
-    let result = params |> controller ?id (module H) |> finalizer in
+    let result = params |> controller ?id ~body (module H) |> finalizer in
     succeed ?id result
 ;;

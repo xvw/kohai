@@ -16,7 +16,7 @@ val service
   :  meth:string
   -> with_params:'a Rensai.Validation.t
   -> finalizer:('b -> Rensai.Ast.t)
-  -> (?id:int -> Eff.handler -> 'a -> 'b)
+  -> (?id:int -> body:string -> Eff.handler -> 'a -> 'b)
   -> string * service
 
 (** {1 Run} *)
@@ -24,7 +24,7 @@ val service
 (** [run ~services body (module Handler)] tries to transform the
     request body through the various services described. *)
 val run
-  :  services:(string -> (string * service) list)
+  :  services:(string * service) list
   -> string
   -> Eff.handler
   -> Rensai.Ast.t

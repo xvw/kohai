@@ -1,46 +1,46 @@
 module M = Kohai_model.Transient_log
 module L = Kohai_model.Log
 
-let all ?body ?id (module H : Eff.HANDLER) =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let all ?id ~body (module H : Eff.HANDLER) =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   let file = Kohai_model.Resolver.transient_logs ~cwd in
   let content = Eff.read_file (module H) file in
   M.from_file_content content
 ;;
 
-let list ?body ?id (module H : Eff.HANDLER) () =
+let list ?id ~body (module H : Eff.HANDLER) () =
   let now = Eff.now (module H) in
-  now, all ?body ?id (module H) |> M.sort
+  now, all ?id ~body (module H) |> M.sort
 ;;
 
-let get ?body ?id (module H : Eff.HANDLER) index =
-  all ?body ?id (module H) |> List.find_opt (M.has_index index)
+let get ?id ~body (module H : Eff.HANDLER) index =
+  all ?id ~body (module H) |> List.find_opt (M.has_index index)
 ;;
 
-let store_missing_sector ?body ?id (module H : Eff.HANDLER) sector =
-  sector |> Kohai_model.Described_item.make |> Sector.save ?body ?id (module H)
+let store_missing_sector ?id ~body (module H : Eff.HANDLER) sector =
+  sector |> Kohai_model.Described_item.make |> Sector.save ?id ~body (module H)
 ;;
 
-let store_missing_project ?body ?id (module H : Eff.HANDLER) project =
+let store_missing_project ?id ~body (module H : Eff.HANDLER) project =
   project
   |> Kohai_model.Described_item.make
-  |> Project.save ?body ?id (module H)
+  |> Project.save ?id ~body (module H)
 ;;
 
-let store_missing_data ?body ?id (module H : Eff.HANDLER) ~sector ~project =
-  let _ = store_missing_sector ?body ?id (module H) sector
+let store_missing_data ?id ~body (module H : Eff.HANDLER) ~sector ~project =
+  let _ = store_missing_sector ?id ~body (module H) sector
   and () =
     match project with
     | Some project ->
-      store_missing_project ?body ?id (module H) project |> ignore
+      store_missing_project ?id ~body (module H) project |> ignore
     | None -> ()
   in
   ()
 ;;
 
-let adding ?body ?id (module H : Eff.HANDLER) add file now index key value =
+let adding ?id ~body (module H : Eff.HANDLER) add file now index key value =
   let transients =
-    all ?body ?id (module H)
+    all ?id ~body (module H)
     |> List.map (fun log ->
       if M.has_index index log then add ~key ~value log else log)
   in
@@ -50,9 +50,9 @@ let adding ?body ?id (module H : Eff.HANDLER) add file now index key value =
   now, result
 ;;
 
-let removing ?body ?id (module H : Eff.HANDLER) remove file now index key =
+let removing ?id ~body (module H : Eff.HANDLER) remove file now index key =
   let transients =
-    all ?body ?id (module H)
+    all ?id ~body (module H)
     |> List.map (fun log ->
       if M.has_index index log then remove ~key log else log)
   in
@@ -62,11 +62,11 @@ let removing ?body ?id (module H : Eff.HANDLER) remove file now index key =
   now, result
 ;;
 
-let save ?body ?id (module H : Eff.HANDLER) file now transient =
+let save ?id ~body (module H : Eff.HANDLER) file now transient =
   let sector = M.sector transient in
   let project = M.project transient in
-  let () = store_missing_data ?body ?id (module H) ~sector ~project in
-  let transients = all ?body ?id (module H) in
+  let () = store_missing_data ?id ~body (module H) ~sector ~project in
+  let transients = all ?id ~body (module H) in
   let result = M.to_result ~inserted:transient transients in
   let content = M.dump result in
   let () = Eff.write_file (module H) file content in
@@ -74,8 +74,8 @@ let save ?body ?id (module H : Eff.HANDLER) file now transient =
 ;;
 
 let action_record
-      ?body
       ?id
+      ~body
       (module H : Eff.HANDLER)
       file
       now
@@ -84,15 +84,15 @@ let action_record
       sector
       label
   =
-  let () = store_missing_data ?body ?id (module H) ~sector ~project in
+  let () = store_missing_data ?id ~body (module H) ~sector ~project in
   let start_date = Datetime.Query.resolve now date_query in
   let transient = M.make ~start_date ~project ~sector ~label () in
-  save ?body ?id (module H) file now transient
+  save ?id ~body (module H) file now transient
 ;;
 
 let stop_recording_action
-      ?body
       ?id
+      ~body
       (module H : Eff.HANDLER)
       file
       now
@@ -100,7 +100,7 @@ let stop_recording_action
       duration
   =
   let transients =
-    all ?body ?id (module H)
+    all ?id ~body (module H)
     |> List.map (fun log ->
       if M.has_index index log
       then M.finalize_duration now log duration
@@ -113,8 +113,8 @@ let stop_recording_action
 ;;
 
 let rewrite_action
-      ?body
       ?id
+      ~body
       (module H : Eff.HANDLER)
       file
       now
@@ -124,11 +124,11 @@ let rewrite_action
       sector
       label
   =
-  let () = store_missing_data ?body ?id (module H) ~sector ~project in
+  let () = store_missing_data ?id ~body (module H) ~sector ~project in
   let start_date = Datetime.Query.resolve now date_query in
   let patched_log = M.make ~start_date ~project ~sector ~label () in
   let transients =
-    all ?body ?id (module H)
+    all ?id ~body (module H)
     |> List.map (fun log -> if M.has_index index log then patched_log else log)
   in
   let result = M.to_result transients in
@@ -137,9 +137,9 @@ let rewrite_action
   now, result
 ;;
 
-let delete_action ?body ?id (module H : Eff.HANDLER) file now index =
+let delete_action ?id ~body (module H : Eff.HANDLER) file now index =
   let transients =
-    all ?body ?id (module H)
+    all ?id ~body (module H)
     |> List.filter (fun log -> not (M.has_index index log))
   in
   let result = M.to_result transients in
@@ -148,40 +148,40 @@ let delete_action ?body ?id (module H : Eff.HANDLER) file now index =
   now, result
 ;;
 
-let add_meta_action ?body ?id (module H : Eff.HANDLER) file now index key value =
-  adding ?body ?id (module H) M.add_meta file now index key value
+let add_meta_action ?id ~body (module H : Eff.HANDLER) file now index key value =
+  adding ?id ~body (module H) M.add_meta file now index key value
 ;;
 
-let add_link_action ?body ?id (module H : Eff.HANDLER) file now index key value =
-  adding ?body ?id (module H) M.add_link file now index key value
+let add_link_action ?id ~body (module H : Eff.HANDLER) file now index key value =
+  adding ?id ~body (module H) M.add_link file now index key value
 ;;
 
-let remove_meta_action ?body ?id (module H : Eff.HANDLER) file now index key =
-  removing ?body ?id (module H) M.remove_meta file now index key
+let remove_meta_action ?id ~body (module H : Eff.HANDLER) file now index key =
+  removing ?id ~body (module H) M.remove_meta file now index key
 ;;
 
-let remove_link_action ?body ?id (module H : Eff.HANDLER) file now index key =
-  removing ?body ?id (module H) M.remove_link file now index key
+let remove_link_action ?id ~body (module H : Eff.HANDLER) file now index key =
+  removing ?id ~body (module H) M.remove_link file now index key
 ;;
 
-let promote_action ?body ?id (module H : Eff.HANDLER) file now cwd index =
-  let tl = get ?body ?id (module H) index in
+let promote_action ?id ~body (module H : Eff.HANDLER) file now cwd index =
+  let tl = get ?id ~body (module H) index in
   let log = Option.bind tl (fun x -> L.from_transient_log x) in
   match log with
   | Some log ->
     (* Dump log in the related file. *)
-    let () = Log.promote ?body ?id (module H) cwd log in
+    let () = Log.promote ?id ~body (module H) cwd log in
     (* Remove the current transient log. *)
-    delete_action ?body ?id (module H) file now index
+    delete_action ?id ~body (module H) file now index
   | None ->
-    Eff.raise (module H) (Error.no_related_transient_log ?body ?id index)
+    Eff.raise (module H) (Error.no_related_transient_log ?id ~body index)
 ;;
 
-let action ?body ?id (module H : Eff.HANDLER) operation =
-  let cwd = Global.ensure_supervision ?body ?id (module H) () in
+let action ?id ~body (module H : Eff.HANDLER) operation =
+  let cwd = Global.ensure_supervision ?id ~body (module H) () in
   let file = Kohai_model.Resolver.transient_logs ~cwd in
   let now = Eff.now (module H) in
-  let apply f = f ?body ?id (module H : Eff.HANDLER) file now in
+  let apply f = f ?id ~body (module H : Eff.HANDLER) file now in
   match operation with
   | M.Record { date_query; project; sector; label } ->
     apply action_record date_query project sector label

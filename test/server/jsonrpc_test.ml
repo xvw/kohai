@@ -1,21 +1,16 @@
 open Kohai_core
 open Kohai_server
 
-module Handler = Eff.Handler (struct
-    let exists _ = true
-    let is_file _ = true
-    let is_dir _ = true
-    let read_file _ = ""
-    let create_dir _ = ()
-    let write_file _ _ = ()
-    let append_to_file _ _ = ()
-    let delete_file _ = ()
-    let delete_dir ?recursive:_ _ = ()
-    let now () = 0.0
-    let datetime_from_float _ = Ok Datetime.unix
-    let set_supervised_directory _ = ()
-    let get_supervised_directory () = None
+module F = Virtfs.Make (struct
+    let fs = Virtfs.(from_list [ dir ".kohai" [] ])
+
+    let now =
+      Datetime.(make ~time:(10, 0, 0) ~year:2025 ~month:Mar ~day:1 ())
+      |> Result.get_ok
+    ;;
   end)
+
+module Handler = Eff.Handler (F)
 
 let dump = function
   | Ok value -> Fmt.str "%a" Rensai.Ast.pp value
@@ -24,23 +19,23 @@ let dump = function
 
 let nop = Rensai.Validation.const ()
 
-let services _body =
+let services =
   Jsonrpc.
     [ service
         ~meth:"test/ping"
         ~with_params:nop
         ~finalizer:Rensai.Ast.string
-        (fun ?id:_ (module _ : Eff.HANDLER) () -> "pong")
+        (fun ?id:_ ~body:_ (module _ : Eff.HANDLER) () -> "pong")
     ; service
         ~meth:"test/echo"
         ~with_params:Rensai.Validation.string
         ~finalizer:Rensai.Ast.string
-        (fun ?id:_ (module _ : Eff.HANDLER) value -> value)
+        (fun ?id:_ ~body:_ (module _ : Eff.HANDLER) value -> value)
     ; service
         ~meth:"test/rev"
         ~with_params:Rensai.Validation.string
         ~finalizer:Rensai.Ast.string
-        (fun ?id:_ (module _ : Eff.HANDLER) value ->
+        (fun ?id:_ ~body:_ (module _ : Eff.HANDLER) value ->
            value
            |> String.to_seq
            |> List.of_seq
@@ -50,7 +45,7 @@ let services _body =
     ]
 ;;
 
-let run ?(services = fun _ -> []) input = Jsonrpc.run ~services input
+let run ?(services = []) input = Jsonrpc.run ~services input
 
 let%expect_test "reacting to an input - 1" =
   let input = {json||json} in

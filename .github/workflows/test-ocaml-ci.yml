@@ -38,7 +38,6 @@ jobs:
           opam exec -- dune runtest
 
   lint-doc:
-    build-and-test:
     strategy:
       fail-fast: true
       matrix:
@@ -57,7 +56,6 @@ jobs:
       - uses: ocaml/setup-ocaml/lint-doc@v3
 
   lint-fmt:
-    build-and-test:
     strategy:
       fail-fast: true
       matrix:
@@ -76,7 +74,6 @@ jobs:
       - uses: ocaml/setup-ocaml/lint-fmt@v3
 
   lint-opam:
-    build-and-test:
     strategy:
       fail-fast: true
       matrix:

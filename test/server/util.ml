@@ -41,14 +41,7 @@ let request ~id ?params meth =
   request_input ~id:i ?params meth
 ;;
 
-let step
-      (module H : Kohai_core.Eff.HANDLER)
-      ?should_fail
-      ?(desc = "No description")
-      ~id
-      callback
-  =
-  let _ = desc in
+let step (module H : Kohai_core.Eff.HANDLER) ?should_fail ~id callback =
   let req = callback (module H : Kohai_core.Eff.HANDLER) ~id () in
   print_result ?should_fail req
 ;;

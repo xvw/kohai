@@ -12,7 +12,6 @@ val print_result
 val step
   :  (module Kohai_core.Sigs.EFFECT_HANDLER)
   -> ?should_fail:bool
-  -> ?desc:string
   -> id:int ref
   -> ((module Kohai_core.Sigs.EFFECT_HANDLER)
       -> id:int ref

@@ -11,15 +11,13 @@ let%expect_test "get sectors without files" =
   let req0 =
     "kohai/supervision/set"
     |> request_input ~id:0 ~params:{|"/supervised"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req1 =
     "kohai/sector/list"
     |> request_input ~id:1
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   List.iter print_endline [ req0; req1 ];
@@ -52,15 +50,13 @@ let%expect_test "get sectors with files" =
   let req0 =
     "kohai/supervision/set"
     |> request_input ~id:0 ~params:{|"/supervised"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req1 =
     "kohai/sector/list"
     |> request_input ~id:1
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   List.iter print_endline [ req0; req1 ];
@@ -99,22 +95,19 @@ let%expect_test "store sectors" =
   let req0 =
     "kohai/supervision/set"
     |> request_input ~id:0 ~params:{|"/supervised"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req1 =
     "kohai/sector/list"
     |> request_input ~id:1
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req2 =
     "kohai/sector/save"
     |> request_input ~id:2 ~params:{|{"name": "learn"}|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req3 =
@@ -122,15 +115,13 @@ let%expect_test "store sectors" =
     |> request_input
          ~id:3
          ~params:{|{"name": "art", "description": "about art"}|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req4 =
     "kohai/sector/list"
     |> request_input ~id:4
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   List.iter print_endline [ req0; req1; req2; req3; req4 ];
@@ -189,42 +180,36 @@ let%expect_test "get one sector with file" =
   let _ =
     "kohai/supervision/set"
     |> request_input ~id:0 ~params:{|"/supervised"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
   in
   let req1 =
     "kohai/sector/get"
     |> request_input ~id:1 ~params:{|"programming"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req2 =
     "kohai/sector/get"
     |> request_input ~id:2 ~params:{|"cooking"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req3 =
     "kohai/sector/get"
     |> request_input ~id:3 ~params:{|"art"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req4 =
     "kohai/sector/get"
     |> request_input ~id:4 ~params:{|"not-exists"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let all =
     "kohai/sector/list"
     |> request_input ~id:5
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   List.iter print_endline [ req1; req2; req3; req4; all ];

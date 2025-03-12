@@ -13,7 +13,7 @@ module Experimental = struct
       ~meth:(prefix "ping")
       ~with_params:discard
       ~finalizer:A.string
-      (fun ?id:_ ~body:_ (module _) () -> "pong")
+      (fun (module _) () -> "pong")
   ;;
 
   let echo =
@@ -21,7 +21,7 @@ module Experimental = struct
       ~meth:(prefix "echo")
       ~with_params:V.string
       ~finalizer:A.string
-      (fun ?id:_ ~body:_ (module _) input -> input)
+      (fun (module _) input -> input)
   ;;
 
   let plus =
@@ -29,7 +29,7 @@ module Experimental = struct
       ~meth:(prefix "plus")
       ~with_params:V.(pair number number)
       ~finalizer:A.float
-      (fun ?id:_ ~body:_ (module _) (a, b) -> a +. b)
+      (fun (module _) (a, b) -> a +. b)
   ;;
 end
 
@@ -263,7 +263,7 @@ let all =
     ~meth:"admin/methods"
     ~with_params:V.(option string)
     ~finalizer:A.(list string)
-    (fun ?id:_ ~body:_ (module _) prefix ->
+    (fun (module _) prefix ->
        let methods = "admin/methods" :: List.map fst methods in
        match prefix with
        | None -> methods

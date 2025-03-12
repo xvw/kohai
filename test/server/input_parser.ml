@@ -13,9 +13,10 @@ let%expect_test "test-parser - 1" =
 ;;
 
 let%expect_test "test-parser - 2" =
+  let body = "{foo}" in
   let obj =
-    Kohai_server.Error.parse_error ~body:"{foo}" ()
-    |> Kohai_server.Error.to_rensai
+    Kohai_core.Error.parse_error ~body ()
+    |> Kohai_core.Error.to_rensai
     |> Rensai.Json.to_yojson
     |> Yojson.Safe.to_string
   in
@@ -31,13 +32,14 @@ let%expect_test "test-parser - 2" =
   in
   ();
   [%expect
-    {| Ok: {"error":{"code":-32700,"data":null,"input":"{foo}","message":"Parse error"},"id":null,"jsonrpc":"2.0"} |}]
+    {| Ok: {"error":{"body":"{foo}","code":-32700,"data":null,"message":"Parse error"},"id":null,"jsonrpc":"2.0"} |}]
 ;;
 
 let%expect_test "test-parser - 3" =
+  let body = "{foo}" in
   let obj =
-    Kohai_server.Error.parse_error ~body:"{foo}" ()
-    |> Kohai_server.Error.to_rensai
+    Kohai_core.Error.parse_error ~body ()
+    |> Kohai_core.Error.to_rensai
     |> Rensai.Json.to_yojson
     |> Yojson.Safe.to_string
   in
@@ -52,7 +54,7 @@ let%expect_test "test-parser - 3" =
     | Error (`Msg err) -> print_endline ("Error: " ^ err)
   in
   ();
-  [%expect {| Error: Unexpected data after parsing (at offset 126) |}]
+  [%expect {| Error: Unexpected data after parsing (at offset 125) |}]
 ;;
 
 let%expect_test "test-parser - 4" =

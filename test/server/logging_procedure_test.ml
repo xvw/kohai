@@ -37,9 +37,9 @@ let%expect_test
   [%expect
     {|
     [DONE]: <error:
-              <code: -32001; data: "The given directory does not exists";
-                input:
-                 "{"jsonrpc": "2.0", "method": "kohai/supervision/set", "id": 1, "params": "/.logging"}";
+              <body:
+                "{"jsonrpc": "2.0", "method": "kohai/supervision/set", "id": 1, "params": "/.logging"}";
+                code: -32001; data: "The given directory does not exists";
                 message: "Server error">;
               id: 1; jsonrpc: "2.0">
     |}]
@@ -65,9 +65,9 @@ let%expect_test
   [%expect
     {|
     [DONE]: <error:
-              <code: -32000;
+              <body: "{"jsonrpc": "2.0", "method": "kohai/state/get", "id": 3}";
+                code: -32000;
                 data: "No supervised directory for the current session";
-                input: "{"jsonrpc": "2.0", "method": "kohai/state/get", "id": 3}";
                 message: "Server error">;
               id: 3; jsonrpc: "2.0">
     |}]
@@ -892,9 +892,9 @@ let%expect_test
   [%expect
     {|
     [DONE]: <error:
-              <code: -32002; data: "transient log 0 does not exists";
-                input:
-                 "{"jsonrpc": "2.0", "method": "kohai/transient-log/action", "id": 45, "params": {"ctor":"promote","value":{"index":0}}}";
+              <body:
+                "{"jsonrpc": "2.0", "method": "kohai/transient-log/action", "id": 45, "params": {"ctor":"promote","value":{"index":0}}}";
+                code: -32010; data: "[transient log#0] not found";
                 message: "Server error">;
               id: 45; jsonrpc: "2.0">
     |}]

@@ -15,16 +15,15 @@ let%expect_test "ensure supervision - not supervised" =
   in
   let input = request_input ~id:42 "kohai/supervision/ensure" in
   input
-  |> Jsonrpc.run ~services:Services.all
-  |> Kohai_core.Eff.handle (module Handler)
+  |> Jsonrpc.run (module Handler) ~services:Services.all
   |> request_dump
   |> print_endline;
   [%expect
     {|
     {error =
-      {code = -32000; data = "No supervised directory for the current session";
-        input =
-         "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/ensure\", \"id\": 42}";
+      {body =
+        "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/ensure\", \"id\": 42}";
+        code = -32000; data = "No supervised directory for the current session";
         message = "Server error"};
       id = 42; jsonrpc = "2.0"}
     |}]
@@ -39,8 +38,7 @@ let%expect_test "get supervised directory" =
   in
   let input = request_input "kohai/supervision/get" in
   input
-  |> Jsonrpc.run ~services:Services.all
-  |> Kohai_core.Eff.handle (module Handler)
+  |> Jsonrpc.run (module Handler) ~services:Services.all
   |> request_dump
   |> print_endline;
   [%expect {| {id = 1; jsonrpc = "2.0"; result = <null>} |}]
@@ -55,16 +53,15 @@ let%expect_test "set supervised dir with relative path" =
   in
   let input = request_input "kohai/supervision/set" ~params:{|"./foo"|} in
   input
-  |> Jsonrpc.run ~services:Services.all
-  |> Kohai_core.Eff.handle (module Handler)
+  |> Jsonrpc.run (module Handler) ~services:Services.all
   |> request_dump
   |> print_endline;
   [%expect
     {|
     {error =
-      {code = -32001; data = "Supervised directory need to be absolute";
-        input =
-         "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 1, \"params\": \"./foo\"}";
+      {body =
+        "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 1, \"params\": \"./foo\"}";
+        code = -32001; data = "Supervised directory need to be absolute";
         message = "Server error"};
       id = 1; jsonrpc = "2.0"}
     |}]
@@ -81,16 +78,15 @@ let%expect_test "set supervised dir with inexistant path" =
     request_input "kohai/supervision/set" ~params:{|"/skdsajdsakjdjk"|}
   in
   input
-  |> Jsonrpc.run ~services:Services.all
-  |> Kohai_core.Eff.handle (module Handler)
+  |> Jsonrpc.run (module Handler) ~services:Services.all
   |> request_dump
   |> print_endline;
   [%expect
     {|
     {error =
-      {code = -32001; data = "The given directory does not exists";
-        input =
-         "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 1, \"params\": \"/skdsajdsakjdjk\"}";
+      {body =
+        "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 1, \"params\": \"/skdsajdsakjdjk\"}";
+        code = -32001; data = "The given directory does not exists";
         message = "Server error"};
       id = 1; jsonrpc = "2.0"}
     |}]
@@ -105,8 +101,7 @@ let%expect_test "set supervised dir with valid path" =
   in
   let input = request_input "kohai/supervision/set" ~params:{|"/foo"|} in
   input
-  |> Jsonrpc.run ~services:Services.all
-  |> Kohai_core.Eff.handle (module Handler)
+  |> Jsonrpc.run (module Handler) ~services:Services.all
   |> request_dump
   |> print_endline;
   [%expect {| {id = 1; jsonrpc = "2.0"; result = "/foo"} |}]
@@ -122,36 +117,31 @@ let%expect_test "set supervised dir with valid path" =
   let req0 =
     "kohai/supervision/get"
     |> request_input ~id:0
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req1 =
     "kohai/supervision/set"
     |> request_input ~id:1 ~params:{|"/foo"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req2 =
     "kohai/supervision/get"
     |> request_input ~id:2
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req3 =
     "kohai/supervision/set"
     |> request_input ~id:3 ~params:{|"/oo"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req4 =
     "kohai/supervision/get"
     |> request_input ~id:4
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   List.iter print_endline [ req0; req1; req2; req3; req4 ];
@@ -161,9 +151,9 @@ let%expect_test "set supervised dir with valid path" =
     {id = 1; jsonrpc = "2.0"; result = "/foo"}
     {id = 2; jsonrpc = "2.0"; result = "/foo"}
     {error =
-      {code = -32001; data = "The given directory does not exists";
-        input =
-         "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 3, \"params\": \"/oo\"}";
+      {body =
+        "{\"jsonrpc\": \"2.0\", \"method\": \"kohai/supervision/set\", \"id\": 3, \"params\": \"/oo\"}";
+        code = -32001; data = "The given directory does not exists";
         message = "Server error"};
       id = 3; jsonrpc = "2.0"}
     {id = 4; jsonrpc = "2.0"; result = "/foo"}
@@ -180,43 +170,37 @@ let%expect_test "set supervised dir with valid path" =
   let req0 =
     "kohai/supervision/is_valid"
     |> request_input ~id:0 ~params:{|"./foo"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req1 =
     "kohai/supervision/is_valid"
     |> request_input ~id:1 ~params:{|"/foo"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req2 =
     "kohai/supervision/is_valid"
     |> request_input ~id:2 ~params:{|"/bar"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req3 =
     "kohai/supervision/is_valid"
     |> request_input ~id:3 ~params:{|"/bar/baz"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req4 =
     "kohai/supervision/is_valid"
     |> request_input ~id:4 ~params:{|"/bar/baz/foobar"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   let req5 =
     "kohai/supervision/is_valid"
     |> request_input ~id:5 ~params:{|"/bar/foobar"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module Handler)
+    |> Jsonrpc.run (module Handler) ~services:Services.all
     |> request_dump
   in
   List.iter print_endline [ req0; req1; req2; req3; req4; req5 ];

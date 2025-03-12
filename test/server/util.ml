@@ -12,8 +12,7 @@ let request_input ?(id = 1) ?params meth =
 
 let request_dump = function
   | Ok value -> Fmt.str "%a" Rensai.Ast.pp value
-  | Error error ->
-    error |> Kohai_server.Error.to_rensai |> Fmt.str "%a" Rensai.Ast.pp
+  | Error error -> error |> Error.to_rensai |> Fmt.str "%a" Rensai.Ast.pp
 ;;
 
 let dump_result ?(should_fail = false) result =
@@ -22,13 +21,9 @@ let dump_result ?(should_fail = false) result =
     result |> Format.asprintf "[DONE]: %a" Rensai.Lang.pp
   | Ok result -> result |> Format.asprintf "[FIXME]: %a" Rensai.Lang.pp
   | Error err when should_fail ->
-    err
-    |> Kohai_server.Error.to_rensai
-    |> Format.asprintf "[DONE]: %a" Rensai.Lang.pp
+    err |> Error.to_rensai |> Format.asprintf "[DONE]: %a" Rensai.Lang.pp
   | Error err ->
-    err
-    |> Kohai_server.Error.to_rensai
-    |> Format.asprintf "[FIXME]: %a" Rensai.Lang.pp
+    err |> Error.to_rensai |> Format.asprintf "[FIXME]: %a" Rensai.Lang.pp
 ;;
 
 let print_result ?should_fail result =
@@ -54,8 +49,7 @@ let call (module H : Kohai_core.Eff.HANDLER) ~id ?params meth =
          (Option.map
             (fun x -> x |> Rensai.Json.to_yojson |> Yojson.Safe.to_string)
             params)
-  |> Kohai_server.Jsonrpc.run ~services:Kohai_server.Services.all
-  |> Kohai_core.Eff.handle (module H)
+  |> Kohai_server.Jsonrpc.run (module H) ~services:Kohai_server.Services.all
 ;;
 
 let call_supervise (module H : Kohai_core.Eff.HANDLER) ~id ~path () =

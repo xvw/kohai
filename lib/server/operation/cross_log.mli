@@ -2,8 +2,6 @@
 
 (** Process the action of unpromote a log. *)
 val unpromote_log
-  :  ?id:int
-  -> body:string
-  -> (module Sigs.EFFECT_HANDLER)
+  :  (module Sigs.EFFECT_HANDLER)
   -> Uuid.t
   -> Datetime.t * Kohai_model.Transient_log.t list

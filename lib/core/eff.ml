@@ -3,23 +3,16 @@ module type HANDLER = Sigs.EFFECT_HANDLER
 type handler = (module HANDLER)
 
 module Handler (R : Sigs.EFFECT_REQUIREMENT) : HANDLER = struct
-  exception Jsonrpc_exn of Sigs.jsonrpc_error
-
   include R
 
-  let raise error = raise (Jsonrpc_exn error)
+  exception Handler_exn of Error.custom
+
+  let raise error = raise (Handler_exn error)
 
   let handle_with_error program =
     try Ok (program ()) with
-    | Jsonrpc_exn error -> Error error
-    | exn ->
-      Error
-        (Custom_error
-           { body = ""
-           ; id = None
-           ; code = 32000
-           ; message = Some (Printexc.to_string exn)
-           })
+    | Handler_exn error -> Error error
+    | exn -> Error (Error.unknown_error ~message:(Printexc.to_string exn) ())
   ;;
 end
 
@@ -80,15 +73,7 @@ let now (module H : HANDLER) =
   let time = H.now () in
   time
   |> H.datetime_from_float
-  |> from_result
-       (module H)
-       (fun value_error ->
-          let message =
-            value_error
-            |> Format.asprintf "%a" Rensai.Validation.pp_value_error
-            |> Option.some
-          in
-          Sigs.Custom_error { body = ""; id = None; code = 99; message })
+  |> from_result (module H) (Error.invalid_datetime time)
 ;;
 
 let delete (module H : HANDLER) path =

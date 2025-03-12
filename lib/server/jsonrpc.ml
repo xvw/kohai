@@ -2,7 +2,7 @@ type service =
   | Handler :
       'a Rensai.Validation.t
       * ('b -> Rensai.Ast.t)
-      * (?id:int -> body:string -> (module Eff.HANDLER) -> 'a -> 'b)
+      * ((module Eff.HANDLER) -> 'a -> 'b)
       -> service
 
 let validate_request_body =
@@ -20,18 +20,15 @@ let service ~meth ~with_params ~finalizer callback =
   meth, Handler (with_params, finalizer, callback)
 ;;
 
-let from_response (module H : Eff.HANDLER) body =
+let from_response body =
   try
     body
     |> Yojson.Safe.from_string
     |> Rensai.Json.from_yojson
     |> validate_request_body
-    |> Eff.from_result
-         (module H)
-         (fun error -> Error.invalid_request ~body ~error ())
+    |> Result.map_error (fun error -> Error.invalid_request ~body ~error ())
   with
-  | H.Jsonrpc_exn err -> Eff.raise (module H) err
-  | _ -> Eff.raise (module H) (Error.parse_error ~body ())
+  | _ -> Error (Error.parse_error ~body ())
 ;;
 
 let succeed ?id value =
@@ -39,18 +36,23 @@ let succeed ?id value =
   record [ "jsonrpc", string "2.0"; "id", option int id; "result", value ]
 ;;
 
-let run ~services body (module H : Eff.HANDLER) =
-  let meth, id, params = from_response (module H) body in
-  match List.assoc_opt meth services with
-  | None -> Eff.raise (module H) (Error.method_not_found ~body ?id ~meth ())
-  | Some (Handler (validator, finalizer, controller)) ->
-    let params =
-      params
-      |> validator
-      |> Eff.from_result
-           (module H)
-           (fun error -> Error.invalid_params ~body ?id ~error ())
-    in
-    let result = params |> controller ?id ~body (module H) |> finalizer in
-    succeed ?id result
+let run (module H : Eff.HANDLER) ~services body =
+  match from_response body with
+  | Error err -> Error err
+  | Ok (meth, id, params) ->
+    (match List.assoc_opt meth services with
+     | None -> Error (Error.method_not_found ~body ?id ~meth ())
+     | Some (Handler (validator, finalizer, controller)) ->
+       (try
+          match validator params with
+          | Error error -> Error (Error.invalid_params ~body ?id ~error ())
+          | Ok params ->
+            Eff.handle
+              (module H)
+              (fun (module H) -> controller (module H) params)
+            |> Result.map (fun result -> result |> finalizer |> succeed ?id)
+            |> Result.map_error (fun err ->
+              Error.custom_to_jsonrpc ~body ?id err)
+        with
+        | H.Handler_exn err -> Error (Error.custom_to_jsonrpc ~body ?id err)))
 ;;

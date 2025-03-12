@@ -36,7 +36,7 @@ module Handler (_ : Sigs.EFFECT_REQUIREMENT) : HANDLER
     possible because a handler does not introduce parameterized types. *)
 
 (** [raise (module Handler) error] throws [error] as an exception. *)
-val raise : handler -> Sigs.jsonrpc_error -> 'a
+val raise : handler -> Error.custom -> 'a
 
 (** Set the working directory of the session. *)
 val set_supervised_directory : handler -> Path.t option -> unit
@@ -46,7 +46,7 @@ val get_supervised_directory : handler -> Path.t option
 
 (** [from_result (module Handler) callback res] handle error using
     effect from a result. *)
-val from_result : handler -> ('b -> Sigs.jsonrpc_error) -> ('a, 'b) result -> 'a
+val from_result : handler -> ('b -> Error.custom) -> ('a, 'b) result -> 'a
 
 (** {2 File management} *)
 
@@ -67,4 +67,4 @@ val now : handler -> Datetime.t
 
 (** [handle (module Handler) program] Interprets the [program] with the given
     handler.*)
-val handle : handler -> (handler -> 'a) -> ('a, Sigs.jsonrpc_error) result
+val handle : handler -> (handler -> 'a) -> ('a, Error.custom) result

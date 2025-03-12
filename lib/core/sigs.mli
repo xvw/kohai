@@ -1,34 +1,5 @@
 (** Some shared interfaces *)
 
-type jsonrpc_error =
-  | Parse_error of { body : string }
-  | Invalid_request of
-      { body : string
-      ; id : int option
-      ; error : Rensai.Validation.value_error option
-      }
-  | Method_not_found of
-      { body : string
-      ; id : int option
-      ; meth : string
-      }
-  | Invalid_params of
-      { body : string
-      ; id : int option
-      ; error : Rensai.Validation.value_error
-      }
-  | Internal_error of
-      { body : string
-      ; id : int option
-      ; message : string option
-      }
-  | Custom_error of
-      { body : string
-      ; id : int option
-      ; code : int
-      ; message : string option
-      }
-
 (** Describes all the effects a program can propagate. This module
     serves as a requirement for building a Handler. *)
 module type EFFECT_REQUIREMENT = sig
@@ -59,14 +30,14 @@ end
     {!module-type:EFFECT_REQUIREMENT} to propagate platform-specific
     operations.*)
 module type EFFECT_HANDLER = sig
-  exception Jsonrpc_exn of jsonrpc_error
-
   include EFFECT_REQUIREMENT
 
+  exception Handler_exn of Error.custom
+
   (** [raise error] throws a fixed-error. *)
-  val raise : jsonrpc_error -> 'a
+  val raise : Error.custom -> 'a
 
   (** [handle_with_error program], handle [program ()] with
       exception. *)
-  val handle_with_error : (unit -> 'a) -> ('a, jsonrpc_error) result
+  val handle_with_error : (unit -> 'a) -> ('a, Error.custom) result
 end

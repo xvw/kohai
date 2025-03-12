@@ -5,14 +5,14 @@ let rensai obj =
 ;;
 
 let rensai_error message =
-  let obj = Error.unknown_error message () in
-  rensai (obj |> Error.to_rensai)
+  let obj = Error.unknown_error ~message () in
+  rensai (obj |> Error.custom_to_jsonrpc ~body:"null" |> Error.to_rensai)
 ;;
 
 let handler (module H : Eff.HANDLER) body =
-  match Eff.handle (module H) (Jsonrpc.run ~services:Services.all body) with
+  match Jsonrpc.run (module H) ~services:Services.all body with
   | Ok result -> rensai result
-  | Error err -> rensai (err |> Error.to_rensai)
+  | Error err -> rensai (Error.to_rensai err)
 ;;
 
 let parse p flow ~max_size =

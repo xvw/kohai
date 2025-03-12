@@ -96,14 +96,12 @@ let%expect_test "get transient logs when file are empty" =
   let supervise =
     "kohai/supervision/set"
     |> input ~id ~params:{|"/supervised"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let get_logs =
     "kohai/transient-log/list"
     |> input ~id
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   List.iter
     (fun result -> result |> request_dump |> print_endline)
@@ -127,21 +125,18 @@ let%expect_test "end-to-end test - 1" =
   let supervise =
     "kohai/supervision/set"
     |> input ~id ~params:{|"/supervised"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let get_logs =
     "kohai/transient-log/list"
     |> input ~id
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let first_record =
     let params = record ~sector:"programming" "test of a log" in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let () = FS.manip_time Kohai_core.Datetime.succ_hour in
   let second_record =
@@ -150,47 +145,40 @@ let%expect_test "end-to-end test - 1" =
     in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let get_sectors =
     "kohai/sector/list"
     |> input ~id
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let get_first =
     "kohai/transient-log/get"
     |> input ~id ~params:"0"
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let get_second =
     "kohai/transient-log/get"
     |> input ~id ~params:"1"
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let () = FS.manip_time Kohai_core.Datetime.succ_hour in
   let close_first =
     let params = stop 0 in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let close_second =
     let params = stop ~duration:60 1 in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let get_projects =
     "kohai/project/list"
     |> input ~id
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let third_record =
     let params =
@@ -198,14 +186,12 @@ let%expect_test "end-to-end test - 1" =
     in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let get_projects_with_capsule =
     "kohai/project/list"
     |> input ~id
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let rewrite_third_record =
     let params =
@@ -217,15 +203,13 @@ let%expect_test "end-to-end test - 1" =
     in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   let remove_third_record =
     let params = delete ~index:2 in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   List.iter
     (fun result -> result |> request_dump |> print_endline)
@@ -404,8 +388,7 @@ let%expect_test "end-to-end test - 2" =
   let supervise =
     "kohai/supervision/set"
     |> input ~id ~params:{|"/supervised"|}
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   dump_list [ supervise ];
   [%expect {| {id = 0; jsonrpc = "2.0"; result = "/supervised"} |}];
@@ -413,8 +396,7 @@ let%expect_test "end-to-end test - 2" =
     let params = record ~sector:"programming" "log 1" in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   dump_list [ first_record ];
   [%expect
@@ -437,8 +419,7 @@ let%expect_test "end-to-end test - 2" =
     let params = record ~project:"kohai" ~sector:"not-known" "log 2" in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   dump_list [ second_record ];
   [%expect
@@ -471,8 +452,7 @@ let%expect_test "end-to-end test - 2" =
     let params = record ~project:"capsule" ~sector:"visual" "log 3" in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   dump_list [ third_record ];
   [%expect
@@ -515,8 +495,7 @@ let%expect_test "end-to-end test - 2" =
     let params = stop 0 in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   dump_list [ close_first ];
   [%expect
@@ -542,16 +521,14 @@ let%expect_test "end-to-end test - 2" =
   let get_list =
     "kohai/transient-log/list"
     |> input ~id
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   dump_list [ get_list ];
   let fourth_record =
     let params = record ~project:"kohai" ~sector:"programming" "log 4" in
     "kohai/transient-log/action"
     |> input ~id ~params
-    |> Jsonrpc.run ~services:Services.all
-    |> Kohai_core.Eff.handle (module H)
+    |> Jsonrpc.run (module H) ~services:Services.all
   in
   dump_list [ fourth_record ];
   [%expect

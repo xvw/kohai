@@ -3,10 +3,6 @@
  (public_name kohai.server)
  (flags (:standard) -open Kohai_core)
  (libraries
-  logs
-  logs.fmt
-  fmt
-  fmt.tty
   rensai
   kohai.core
   kohai.model

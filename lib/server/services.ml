@@ -44,7 +44,7 @@ module Kohai = struct
         ~meth:(prefix "ensure")
         ~with_params:discard
         ~finalizer:A.unit
-        Operation.Global.ensure_supervision
+        Action.Global.ensure_supervision
     ;;
 
     let is_valid =
@@ -52,7 +52,7 @@ module Kohai = struct
         ~meth:(prefix "is_valid")
         ~with_params:Path.from_rensai
         ~finalizer:A.bool
-        Operation.Supervised_directory.is_valid
+        Workflow.Supervised_directory.is_valid
     ;;
 
     let get =
@@ -60,7 +60,7 @@ module Kohai = struct
         ~meth:(prefix "get")
         ~with_params:discard
         ~finalizer:A.(option Path.to_rensai)
-        Operation.Supervised_directory.get
+        Workflow.Supervised_directory.get
     ;;
 
     let set =
@@ -68,11 +68,11 @@ module Kohai = struct
         ~meth:(prefix "set")
         ~with_params:Path.from_rensai
         ~finalizer:Path.to_rensai
-        Operation.Supervised_directory.set
+        Workflow.Supervised_directory.set
     ;;
   end
 
-  module Described_itm
+  module Described_item
       (I : Operation.Generic.DESCRIBED_ITEM)
       (P : sig
          val prefix : string
@@ -114,14 +114,14 @@ module Kohai = struct
   end
 
   module Sector =
-    Described_itm
+    Described_item
       (Operation.Sector)
       (struct
         let prefix = "sector/"
       end)
 
   module Project =
-    Described_itm
+    Described_item
       (Operation.Project)
       (struct
         let prefix = "project/"

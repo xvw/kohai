@@ -2,11 +2,8 @@
 opam-version: "2.0"
 version: "dev"
 synopsis: "Rensai can be used to describe generic encoders and decoders"
-description: """
-By lifting heterogeneous data into a finite set of constructors,
-it is possible to describe languages similar to JSON, TOML or S-Expression,
-for which the encoding and validation functions become generic
-(and interchangeable)."""
+description:
+  "By lifting heterogeneous data into a finite set of constructors, it is possible to describe languages similar to JSON, TOML or S-Expression, for which the encoding and validation functions become generic (and interchangeable)."
 maintainer: ["Xavier Van de Woestyne <xaviervdw@gmail.com>"]
 authors: ["Xavier Van de Woestyne <xaviervdw@gmail.com>"]
 license: "MIT"

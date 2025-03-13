@@ -9,3 +9,5 @@ let get (module H : Eff.HANDLER) () = Eff.get_supervised_directory (module H)
 let is_valid (module H : Eff.HANDLER) path =
   Path.is_absolute path && Eff.is_dir (module H) path
 ;;
+
+let ensure = Action.Global.ensure_supervision

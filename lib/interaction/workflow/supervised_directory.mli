@@ -9,3 +9,6 @@ val get : (module Sigs.EFFECT_HANDLER) -> unit -> Path.t option
 (** Return [true] if a path is valid for supervision, [false]
     otherwise. *)
 val is_valid : (module Sigs.EFFECT_HANDLER) -> Path.t -> bool
+
+(** Ensure that an action is guarded by a supervised directory. *)
+val ensure : (module Sigs.EFFECT_HANDLER) -> unit -> Path.t

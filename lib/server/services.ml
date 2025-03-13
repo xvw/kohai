@@ -44,7 +44,7 @@ module Kohai = struct
         ~meth:(prefix "ensure")
         ~with_params:discard
         ~finalizer:A.unit
-        Action.Global.ensure_supervision
+        Workflow.Supervised_directory.ensure
     ;;
 
     let is_valid =
@@ -73,7 +73,7 @@ module Kohai = struct
   end
 
   module Described_item
-      (I : Operation.Generic.DESCRIBED_ITEM)
+      (I : Workflow.Described_item.S)
       (P : sig
          val prefix : string
        end) =

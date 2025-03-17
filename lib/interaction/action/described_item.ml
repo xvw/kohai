@@ -34,12 +34,20 @@ module type S = sig
     :  (module Sigs.EFFECT_HANDLER)
     -> string
     -> Kohai_model.Described_item.Set.t
+
+  (** Store missing key. *)
+  val store_missing_key : (module Sigs.EFFECT_HANDLER) -> string -> unit
+
+  (** Store missing key (if it exists). *)
+  val may_store_missing_key
+    :  (module Sigs.EFFECT_HANDLER)
+    -> string option
+    -> unit
 end
 
 module Make (D : sig
     val resolver : cwd:Path.t -> Path.t
-  end) =
-struct
+  end) : S = struct
   let list (module H : Eff.HANDLER) () =
     let cwd = Global.ensure_supervision (module H) () in
     let file = D.resolver ~cwd in
@@ -58,6 +66,15 @@ struct
     let content = Kohai_model.Described_item.Set.dump items in
     let () = Eff.write_file (module H) file content in
     items
+  ;;
+
+  let store_missing_key (module H : Eff.HANDLER) item =
+    item |> Kohai_model.Described_item.make |> save (module H) |> ignore
+  ;;
+
+  let may_store_missing_key (module H : Eff.HANDLER) = function
+    | None -> ()
+    | Some item -> store_missing_key (module H) item
   ;;
 
   let get (module H : Eff.HANDLER) item =

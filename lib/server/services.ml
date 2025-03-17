@@ -1,9 +1,26 @@
 type t = string * Jsonrpc.service
 
-module A = Rensai.Ast
+module A = struct
+  let string _ctx = Rensai.Ast.string
+  let float _ctx = Rensai.Ast.float
+  let unit _ctx = Rensai.Ast.unit
+  let bool _ctx = Rensai.Ast.bool
+  let path _ctx = Path.to_rensai
+  let opt_path _ctx = Rensai.Ast.(option Path.to_rensai)
+  let item_set _ctx = Kohai_model.Described_item.Set.to_rensai
+  let opt_item _ctx = Rensai.Ast.option Kohai_model.Described_item.to_rensai
+  let transient_list _ctx = Kohai_model.Transient_log.list_to_rensai
+  let transient_result _ctx = Kohai_model.Transient_log.result_to_rensai
+  let opt_transient _ctx = Rensai.Ast.option Kohai_model.Transient_log.to_rensai
+  let state _ctx = Kohai_model.State.to_compact_rensai
+  let log_list _ctx = Kohai_model.Log.list_to_rensai
+  let opt_log _ctx = Rensai.Ast.option Kohai_model.Log.return_rensai
+end
+
 module V = Rensai.Validation
 
 let discard = V.const ()
+let no_ctx f (module H : Eff.HANDLER) _ctx = f (module H : Eff.HANDLER)
 
 module Experimental = struct
   let prefix = String.cat "experimental/"
@@ -13,7 +30,7 @@ module Experimental = struct
       ~meth:(prefix "ping")
       ~with_params:discard
       ~finalizer:A.string
-      (fun (module _) () -> "pong")
+      (fun (module _) _ () -> "pong")
   ;;
 
   let echo =
@@ -21,7 +38,7 @@ module Experimental = struct
       ~meth:(prefix "echo")
       ~with_params:V.string
       ~finalizer:A.string
-      (fun (module _) input -> input)
+      (fun (module _) _ input -> input)
   ;;
 
   let plus =
@@ -29,7 +46,7 @@ module Experimental = struct
       ~meth:(prefix "plus")
       ~with_params:V.(pair number number)
       ~finalizer:A.float
-      (fun (module _) (a, b) -> a +. b)
+      (fun (module _) _ (a, b) -> a +. b)
   ;;
 end
 
@@ -44,7 +61,7 @@ module Kohai = struct
         ~meth:(prefix "ensure")
         ~with_params:discard
         ~finalizer:A.unit
-        Workflow.Supervised_directory.ensure
+        (no_ctx Workflow.Supervised_directory.ensure)
     ;;
 
     let is_valid =
@@ -52,23 +69,23 @@ module Kohai = struct
         ~meth:(prefix "is_valid")
         ~with_params:Path.from_rensai
         ~finalizer:A.bool
-        Workflow.Supervised_directory.is_valid
+        (no_ctx Workflow.Supervised_directory.is_valid)
     ;;
 
     let get =
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:discard
-        ~finalizer:A.(option Path.to_rensai)
-        Workflow.Supervised_directory.get
+        ~finalizer:A.opt_path
+        (no_ctx Workflow.Supervised_directory.get)
     ;;
 
     let set =
       Jsonrpc.service
         ~meth:(prefix "set")
         ~with_params:Path.from_rensai
-        ~finalizer:Path.to_rensai
-        Workflow.Supervised_directory.set
+        ~finalizer:A.path
+        (no_ctx Workflow.Supervised_directory.set)
     ;;
   end
 
@@ -84,32 +101,32 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:Kohai_model.Described_item.Set.to_rensai
-        I.list
+        ~finalizer:A.item_set
+        (no_ctx I.list)
     ;;
 
     let save =
       Jsonrpc.service
         ~meth:(prefix "save")
         ~with_params:Kohai_model.Described_item.from_rensai
-        ~finalizer:Kohai_model.Described_item.Set.to_rensai
-        I.save
+        ~finalizer:A.item_set
+        (no_ctx I.save)
     ;;
 
     let get =
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:V.string
-        ~finalizer:(A.option Kohai_model.Described_item.to_rensai)
-        I.get
+        ~finalizer:A.opt_item
+        (no_ctx I.get)
     ;;
 
     let delete =
       Jsonrpc.service
         ~meth:(prefix "delete")
         ~with_params:V.string
-        ~finalizer:Kohai_model.Described_item.Set.to_rensai
-        I.delete
+        ~finalizer:A.item_set
+        (no_ctx I.delete)
     ;;
   end
 
@@ -134,24 +151,24 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:Kohai_model.Transient_log.list_to_rensai
-        Operation.Transient_log.list
+        ~finalizer:A.transient_list
+        (no_ctx Operation.Transient_log.list)
     ;;
 
     let get =
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:V.int
-        ~finalizer:(A.option Kohai_model.Transient_log.to_rensai)
-        Operation.Transient_log.get
+        ~finalizer:A.opt_transient
+        (no_ctx Operation.Transient_log.get)
     ;;
 
     let action =
       Jsonrpc.service
         ~meth:(prefix "action")
         ~with_params:Kohai_model.Transient_log.operation_from_rensai
-        ~finalizer:Kohai_model.Transient_log.result_to_rensai
-        Operation.Transient_log.action
+        ~finalizer:A.transient_result
+        (no_ctx Operation.Transient_log.action)
     ;;
   end
 
@@ -162,24 +179,24 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:discard
-        ~finalizer:Kohai_model.State.to_compact_rensai
-        Operation.State.get
+        ~finalizer:A.state
+        (no_ctx Operation.State.get)
     ;;
 
     let get_for_sector =
       Jsonrpc.service
         ~meth:(prefix "get/sector")
         ~with_params:V.string
-        ~finalizer:Kohai_model.State.to_compact_rensai
-        Operation.State.get_for_sector
+        ~finalizer:A.state
+        (no_ctx Operation.State.get_for_sector)
     ;;
 
     let get_for_project =
       Jsonrpc.service
         ~meth:(prefix "get/project")
         ~with_params:V.string
-        ~finalizer:Kohai_model.State.to_compact_rensai
-        Operation.State.get_for_project
+        ~finalizer:A.state
+        (no_ctx Operation.State.get_for_project)
     ;;
   end
 
@@ -190,40 +207,40 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:Uuid.from_rensai
-        ~finalizer:(A.option Kohai_model.Log.return_rensai)
-        Operation.Log.get
+        ~finalizer:A.opt_log
+        (no_ctx Operation.Log.get)
     ;;
 
     let last =
       Jsonrpc.service
         ~meth:(prefix "last")
         ~with_params:discard
-        ~finalizer:Kohai_model.Log.list_to_rensai
-        Operation.Log.get_last
+        ~finalizer:A.log_list
+        (no_ctx Operation.Log.get_last)
     ;;
 
     let last_for_sector =
       Jsonrpc.service
         ~meth:(prefix "last/sector")
         ~with_params:V.string
-        ~finalizer:Kohai_model.Log.list_to_rensai
-        Operation.Log.get_last_for_sector
+        ~finalizer:A.log_list
+        (no_ctx Operation.Log.get_last_for_sector)
     ;;
 
     let last_for_project =
       Jsonrpc.service
         ~meth:(prefix "last/project")
         ~with_params:V.string
-        ~finalizer:Kohai_model.Log.list_to_rensai
-        Operation.Log.get_last_for_project
+        ~finalizer:A.log_list
+        (no_ctx Operation.Log.get_last_for_project)
     ;;
 
     let unpromote =
       Jsonrpc.service
         ~meth:(prefix "unpromote")
         ~with_params:Uuid.from_rensai
-        ~finalizer:Kohai_model.Transient_log.list_to_rensai
-        Operation.Cross_log.unpromote_log
+        ~finalizer:A.transient_list
+        (no_ctx Operation.Cross_log.unpromote_log)
     ;;
   end
 end
@@ -262,8 +279,8 @@ let all =
   Jsonrpc.service
     ~meth:"admin/methods"
     ~with_params:V.(option string)
-    ~finalizer:A.(list string)
-    (fun (module _) prefix ->
+    ~finalizer:(fun _ -> Rensai.Ast.(list string))
+    (fun (module _) _ctx prefix ->
        let methods = "admin/methods" :: List.map fst methods in
        match prefix with
        | None -> methods

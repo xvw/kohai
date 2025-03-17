@@ -1,8 +1,8 @@
 type service =
   | Handler :
       'a Rensai.Validation.t
-      * ('b -> Rensai.Ast.t)
-      * ((module Eff.HANDLER) -> 'a -> 'b)
+      * (Kohai_model.Context.t -> 'b Rensai.Ast.conv)
+      * ((module Eff.HANDLER) -> Kohai_model.Context.t -> 'a -> 'b)
       -> service
 
 let validate_request_body =
@@ -49,8 +49,13 @@ let run (module H : Eff.HANDLER) ~services body =
           | Ok params ->
             Eff.handle
               (module H)
-              (fun (module H) -> controller (module H) params)
-            |> Result.map (fun result -> result |> finalizer |> succeed ?id)
+              (fun (module H) ->
+                 let now = Eff.now (module H) in
+                 let context = Kohai_model.Context.make ~now in
+                 let result = controller (module H) context params in
+                 context, result)
+            |> Result.map (fun (context, result) ->
+              result |> finalizer context |> succeed ?id)
             |> Result.map_error (fun err ->
               Error.custom_to_jsonrpc ~body ?id err)
         with

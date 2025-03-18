@@ -179,7 +179,7 @@ module Kohai = struct
         ~meth:(prefix "get")
         ~with_params:discard
         ~finalizer:A.state
-        (no_ctx Operation.State.get)
+        (no_ctx Workflow.State.get)
     ;;
 
     let get_for_sector =
@@ -187,7 +187,7 @@ module Kohai = struct
         ~meth:(prefix "get/sector")
         ~with_params:V.string
         ~finalizer:A.state
-        (no_ctx Operation.State.get_for_sector)
+        (no_ctx Workflow.State.get_for_sector)
     ;;
 
     let get_for_project =
@@ -195,7 +195,7 @@ module Kohai = struct
         ~meth:(prefix "get/project")
         ~with_params:V.string
         ~finalizer:A.state
-        (no_ctx Operation.State.get_for_project)
+        (no_ctx Workflow.State.get_for_project)
     ;;
   end
 

@@ -75,3 +75,25 @@ let downgrade dir (module H : Eff.HANDLER) log =
   let () = downgrade_sector_state dir (module H) log in
   downgrade_project_state dir (module H) log
 ;;
+
+let get_by_cwd (module H : Eff.HANDLER) dir =
+  let file = Kohai_model.Resolver.state ~cwd:dir in
+  file |> Eff.read_file (module H) |> S.from_string
+;;
+
+let get (module H : Eff.HANDLER) () =
+  let cwd = Global.ensure_supervision (module H) () in
+  get_by_cwd (module H) cwd
+;;
+
+let get_for_sector (module H : Eff.HANDLER) sector =
+  let cwd = Global.ensure_supervision (module H) () in
+  let sector = Path.(Kohai_model.Resolver.sector_folder ~cwd / sector) in
+  get_by_cwd (module H) sector
+;;
+
+let get_for_project (module H : Eff.HANDLER) project =
+  let cwd = Global.ensure_supervision (module H) () in
+  let project = Path.(Kohai_model.Resolver.project_folder ~cwd / project) in
+  get_by_cwd (module H) project
+;;

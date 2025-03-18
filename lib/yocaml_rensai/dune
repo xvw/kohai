@@ -1,0 +1,4 @@
+(library
+ (name yocaml_rensai)
+ (public_name yocaml_rensai)
+ (libraries rensai yocaml))

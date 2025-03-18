@@ -134,3 +134,17 @@ let sort list = list |> List.sort ord_log
 let truncate_list ?(len = 50) log list =
   log :: list |> sort |> List.take len |> List.map id |> Uuid.Set.from_list
 ;;
+
+module Expanded = struct
+  let as_list ctx list =
+    let now = Context.now ctx in
+    list_to_rensai (now, list)
+  ;;
+
+  let as_single ctx result =
+    let now = Context.now ctx in
+    return_rensai (now, result)
+  ;;
+
+  let as_option ctx = Rensai.Ast.option (as_single ctx)
+end

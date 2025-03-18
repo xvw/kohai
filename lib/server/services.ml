@@ -9,11 +9,8 @@ module A = struct
   let opt_path _ctx = Rensai.Ast.(option Path.to_rensai)
   let item_set _ctx = Kohai_model.Described_item.Set.to_rensai
   let opt_item _ctx = Rensai.Ast.option Kohai_model.Described_item.to_rensai
-  let transient_list _ctx = Kohai_model.Transient_log.list_to_rensai
   let opt_transient _ctx = Rensai.Ast.option Kohai_model.Transient_log.to_rensai
   let state _ctx = Kohai_model.State.to_compact_rensai
-  let log_list _ctx = Kohai_model.Log.list_to_rensai
-  let opt_log _ctx = Rensai.Ast.option Kohai_model.Log.return_rensai
 end
 
 module V = Rensai.Validation
@@ -206,40 +203,40 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "get")
         ~with_params:Uuid.from_rensai
-        ~finalizer:A.opt_log
-        (no_ctx Operation.Log.get)
+        ~finalizer:Kohai_model.Log.Expanded.as_option
+        (no_ctx Workflow.Log.get)
     ;;
 
     let last =
       Jsonrpc.service
         ~meth:(prefix "last")
         ~with_params:discard
-        ~finalizer:A.log_list
-        (no_ctx Operation.Log.get_last)
+        ~finalizer:Kohai_model.Log.Expanded.as_list
+        (no_ctx Workflow.Log.last)
     ;;
 
     let last_for_sector =
       Jsonrpc.service
         ~meth:(prefix "last/sector")
         ~with_params:V.string
-        ~finalizer:A.log_list
-        (no_ctx Operation.Log.get_last_for_sector)
+        ~finalizer:Kohai_model.Log.Expanded.as_list
+        (no_ctx Workflow.Log.last_for_sector)
     ;;
 
     let last_for_project =
       Jsonrpc.service
         ~meth:(prefix "last/project")
         ~with_params:V.string
-        ~finalizer:A.log_list
-        (no_ctx Operation.Log.get_last_for_project)
+        ~finalizer:Kohai_model.Log.Expanded.as_list
+        (no_ctx Workflow.Log.last_for_project)
     ;;
 
     let unpromote =
       Jsonrpc.service
         ~meth:(prefix "unpromote")
         ~with_params:Uuid.from_rensai
-        ~finalizer:A.transient_list
-        (no_ctx Operation.Cross_log.unpromote_log)
+        ~finalizer:Kohai_model.Transient_log.Expanded.as_list
+        (no_ctx Workflow.Log.unpromote)
     ;;
   end
 end

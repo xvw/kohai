@@ -3,6 +3,12 @@
 (** List all current transient logs. *)
 val all : (module Sigs.EFFECT_HANDLER) -> Kohai_model.Transient_log.t list
 
+(** List all current transient logs (and sort them). *)
+val list
+  :  (module Sigs.EFFECT_HANDLER)
+  -> unit
+  -> Kohai_model.Transient_log.t list
+
 (** Get a current log by index. *)
 val get
   :  (module Sigs.EFFECT_HANDLER)

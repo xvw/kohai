@@ -45,3 +45,11 @@ val truncate_list : ?len:int -> t -> t list -> Uuid.Set.t
 
 (** Retreive sector and project. *)
 val sector_and_project : t -> string * string option
+
+(** {1 Result as a call-API} *)
+
+module Expanded : sig
+  val as_list : Context.t -> t list Rensai.Ast.conv
+  val as_single : Context.t -> t Rensai.Ast.conv
+  val as_option : Context.t -> t option Rensai.Ast.conv
+end

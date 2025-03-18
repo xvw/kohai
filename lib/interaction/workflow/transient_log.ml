@@ -1,7 +1,4 @@
-let list (module H : Eff.HANDLER) () =
-  (module H) |> Action.Transient_log.all |> Kohai_model.Transient_log.sort
-;;
-
+let list = Action.Transient_log.list
 let get = Action.Transient_log.get
 
 let action (module H : Eff.HANDLER) ctx = function

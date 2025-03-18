@@ -68,6 +68,10 @@ let no_related_transient_log ~index () =
     ()
 ;;
 
+let no_related_log ~uuid () =
+  resource_not_found ~index:(Uuid.to_string uuid) ~subject:"log" ~code:1 ()
+;;
+
 let custom_to_jsonrpc ~body ?id = function
   | Unknown_error message -> custom_error ~body ?id ~code:99 ~message ()
   | No_supervised_directory ->

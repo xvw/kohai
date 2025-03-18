@@ -7,6 +7,8 @@ let all (module H : Eff.HANDLER) =
   TL.from_file_content content
 ;;
 
+let list (module H : Eff.HANDLER) () = (module H) |> all |> TL.sort
+
 let get (module H : Eff.HANDLER) index =
   (module H) |> all |> List.find_opt (TL.has_index index)
 ;;

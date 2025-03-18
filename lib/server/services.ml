@@ -10,7 +10,6 @@ module A = struct
   let item_set _ctx = Kohai_model.Described_item.Set.to_rensai
   let opt_item _ctx = Rensai.Ast.option Kohai_model.Described_item.to_rensai
   let transient_list _ctx = Kohai_model.Transient_log.list_to_rensai
-  let transient_result _ctx = Kohai_model.Transient_log.result_to_rensai
   let opt_transient _ctx = Rensai.Ast.option Kohai_model.Transient_log.to_rensai
   let state _ctx = Kohai_model.State.to_compact_rensai
   let log_list _ctx = Kohai_model.Log.list_to_rensai
@@ -151,8 +150,8 @@ module Kohai = struct
       Jsonrpc.service
         ~meth:(prefix "list")
         ~with_params:discard
-        ~finalizer:A.transient_list
-        (no_ctx Operation.Transient_log.list)
+        ~finalizer:Kohai_model.Transient_log.Expanded.as_list
+        (no_ctx Workflow.Transient_log.list)
     ;;
 
     let get =
@@ -160,15 +159,15 @@ module Kohai = struct
         ~meth:(prefix "get")
         ~with_params:V.int
         ~finalizer:A.opt_transient
-        (no_ctx Operation.Transient_log.get)
+        (no_ctx Workflow.Transient_log.get)
     ;;
 
     let action =
       Jsonrpc.service
         ~meth:(prefix "action")
         ~with_params:Kohai_model.Transient_log.operation_from_rensai
-        ~finalizer:A.transient_result
-        (no_ctx Operation.Transient_log.action)
+        ~finalizer:Kohai_model.Transient_log.Expanded.as_result
+        Workflow.Transient_log.action
     ;;
   end
 

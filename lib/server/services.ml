@@ -128,14 +128,14 @@ module Kohai = struct
 
   module Sector =
     Described_item
-      (Operation.Sector)
+      (Action.Sector)
       (struct
         let prefix = "sector/"
       end)
 
   module Project =
     Described_item
-      (Operation.Project)
+      (Action.Project)
       (struct
         let prefix = "project/"
       end)

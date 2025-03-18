@@ -1,1 +1,0 @@
-include Generic.DESCRIBED_ITEM

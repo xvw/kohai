@@ -124,3 +124,10 @@ val label : t -> string
 val meta : t -> string Key_value.t
 val links : t -> Url.t Key_value.t
 val string_repr : t -> string
+
+(** {1 Result as a call-API} *)
+
+module Expanded : sig
+  val as_list : Context.t -> t list Rensai.Ast.conv
+  val as_result : Context.t -> result Rensai.Ast.conv
+end

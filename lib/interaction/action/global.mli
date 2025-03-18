@@ -1,4 +1,4 @@
-(** Global operation related to action and Jsonrpc handlers. *)
+(** Global actions. *)
 
 (** Check that a path is a valid candidate for supervision. *)
 val check_supervised_path : (module Sigs.EFFECT_HANDLER) -> Path.t -> Path.t

@@ -315,3 +315,15 @@ let string_repr { start_date; duration; project; sector; label; _ } =
     sector
     label
 ;;
+
+module Expanded = struct
+  let as_list ctx list =
+    let now = Context.now ctx in
+    list_to_rensai (now, list)
+  ;;
+
+  let as_result ctx result =
+    let now = Context.now ctx in
+    result_to_rensai (now, result)
+  ;;
+end

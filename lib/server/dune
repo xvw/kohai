@@ -1,15 +1,12 @@
 (library
  (name kohai_server)
  (public_name kohai.server)
- (flags (:standard) -open Kohai_core)
+ (flags (:standard) -open Kohai_core -open Kohai_interaction)
  (libraries
-  logs
-  logs.fmt
-  fmt
-  fmt.tty
   rensai
   kohai.core
   kohai.model
+  kohai.interaction
   yojson
   eio
   eio_main))

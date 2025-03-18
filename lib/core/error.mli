@@ -55,6 +55,7 @@ val resource_not_found
   -> custom
 
 val no_related_transient_log : index:int -> unit -> custom
+val no_related_log : uuid:Uuid.t -> unit -> custom
 val invalid_datetime : float -> Rensai.Validation.value_error -> custom
 
 (** {1 Rensai} *)

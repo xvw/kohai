@@ -1,8 +1,4 @@
-module type SIMPLE_RESOLVER = sig
-  val resolver : cwd:Path.t -> Path.t
-end
-
-module type DESCRIBED_ITEM = sig
+module type S = sig
   (** Returns the set of item. *)
   val list
     :  (module Sigs.EFFECT_HANDLER)
@@ -26,16 +22,11 @@ module type DESCRIBED_ITEM = sig
     :  (module Sigs.EFFECT_HANDLER)
     -> string
     -> Kohai_model.Described_item.Set.t
+end
 
-  (** Increase by name. *)
-  val increase
-    :  (module Sigs.EFFECT_HANDLER)
-    -> string
-    -> Kohai_model.Described_item.Set.t
-
-  (** Decrease by name. *)
-  val decrease
-    :  (module Sigs.EFFECT_HANDLER)
-    -> string
-    -> Kohai_model.Described_item.Set.t
+module Make (A : Action.Described_item.S) = struct
+  let list = A.list
+  let save = A.save
+  let get = A.get
+  let delete = A.delete
 end

@@ -25,7 +25,7 @@
  (name rensai)
  (synopsis "Rensai can be used to describe generic encoders and decoders")
  (description
-  "By lifting heterogeneous data into a finite set of constructors,\nit is possible to describe languages similar to JSON, TOML or S-Expression,\nfor which the encoding and validation functions become generic\n(and interchangeable).")
+  "By lifting heterogeneous data into a finite set of constructors, it is possible to describe languages similar to JSON, TOML or S-Expression, for which the encoding and validation functions become generic (and interchangeable).")
  (depends
   (yojson
    (>= 2.2.2))
@@ -40,9 +40,9 @@
 (package
  (name kohai)
  (allow_empty)
- (synopsis "A small hand-crafted tool for entering activities")
+ (synopsis "A small hand-crafted tool for recording activities")
  (description
-  "A tool for collecting personal activity reports\n(and an excuse to write OCaml and reinvent the wheel)")
+  "A tool for collecting personal activity reports (and an excuse to write OCaml and reinvent the wheel)")
  (depends
   (ocaml
    (>= 5.3.0))

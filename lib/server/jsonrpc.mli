@@ -15,8 +15,8 @@ type service
 val service
   :  meth:string
   -> with_params:'a Rensai.Validation.t
-  -> finalizer:('b -> Rensai.Ast.t)
-  -> (Eff.handler -> 'a -> 'b)
+  -> finalizer:(Kohai_model.Context.t -> 'b Rensai.Ast.conv)
+  -> (Eff.handler -> Kohai_model.Context.t -> 'a -> 'b)
   -> string * service
 
 (** {1 Run} *)

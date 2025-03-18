@@ -1,0 +1,7 @@
+(library
+ (name kohai_interaction)
+ (public_name kohai.interaction)
+ (flags (:standard) -open Kohai_core)
+ (libraries rensai kohai.core kohai.model))
+
+(include_subdirs qualified)

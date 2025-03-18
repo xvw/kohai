@@ -18,24 +18,25 @@ let dump = function
 ;;
 
 let nop = Rensai.Validation.const ()
+let as_string _ = Rensai.Ast.string
 
 let services =
   Jsonrpc.
     [ service
         ~meth:"test/ping"
         ~with_params:nop
-        ~finalizer:Rensai.Ast.string
-        (fun (module _ : Eff.HANDLER) () -> "pong")
+        ~finalizer:as_string
+        (fun (module _ : Eff.HANDLER) _ () -> "pong")
     ; service
         ~meth:"test/echo"
         ~with_params:Rensai.Validation.string
-        ~finalizer:Rensai.Ast.string
-        (fun (module _ : Eff.HANDLER) value -> value)
+        ~finalizer:as_string
+        (fun (module _ : Eff.HANDLER) _ value -> value)
     ; service
         ~meth:"test/rev"
         ~with_params:Rensai.Validation.string
-        ~finalizer:Rensai.Ast.string
-        (fun (module _ : Eff.HANDLER) value ->
+        ~finalizer:as_string
+        (fun (module _ : Eff.HANDLER) _ value ->
            value
            |> String.to_seq
            |> List.of_seq

@@ -69,6 +69,8 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                                  (cl-getf o :index)))
                 "d" (lambda (o) (kohai-transient-log--delete
                                  (cl-getf o :index)))
+                "+" (lambda (o) (kohai-transient-log--duplicate
+                                 (cl-getf o :index)))
                 "m" (lambda (o) (kohai-transient-log--handle-meta
                                  (cl-getf o :index)))
                 "l" (lambda (o) (kohai-transient-log--handle-link
@@ -153,6 +155,12 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
       (let ((logs (kohai-req--transient-log-delete index)))
         (kohai-transient-log--list (cl-getf logs :all))))))
 
+(defun kohai-transient-log--duplicate (index)
+  "Duplicate the log referenced by INDEX."
+  (let ((entry (kohai-req--transient-log-get index)))
+    (kohai--should-exists entry "transient log")
+    (let ((logs (kohai-req--transient-log-duplicate index)))
+      (kohai-transient-log--list (cl-getf logs :all)))))
 
 (defun kohai-transient-log--meta-add (entry)
   "Prompt metadata adding for ENTRY."

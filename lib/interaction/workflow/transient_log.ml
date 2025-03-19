@@ -22,6 +22,7 @@ let action (module H : Eff.HANDLER) ctx = function
       ~sector
       ~label
   | Delete { index } -> Action.Transient_log.delete (module H) ~index
+  | Duplicate { index } -> Action.Transient_log.duplicate (module H) ~index
   | Add_meta { index; key; value } ->
     Action.Transient_log.add_meta (module H) ~index ~key ~value
   | Remove_meta { index; key } ->

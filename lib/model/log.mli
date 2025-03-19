@@ -46,6 +46,21 @@ val truncate_list : ?len:int -> t -> t list -> Uuid.Set.t
 (** Retreive sector and project. *)
 val sector_and_project : t -> string * string option
 
+(** sort a list of log by date. *)
+val sort : t list -> t list
+
+(** Add complementary metadata. *)
+val add_meta : key:string -> value:string -> t -> t
+
+(** Remove complementary metadata. *)
+val remove_meta : key:string -> t -> t
+
+(** Add complementary link. *)
+val add_link : key:string -> value:Url.t -> t -> t
+
+(** Remove complementary link. *)
+val remove_link : key:string -> t -> t
+
 (** {1 Result as a call-API} *)
 
 module Expanded : sig

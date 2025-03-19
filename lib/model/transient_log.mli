@@ -50,6 +50,7 @@ type operation = private
       ; key : string
       }
   | Promote of { index : int }
+  | Duplicate of { index : int }
 
 (** {1 API} *)
 
@@ -113,6 +114,9 @@ val add_link : key:string -> value:Url.t -> t -> t
 
 (** Remove complementary link. *)
 val remove_link : key:string -> t -> t
+
+(** Duplicate a log *)
+val duplicate : t -> t
 
 (** {1 Accessors} *)
 

@@ -97,3 +97,13 @@ let add_meta = add_kv TL.add_meta
 let remove_meta = remove_kv TL.remove_meta
 let add_link = add_kv TL.add_link
 let remove_link = remove_kv TL.remove_link
+
+let duplicate (module H : Eff.HANDLER) ~index =
+  let cwd = Global.ensure_supervision (module H) () in
+  let file = Kohai_model.Resolver.transient_logs ~cwd in
+  match get (module H) index with
+  | None -> Eff.raise (module H) (Error.no_related_transient_log ~index ())
+  | Some log ->
+    let new_log = TL.duplicate log in
+    save (module H) file new_log
+;;

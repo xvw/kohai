@@ -36,6 +36,7 @@ type operation =
       ; key : string
       }
   | Promote of { index : int }
+  | Duplicate of { index : int }
 
 let action_delete index = Delete { index }
 
@@ -220,6 +221,11 @@ let operation_from_rensai =
           let open Record in
           let+ index = required b "index" positive_int in
           Promote { index }) )
+    ; ( "duplicate"
+      , record (fun b ->
+          let open Record in
+          let+ index = required b "index" positive_int in
+          Duplicate { index }) )
     ]
 ;;
 
@@ -327,3 +333,7 @@ module Expanded = struct
     result_to_rensai (now, result)
   ;;
 end
+
+let duplicate log =
+  { log with start_date = Datetime.succ_day log.start_date; duration = None }
+;;

@@ -15,6 +15,17 @@ let start_date { start_date; _ } = start_date
 let end_date { start_date; duration; _ } = Datetime.(start_date + sec duration)
 let duration { duration; _ } = duration
 
+let add_meta ~key ~value log =
+  { log with meta = Key_value.add key value log.meta }
+;;
+
+let add_link ~key ~value log =
+  { log with links = Key_value.add key value log.links }
+;;
+
+let remove_meta ~key log = { log with meta = Key_value.remove key log.meta }
+let remove_link ~key log = { log with links = Key_value.remove key log.links }
+
 let from_transient_log tl =
   tl
   |> Transient_log.duration

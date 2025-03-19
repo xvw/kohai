@@ -107,6 +107,7 @@ let last_by_cwd (module H : Eff.HANDLER) cwd =
   |> Uuid.Set.from_file_content
   |> Uuid.Set.to_list
   |> List.filter_map (get (module H))
+  |> L.sort
 ;;
 
 let last (module H : Eff.HANDLER) () =

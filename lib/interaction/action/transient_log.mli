@@ -93,3 +93,9 @@ val remove_link
   -> index:int
   -> key:string
   -> Kohai_model.Transient_log.result
+
+(** Duplicate a transient log *)
+val duplicate
+  :  (module Sigs.EFFECT_HANDLER)
+  -> index:int
+  -> Kohai_model.Transient_log.result

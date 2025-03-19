@@ -51,13 +51,15 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
     (make-vtable
      :divider-width kohai--vtable-default-divider
      :objects (append entries nil)
-     :columns '("Sector"
+     :columns '("Index"
+                "Sector"
                 "Project"
                 "Start date"
                 "Duration"
                 "Label")
      :getter (lambda (o column vtable)
                (pcase (vtable-column vtable column)
+                 ("Index" (cl-getf o :index))
                  ("Sector" (kohai--bold (cl-getf o :sector)))
                  ("Project" (or (cl-getf o :project) ""))
                  ("Start date" (cl-getf o :start_date_repr))

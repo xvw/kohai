@@ -40,9 +40,6 @@ type t = private
   ; sec : int
   }
 
-(** Type describing duration. *)
-type duration
-
 (** An amount for operation on dates. *)
 type op
 
@@ -167,6 +164,7 @@ val max_of : t -> t -> t
 (** [add op dt] perform the operation on [dt]. i.e: [add (day 3) dt]. *)
 val add : op -> t -> t
 
+val dur : Duration.t -> op
 val min : int -> op
 val sec : int -> op
 val hour : int -> op
@@ -208,13 +206,7 @@ val from_rensai : t Rensai.Validation.t
 val as_time : t -> float
 
 (** Give the difference between two datetime. *)
-val diff : t -> t -> int64
-
-(** Give the difference between two datetime (in duration). *)
-val diff_to_duration : t -> t -> duration
-
-(** Converts a result in second into duration. *)
-val seconds_to_duration : int64 -> duration
+val diff : t -> t -> Duration.t
 
 (** [compare x y] comparison between two datetime. *)
 val compare : t -> t -> int
@@ -236,9 +228,6 @@ val pp_rfc3339 : ?tz:string -> unit -> Format.formatter -> t -> unit
 
 (** Simple Pretty printer for datetime (according to rfc822). *)
 val pp_rfc822 : ?tz:string -> unit -> Format.formatter -> t -> unit
-
-(** Simple pretty printer for duration. *)
-val pp_duration : Format.formatter -> duration -> unit
 
 (** Comparison between day of week. *)
 val compare_day_of_week : day_of_week -> day_of_week -> int

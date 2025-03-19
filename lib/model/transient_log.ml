@@ -43,7 +43,7 @@ let action_delete index = Delete { index }
 type t =
   { index : int
   ; start_date : Datetime.t
-  ; duration : int option
+  ; duration : Duration.t option
   ; project : string option
   ; sector : string
   ; label : string
@@ -69,6 +69,7 @@ let make
       ~label
       ()
   =
+  let duration = Option.map Duration.from_int duration in
   { index = -1; start_date; duration; project; sector; label; meta; links }
 ;;
 
@@ -82,7 +83,7 @@ let from_rensai =
     let+ start_date = required b "start_date" Datetime.from_rensai
     and+ index = optional_or ~default:(-1) b "index" int
     and+ project = optional b "project" slug
-    and+ duration = optional b "duration" int
+    and+ duration = optional b "duration" (int $ Duration.from_int)
     and+ sector = required b "sector" slug
     and+ label = required b "label" (string & String.is_not_blank)
     and+ meta =
@@ -102,11 +103,7 @@ let from_rensai =
 ;;
 
 let duration_repr duration =
-  duration
-  |> Int64.of_int
-  |> Datetime.seconds_to_duration
-  |> Format.asprintf "%a" Datetime.pp_duration
-  |> Rensai.Ast.string
+  duration |> Format.asprintf "%a" Duration.pp |> Rensai.Ast.string
 ;;
 
 let to_rensai_record
@@ -115,7 +112,7 @@ let to_rensai_record
   let open Rensai.Ast in
   [ "index", int index
   ; "start_date", Datetime.to_compact_rensai start_date
-  ; "duration", option int duration
+  ; "duration", option Duration.to_rensai duration
   ; "project", option string project
   ; "sector", string sector
   ; "label", string label
@@ -257,7 +254,7 @@ let to_result ?inserted all =
           then (
             let d =
               Datetime.diff inserted.start_date log.start_date
-              |> Int64.to_int
+              |> Duration.to_int
               |> fun x -> x / 60
             in
             Some (log, d))
@@ -271,7 +268,7 @@ let dump { all; _ } = Rensai.Lang.dump_list to_rensai all
 let use_static_duration duration log =
   match log.duration with
   | None ->
-    let duration = Some (duration * 60) in
+    let duration = Some (Duration.from_int @@ (duration * 60)) in
     { log with duration }
   | Some _ -> log
 ;;
@@ -279,9 +276,7 @@ let use_static_duration duration log =
 let use_datetime dt log =
   match log.duration with
   | None ->
-    let duration =
-      dt |> Datetime.diff log.start_date |> Int64.to_int |> Option.some
-    in
+    let duration = dt |> Datetime.diff log.start_date |> Option.some in
     { log with duration }
   | Some _ -> log
 ;;
@@ -315,7 +310,7 @@ let string_repr { start_date; duration; project; sector; label; _ } =
     (Datetime.pp_rfc822 ())
     start_date
     (Format.pp_print_option Format.pp_print_int)
-    duration
+    (Option.map Duration.to_int duration)
     (Format.pp_print_option Format.pp_print_string)
     project
     sector

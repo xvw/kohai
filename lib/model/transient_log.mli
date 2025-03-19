@@ -121,7 +121,7 @@ val duplicate : t -> t
 (** {1 Accessors} *)
 
 val start_date : t -> Datetime.t
-val duration : t -> int option
+val duration : t -> Duration.t option
 val project : t -> string option
 val sector : t -> string
 val label : t -> string

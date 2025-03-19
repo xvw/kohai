@@ -38,8 +38,7 @@ let dump = function
 ;;
 
 let dump_duration = function
-  | Ok duration ->
-    duration |> Format.asprintf "%a" Datetime.pp_duration |> print_endline
+  | Ok duration -> duration |> Format.asprintf "%a" Duration.pp |> print_endline
   | Error err ->
     err
     |> Format.asprintf "Invalid datetime: %a" Rensai.Validation.pp_value_error
@@ -742,7 +741,7 @@ let%expect_test "diff_duration - 1" =
     let+ b =
       Datetime.make ~time:(22, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
     in
-    Datetime.diff_to_duration a b
+    Datetime.diff a b
   in
   dump_duration test;
   [%expect {| 0s |}]
@@ -757,7 +756,7 @@ let%expect_test "diff_duration - 2" =
     let+ b =
       Datetime.make ~time:(13, 0, 0) ~year:2025 ~month:Datetime.Feb ~day:3 ()
     in
-    Datetime.diff_to_duration a b
+    Datetime.diff a b
   in
   dump_duration test;
   [%expect {| 1h |}]
@@ -772,7 +771,7 @@ let%expect_test "diff_duration - 3" =
     let+ b =
       Datetime.make ~time:(13, 22, 6) ~year:2025 ~month:Datetime.Feb ~day:10 ()
     in
-    Datetime.diff_to_duration a b
+    Datetime.diff a b
   in
   dump_duration test;
   [%expect {| 7d, 1h, 22m, 6s |}]
@@ -787,7 +786,7 @@ let%expect_test "diff_duration - 3" =
     let+ b =
       Datetime.make ~time:(13, 22, 6) ~year:2033 ~month:Datetime.Sep ~day:30 ()
     in
-    Datetime.diff_to_duration a b
+    Datetime.diff a b
   in
   dump_duration test;
   [%expect {| 3378d, 1h, 22m, 6s |}]

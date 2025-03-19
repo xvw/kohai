@@ -2,7 +2,7 @@ type t =
   { big_bang : Datetime.t option
   ; end_of_world : Datetime.t option
   ; number_of_logs : int
-  ; duration : int
+  ; duration : Duration.t
   }
 
 let patch_date_boundaries datetime state =
@@ -24,11 +24,15 @@ let patch_date_boundaries datetime state =
 ;;
 
 let increase_duration amount state =
-  { state with duration = state.duration + amount }
+  { state with
+    duration = amount |> Duration.add state.duration |> Duration.bound_positive
+  }
 ;;
 
 let decrease_duration amount state =
-  { state with duration = max (state.duration - amount) 0 }
+  { state with
+    duration = amount |> Duration.sub state.duration |> Duration.bound_positive
+  }
 ;;
 
 let increase_counter amount state =
@@ -40,7 +44,11 @@ let decrease_counter amount state =
 ;;
 
 let big_bang () =
-  { big_bang = None; end_of_world = None; duration = 0; number_of_logs = 0 }
+  { big_bang = None
+  ; end_of_world = None
+  ; duration = Duration.zero
+  ; number_of_logs = 0
+  }
 ;;
 
 let from_rensai =
@@ -50,7 +58,13 @@ let from_rensai =
     let+ big_bang = optional fields "big_bang" Datetime.from_rensai
     and+ end_of_world = optional fields "end_of_world" Datetime.from_rensai
     and+ number_of_logs = optional_or ~default:0 fields "number_of_logs" int
-    and+ duration = optional_or ~default:0 fields "duration" int in
+    and+ duration =
+      optional_or
+        ~default:Duration.zero
+        fields
+        "duration"
+        (int $ Duration.from_int)
+    in
     { big_bang; end_of_world; duration; number_of_logs })
   / (null $ big_bang)
 ;;
@@ -60,7 +74,7 @@ let to_compact_rensai { big_bang; end_of_world; duration; number_of_logs } =
   record
     [ "big_bang", option Datetime.to_compact_rensai big_bang
     ; "end_of_world", option Datetime.to_compact_rensai end_of_world
-    ; "duration", int duration
+    ; "duration", Duration.to_rensai duration
     ; "number_of_logs", int number_of_logs
     ]
 ;;

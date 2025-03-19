@@ -6,8 +6,7 @@ type op =
   | Week of int
   | Month of int
   | Year of int
-
-type duration = int64 * int64 * int64 * int64
+  | Duration of Duration.t
 
 type month =
   | Jan
@@ -316,32 +315,6 @@ let pp_rfc822 ?(tz = "gmt") () st ({ year; month; day; hour; min; sec } as dt) =
     tz
 ;;
 
-let pp_duration st (d, h, m, s) =
-  let sum others = List.fold_left Int64.add Int64.zero others in
-  let pp_with_suffix suff others st x =
-    let coma = if Int64.(equal zero (sum others)) then "" else ", " in
-    if Int64.(equal zero x)
-    then Format.fprintf st ""
-    else Format.fprintf st "%Ld%s%s" x suff coma
-  in
-  let pp_seconds others st x =
-    if Int64.(equal zero x && not (equal (sum others) zero))
-    then Format.fprintf st ""
-    else Format.fprintf st "%Lds" x
-  in
-  Format.fprintf
-    st
-    "%a%a%a%a"
-    (pp_with_suffix "d" [ h; m; s ])
-    d
-    (pp_with_suffix "h" [ m; s ])
-    h
-    (pp_with_suffix "m" [ s ])
-    m
-    (pp_seconds [ d; h; m ])
-    s
-;;
-
 let days_in_month { year; month; _ } = aux_days_in_month year month
 let begin_of_day dt = { dt with hour = 0; min = 0; sec = 0 }
 let end_of_day dt = { dt with hour = 23; min = 59; sec = 59 }
@@ -456,20 +429,10 @@ let seconds_of { year; month; day; hour; min; sec } =
   |> Int64.add @@ Int64.of_int (hour * 3600)
 ;;
 
-let seconds_to_duration x =
-  let ( - ) = Int64.sub
-  and ( * ) = Int64.mul in
-  let d = Int64.div x 86400L in
-  let h = Int64.div (x - (d * 86400L)) 3600L in
-  let m = Int64.div (x - (d * 86400L) - (h * 3600L)) 60L in
-  let s = x - (d * 86400L) - (h * 3600L) - (m * 60L) in
-  d, h, m, s
-;;
-
 let diff a b =
   let a = seconds_of a
   and b = seconds_of b in
-  Int64.abs (Int64.sub b a)
+  Int64.abs (Int64.sub b a) |> Duration.from_int64
 ;;
 
 let as_time dt =
@@ -478,8 +441,8 @@ let as_time dt =
   a |> Int64.sub b |> Int64.to_float
 ;;
 
-let diff_to_duration a b = diff a b |> seconds_to_duration
 let min x = Min x
+let dur x = Duration x
 let sec x = Sec x
 let hour x = Hour x
 let day x = Day x
@@ -495,6 +458,9 @@ let callback_of = function
   | Month x -> Int.abs x, if x < 0 then pred_month else succ_month
   | Year x -> Int.abs x, if x < 0 then pred_year else succ_year
   | Week x -> Int.abs x, if x < 0 then pred_week else succ_week
+  | Duration d ->
+    let x = Duration.to_int d in
+    Int.abs x, if x < 0 then pred_sec else succ_sec
 ;;
 
 let rev_op = function
@@ -505,6 +471,7 @@ let rev_op = function
   | Month x -> Month (-x)
   | Year x -> Year (-x)
   | Week x -> Week (-x)
+  | Duration d -> Sec (-(d |> Duration.to_int))
 ;;
 
 let find_next f dow dt =

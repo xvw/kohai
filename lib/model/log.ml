@@ -1,6 +1,6 @@
 type t =
   { start_date : Datetime.t
-  ; duration : int
+  ; duration : Duration.t
   ; project : string option
   ; sector : string
   ; label : string
@@ -12,7 +12,7 @@ type t =
 let id { id; _ } = id
 let sector_and_project { sector; project; _ } = sector, project
 let start_date { start_date; _ } = start_date
-let end_date { start_date; duration; _ } = Datetime.(start_date + sec duration)
+let end_date { start_date; duration; _ } = Datetime.(start_date + dur duration)
 let duration { duration; _ } = duration
 
 let add_meta ~key ~value log =
@@ -45,7 +45,7 @@ let to_transient_log
   =
   Transient_log.make
     ~meta
-    ~duration
+    ~duration:(Duration.to_int duration)
     ~links
     ~start_date
     ~project
@@ -64,7 +64,7 @@ let from_rensai =
     let+ start_date = required b "start_date" Datetime.from_rensai
     and+ id = required b "id" Uuid.from_rensai
     and+ project = optional b "project" slug
-    and+ duration = required b "duration" positive_int
+    and+ duration = required b "duration" (positive_int $ Duration.from_int)
     and+ sector = required b "sector" slug
     and+ label = required b "label" (string & String.is_not_blank)
     and+ meta =
@@ -89,7 +89,7 @@ let to_rensai_record
   let open Rensai.Ast in
   [ "start_date", Datetime.to_compact_rensai start_date
   ; "id", Uuid.to_rensai id
-  ; "duration", int duration
+  ; "duration", Duration.to_rensai duration
   ; "project", option string project
   ; "sector", string sector
   ; "label", string label
@@ -101,11 +101,7 @@ let to_rensai_record
 let to_rensai log = log |> to_rensai_record |> Rensai.Ast.record
 
 let duration_repr duration =
-  duration
-  |> Int64.of_int
-  |> Datetime.seconds_to_duration
-  |> Format.asprintf "%a" Datetime.pp_duration
-  |> Rensai.Ast.string
+  duration |> Format.asprintf "%a" Duration.pp |> Rensai.Ast.string
 ;;
 
 let return_rensai (now, ({ start_date; duration; _ } as log)) =
@@ -137,7 +133,7 @@ let find_file ~cwd { id; _ } =
 
 let ord_log a b =
   let c = Datetime.compare b.start_date a.start_date in
-  if Int.equal 0 c then Int.compare b.duration a.duration else c
+  if Int.equal 0 c then Duration.compare b.duration a.duration else c
 ;;
 
 let sort list = list |> List.sort ord_log

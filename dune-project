@@ -28,14 +28,6 @@
   (mdx :with-test)))
 
 (package
- (name yocaml_rensai)
- (synopsis "Inject and Read from Rensai to YOCaml")
- (description "Use Rensai as a Metadata language for YOCaml")
- (depends
-  (rensai (= :version))
-  (yocaml (>= 2.0.0))))
-
-(package
  (name kohai)
  (allow_empty)
  (synopsis "A small hand-crafted tool for recording activities")
@@ -61,3 +53,22 @@
   (merlin :with-dev-setup)
   (ocaml-lsp-server :with-dev-setup)
   (utop :with-dev-setup)))
+
+ 
+(package
+ (name yocaml_rensai)
+ (synopsis "Inject and Read from Rensai to YOCaml")
+ (description "Use Rensai as a Metadata language for YOCaml")
+ (depends
+  (rensai (= :version))
+  (yocaml (>= 2.0.0))))
+
+(package
+ (name yocaml_kohai)
+ (synopsis "Deal with Kohai metadata")
+ (description "Handle Kohai metadata inside YOCaml")
+ (depends
+  (rensai (= :version))
+  (kohai (= :version))
+  (yocaml_rensai (= :version))
+  (yocaml (>= 2.0.0))))

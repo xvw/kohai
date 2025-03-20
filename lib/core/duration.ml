@@ -1,10 +1,10 @@
 type t = int64
 
 type representation =
-  { d : int64
-  ; h : int64
-  ; m : int64
-  ; s : int64
+  { d : t
+  ; h : t
+  ; m : t
+  ; s : t
   }
 
 let compare = Int64.compare

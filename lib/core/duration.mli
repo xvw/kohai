@@ -7,6 +7,14 @@
 (** A duration (as a number of seconds). *)
 type t
 
+(** A duration splitted by days, hours, mins and sec. *)
+type representation =
+  { d : t
+  ; h : t
+  ; m : t
+  ; s : t
+  }
+
 (** {1 From regular number} *)
 
 val from_int : int -> t
@@ -27,6 +35,7 @@ val zero : t
 val add : t -> t -> t
 val sub : t -> t -> t
 val bound_positive : t -> t
+val compute : t -> representation
 
 (** {1 Misc} *)
 

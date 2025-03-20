@@ -59,3 +59,5 @@ let add a b = Int64.add a b
 let zero = Int64.zero
 let sub a b = Int64.sub a b
 let bound_positive x = Int64.max x zero
+
+module Query = struct end

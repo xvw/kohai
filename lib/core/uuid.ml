@@ -1,13 +1,14 @@
 type t = Uuidm.t
 
 let gen s = Uuidm.v5 Uuidm.ns_oid s
+let from_string v = Uuidm.of_string v
 
 let from_rensai =
   let open Rensai.Validation in
   string
   & fun str ->
   str
-  |> Uuidm.of_string
+  |> from_string
   |> function
   | None -> fail_with ~subject:str "Not a valid uuid"
   | Some x -> Ok x
@@ -33,10 +34,11 @@ module Set = struct
   ;;
 
   let to_rensai set = set |> S.to_list |> Rensai.Ast.list to_rensai
+  let empty = S.empty
 
   let from_rensai =
     let open Rensai.Validation in
-    (list_of from_rensai $ S.of_list) / (null $ Fun.const S.empty)
+    (list_of from_rensai $ S.of_list) / (null $ Fun.const empty)
   ;;
 
   let push uid set = S.add uid set

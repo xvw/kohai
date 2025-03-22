@@ -5,6 +5,21 @@ type t =
   ; duration : Duration.t
   }
 
+let big_bang_of { big_bang; _ } = big_bang
+let end_of_world_of { end_of_world; _ } = end_of_world
+let number_of_logs_of { number_of_logs; _ } = number_of_logs
+let duration_of { duration; _ } = duration
+
+let make
+      ?big_bang
+      ?end_of_world
+      ?(number_of_logs = 0)
+      ?(duration = Duration.zero)
+      ()
+  =
+  { big_bang; end_of_world; number_of_logs; duration }
+;;
+
 let patch_date_boundaries datetime state =
   let big_bang =
     match state.big_bang with

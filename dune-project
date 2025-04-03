@@ -62,13 +62,3 @@
  (depends
   (rensai (= :version))
   (yocaml (>= 2.0.0))))
-
-(package
- (name yocaml_kohai)
- (synopsis "Deal with Kohai metadata")
- (description "Handle Kohai metadata inside YOCaml")
- (depends
-  (rensai (= :version))
-  (kohai (= :version))
-  (yocaml_rensai (= :version))
-  (yocaml (>= 2.0.0))))

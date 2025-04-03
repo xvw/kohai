@@ -1,4 +1,0 @@
-(library
- (name yocaml_kohai)
- (public_name yocaml_kohai)
- (libraries rensai kohai.core kohai.model yocaml_rensai yocaml))

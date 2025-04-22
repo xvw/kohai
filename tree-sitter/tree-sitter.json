@@ -1,0 +1,40 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "rensai",
+      "camelcase": "Rensai",
+      "title": "Rensai",
+      "scope": "source.rensai",
+      "file-types": [
+        "rens"
+      ],
+      "injection-regex": "^rensai$",
+      "class-name": "TreeSitterRensai"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Rensai is a JSON-like format",
+    "authors": [
+      {
+        "name": "Xavier Van de Woestyne",
+        "email": "xaviervdw@gmail.com",
+        "url": "https://xvw.lol/"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/xvw/kohai"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}

@@ -23,7 +23,7 @@
 
 (require 'cl-lib)
 (require 'jsonrpc)
-(require 'rens-mode)
+(require 'rensai-mode)
 (require 'kohai-core)
 (require 'kohai-req)
 (require 'kohai-sector)

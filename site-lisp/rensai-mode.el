@@ -17,7 +17,7 @@
 
 ;;; Commentary:
 
-;; Request specific module
+;; WORK IN PROGRESS
 
 ;;; Code:
 
@@ -30,24 +30,14 @@
     (modify-syntax-entry ?\\ "\\" st)  ;; backslash for escaping
     st))
 
-;; Ensure the Tree-sitter parser is loaded
-(defvar rensai--treesit-language nil)
-
-(defun rensai--ensure-treesit-language ()
-  (unless rensai--treesit-language
-    (setq rensai--treesit-language
-          (treesit-language-ensure 'rensai))))
-
 ;; Define the mode
 (define-derived-mode rensai-mode prog-mode "Rensai"
   "Major mode for editing Rensai files."
   :syntax-table rensai-mode-syntax-table
-  (rensai--ensure-treesit-language)
   (when (treesit-ready-p 'rensai)
     (treesit-parser-create 'rensai)      ;; Create the Tree-sitter parser
     (treesit-font-lock-enable)))         ;; Enable Tree-sitter-based font-locking
 
-;; Associate `.rsai` extension with the mode
 (add-to-list 'auto-mode-alist '("\\.rens\\'" . rensai-mode))
 
 (provide 'rensai-mode)

@@ -1,4 +1,4 @@
-;;; rensai-mode.el --- Modest mode for Rensai   -*- coding: utf-8; lexical-binding: t -*-
+;;; rens-mode.el --- Modest mode for Rensai   -*- coding: utf-8; lexical-binding: t -*-
 
 ;; Copyright (C) since 2025  Xavier Van de Woestyne
 ;; Licensed under the MIT license.
@@ -17,27 +17,25 @@
 
 ;;; Commentary:
 
-;; WORK IN PROGRESS
+;; Request specific module
 
 ;;; Code:
 
-(require 'treesit)
+(defvar rensai-constants
+  '("null" "true" "false")
+  "Constants for the Rensai Language.")
 
-;; Define a syntax table for basic symbols and escaping
-(defvar rensai-mode-syntax-table
-  (let ((st (make-syntax-table)))
-    (modify-syntax-entry ?\" "\"" st)  ;; double quotes for strings
-    (modify-syntax-entry ?\\ "\\" st)  ;; backslash for escaping
-    st))
+(defvar rensai-font-lock-defaults
+  `((("\"\\.\\*\\?" . font-lock-string-face)
+     ( ,(regexp-opt rensai-constants 'words) . font-lock-builtin-face)))
+  "Default Font Lock for the Rensai Language.")
 
-;; Define the mode
-(define-derived-mode rensai-mode prog-mode "Rensai"
-  "Major mode for editing Rensai files."
-  :syntax-table rensai-mode-syntax-table
-  (when (treesit-ready-p 'rensai)
-    (treesit-parser-create 'rensai)      ;; Create the Tree-sitter parser
-    (treesit-font-lock-enable)))         ;; Enable Tree-sitter-based font-locking
+(define-derived-mode rens-mode fundamental-mode "Rensai"
+  "Major mode for highlighting Rensai text buffer."
+  (setq font-lock-defaults rensai-font-lock-defaults))
 
-(add-to-list 'auto-mode-alist '("\\.rens\\'" . rensai-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.rens\\'" . rens-mode))
 
-(provide 'rensai-mode)
+(provide 'rens-mode)
+;;; rens-mode.el ends here

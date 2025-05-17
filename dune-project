@@ -62,3 +62,13 @@
  (depends
   (rensai (= :version))
   (yocaml (>= 2.0.0))))
+
+(package
+ (name yocaml_kohai)
+ (synopsis "Convert Kohai object as YOCaml object")
+ (description "Kohai object available as YOCaml object for web reporting")
+ (depends
+  (rensai (= :version))
+  (kohai (= :version))
+  (yocaml_rensai (= :version))
+  (yocaml (>= 2.0.0))))

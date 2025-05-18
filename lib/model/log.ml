@@ -9,6 +9,24 @@ type t =
   ; id : Uuid.t
   }
 
+let label { label; _ } = label
+let meta { meta; _ } = meta
+let links { links; _ } = links
+
+let make
+      ~start_date
+      ~duration
+      ?project
+      ~sector
+      ~label
+      ?(meta = Key_value.empty ())
+      ?(links = Key_value.empty ())
+      ~id
+      ()
+  =
+  { start_date; duration; project; sector; label; meta; links; id }
+;;
+
 let id { id; _ } = id
 let sector_and_project { sector; project; _ } = sector, project
 let start_date { start_date; _ } = start_date

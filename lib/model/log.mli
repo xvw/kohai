@@ -3,6 +3,19 @@
 (** Type describing a log. *)
 type t
 
+(** Build a log. *)
+val make
+  :  start_date:Datetime.t
+  -> duration:Duration.t
+  -> ?project:string
+  -> sector:string
+  -> label:string
+  -> ?meta:string Key_value.t
+  -> ?links:Url.t Key_value.t
+  -> id:Uuid.t
+  -> unit
+  -> t
+
 (** Convert a log into a transient one. *)
 val from_transient_log : Transient_log.t -> t option
 
@@ -19,6 +32,10 @@ val end_date : t -> Datetime.t
 
 (** Return the duration of a log. *)
 val duration : t -> Duration.t
+
+val label : t -> string
+val meta : t -> string Key_value.t
+val links : t -> Url.t Key_value.t
 
 (** Validate a log from a rensai expression. *)
 val from_rensai : t Rensai.Validation.t

@@ -33,6 +33,10 @@ let validate_scheme = function
   | x -> Other x
 ;;
 
+let make ~uri ~scheme ~port ~host ~query ~path () =
+  { uri; scheme; port; host; query; path }
+;;
+
 let from_string s =
   let uri = Uri.of_string s in
   let open Rensai.Validation in

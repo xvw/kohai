@@ -25,3 +25,5 @@ let empty () = M.empty
 let add key value map = M.add key value map
 let remove key map = M.remove key map
 let keys map = map |> M.bindings |> List.map fst
+let from_list = M.of_list
+let to_list = M.to_list

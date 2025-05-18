@@ -1,5 +1,8 @@
 type t = Kohai_model.State.t
 
+let entity_name = "Kohai.State"
+let neutral = Yocaml.Metadata.required entity_name
+
 let validate =
   let open Yocaml.Data.Validation in
   record (fun fields ->

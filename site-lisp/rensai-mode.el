@@ -37,5 +37,5 @@
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.rens\\'" . rens-mode))
 
-(provide 'rens-mode)
+(provide 'rensai-mode)
 ;;; rens-mode.el ends here

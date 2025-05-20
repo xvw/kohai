@@ -11,3 +11,4 @@ val remove : string -> 'a t -> 'a t
 val keys : 'a t -> string list
 val from_list : (string * 'a) list -> 'a t
 val to_list : 'a t -> (string * 'a) list
+val is_empty : 'a t -> bool

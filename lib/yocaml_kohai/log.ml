@@ -38,7 +38,9 @@ let validate =
 
 let normalize log =
   let open Yocaml.Data in
-  let s, p = Kohai_model.Log.sector_and_project log in
+  let s, p = Kohai_model.Log.sector_and_project log
+  and meta = Kohai_model.Log.meta log
+  and links = Kohai_model.Log.links log in
   record
     [ "start_date", Datetime.normalize (Kohai_model.Log.start_date log)
     ; "end_date", Datetime.normalize (Kohai_model.Log.end_date log)
@@ -46,7 +48,10 @@ let normalize log =
     ; "project", option string p
     ; "sector", string s
     ; "label", string (Kohai_model.Log.label log)
-    ; "meta", Key_value.normalize string (Kohai_model.Log.meta log)
-    ; "links", Key_value.normalize Url.normalize (Kohai_model.Log.links log)
+    ; "meta", Key_value.normalize string meta
+    ; "links", Key_value.normalize Url.normalize links
+    ; "has_project", bool @@ Option.is_some p
+    ; "has_meta", bool @@ not (Kohai_model.Key_value.is_empty meta)
+    ; "has_links", bool @@ not (Kohai_model.Key_value.is_empty links)
     ]
 ;;

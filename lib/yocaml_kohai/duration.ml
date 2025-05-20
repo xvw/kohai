@@ -13,5 +13,6 @@ let normalize duration =
     ; "h", int @@ Kohai_core.Duration.to_int h
     ; "m", int @@ Kohai_core.Duration.to_int m
     ; "s", int @@ Kohai_core.Duration.to_int s
+    ; "repr", string @@ Format.asprintf "%a" Kohai_core.Duration.pp duration
     ]
 ;;

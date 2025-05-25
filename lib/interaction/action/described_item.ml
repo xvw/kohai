@@ -55,7 +55,7 @@ module Make (D : sig
     let lexbuf = Lexing.from_string content in
     lexbuf
     |> Rensai.Lang.from_lexingbuf_to_list ~reverse:false
-    |> Kohai_model.Described_item.Set.from_list
+    |> Kohai_model.Described_item.Set.from_ast_list
   ;;
 
   let save (module H : Eff.HANDLER) item =

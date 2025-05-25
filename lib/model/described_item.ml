@@ -6,6 +6,9 @@ type t =
 
 let make ?(counter = 0) ?description name = { name; description; counter }
 let can_be_erased { counter; _ } = counter <= 0
+let name { name; _ } = name
+let description { description; _ } = description
+let counter { counter; _ } = counter
 
 let from_rensai =
   let open Rensai.Validation in
@@ -35,7 +38,10 @@ module Set = struct
 
   type t = S.t
 
-  let from_list list =
+  let from_list = S.of_list
+  let empty = S.empty
+
+  let from_ast_list list =
     list
     |> List.filter_map (fun ast -> ast |> from_rensai |> Result.to_option)
     |> S.of_list

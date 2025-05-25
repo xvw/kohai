@@ -18,7 +18,7 @@ let from_string subject =
   subject
   |> Lexing.from_string
   |> Rensai.Lang.from_lexingbuf_to_list
-  |> Described_item.Set.from_list
+  |> Described_item.Set.from_ast_list
 ;;
 
 let a_sector_list =

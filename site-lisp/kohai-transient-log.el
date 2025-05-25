@@ -79,7 +79,8 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                                  (cl-getf o :index)))
                 "p" (lambda (o) (kohai-transient-log--promote
                                  (cl-getf o :index)))
-                "n" (lambda (_) (kohai-transient-log--record))
+                "n" (lambda (o) (kohai-transient-log--record
+                                 (cl-getf o :start_date)))
                 "q" (lambda (_o)
                       (kohai-buffer--kill kohai-transient-log-buffer-name))))))
 
@@ -117,9 +118,9 @@ DATE, SECTOR, PROJECT and LABEL can be pre-filled (for edition)."
                             :duration duration))))
           (kohai-transient-log--list (cl-getf logs :all)))))))
 
-(defun kohai-transient-log--record ()
+(defun kohai-transient-log--record (&optional start-date)
   "Record a transient log."
-  (let* ((param (kohai-transient-log--prompt-record))
+  (let* ((param (kohai-transient-log--prompt-record start-date))
          (result (kohai-req--transient-log-record param))
          (all (cl-getf result :all))
          (outdated (cl-getf result :outdated)))

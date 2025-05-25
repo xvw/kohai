@@ -12,6 +12,9 @@ val from_rensai : t Rensai.Validation.t
 
 val make : ?counter:int -> ?description:string -> string -> t
 val can_be_erased : t -> bool
+val name : t -> string
+val description : t -> string option
+val counter : t -> int
 
 module Set : sig
   type item := t
@@ -21,7 +24,9 @@ module Set : sig
       item already exists, it takes the most complete.*)
   val push : item -> t -> t
 
-  val from_list : Rensai.Ast.t list -> t
+  val from_ast_list : Rensai.Ast.t list -> t
+  val from_list : item list -> t
+  val empty : t
   val to_list : t -> item list
 
   (** Convert item set to rensai lang. *)

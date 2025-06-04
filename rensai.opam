@@ -16,7 +16,7 @@ depends: [
   "dune" {>= "3.17"}
   "ocaml" {>= "5.3.0"}
   "menhir"
-  "yojson" {>= "2.2.2"}
+  "yojson" {= "2.2.2"}
   "fmt" {>= "0.9.0"}
   "ppx_expect"
   "mdx" {with-test}

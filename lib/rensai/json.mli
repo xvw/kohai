@@ -12,8 +12,6 @@ type yojson =
   | `String of string
   | `Assoc of (string * yojson) list
   | `List of yojson list
-  | `Tuple of yojson list
-  | `Variant of string * yojson option
   ]
 
 (** Ezjsonm AST. *)

@@ -22,7 +22,9 @@ let validate =
       required
         f
         "scheme"
-        (string $ String.lowercase_ascii $ Kohai_model.Url.validate_scheme)
+        (string
+         $ Stdlib.String.lowercase_ascii
+         $ Kohai_model.Url.validate_scheme)
     and+ host = required f "host" string
     and+ query =
       optional_or

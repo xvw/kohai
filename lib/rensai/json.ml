@@ -7,8 +7,6 @@ type yojson =
   | `String of string
   | `Assoc of (string * yojson) list
   | `List of yojson list
-  | `Tuple of yojson list
-  | `Variant of string * yojson option
   ]
 
 type ezjsonm =
@@ -50,10 +48,6 @@ let rec to_yojson = function
   | Ast.Constr (k, Ast.Null) | Ast.Constr (k, Ast.Unit) ->
     `Assoc [ "ctor", `String k ]
   | Ast.Constr (k, v) -> `Assoc [ "ctor", `String k; "value", to_yojson v ]
-  (* TODO: custom repr are not properly handled. *)
-  (* | Ast.Pair (a, b) -> `Tuple [ to_yojson a; to_yojson b ] *)
-  (* | Ast.Constr (k, Ast.Null) | Ast.Constr (k, Ast.Unit) -> `Variant (k, None) *)
-  (* | Ast.Constr (k, v) -> `Variant (k, Some (to_yojson v)) *)
   | Ast.List xs -> `List (List.map to_yojson xs)
   | Ast.Record record ->
     let record = Ast.record_to_assoc record in
@@ -102,10 +96,6 @@ let rec from_yojson = function
   | `String s -> infer_string s
   | `List xs -> Ast.list from_yojson xs
   | `Assoc record -> infer_record from_yojson record
-  | `Tuple [ a; b ] -> Ast.pair from_yojson from_yojson (a, b)
-  | `Tuple xs -> Ast.list from_yojson xs
-  | `Variant (c, None) -> Ast.constr (fun () -> c, Ast.unit ()) ()
-  | `Variant (c, Some v) -> Ast.constr (fun () -> c, from_yojson v) ()
 ;;
 
 let rec from_ezjsonm = function

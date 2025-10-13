@@ -17,46 +17,51 @@ let opt_int k = opt (fun x -> `Int x) k
 
 let record ?start_date ?project ~sector label =
   let x =
-    `Variant
-      ( "Record"
-      , Some
-          (`Assoc
-              [ "start_date", opt_string start_date
-              ; "project", opt_string project
-              ; "sector", `String sector
-              ; "label", `String label
-              ]) )
+    `Assoc
+      [ "ctor", `String "Record"
+      ; ( "value"
+        , `Assoc
+            [ "start_date", opt_string start_date
+            ; "project", opt_string project
+            ; "sector", `String sector
+            ; "label", `String label
+            ] )
+      ]
   in
   Yojson.to_string x
 ;;
 
 let rewrite ~index ?start_date ?project ~sector label =
   let x =
-    `Variant
-      ( "Rewrite"
-      , Some
-          (`Assoc
-              [ "index", `Int index
-              ; "start_date", opt_string start_date
-              ; "project", opt_string project
-              ; "sector", `String sector
-              ; "label", `String label
-              ]) )
+    `Assoc
+      [ "ctor", `String "Rewrite"
+      ; ( "value"
+        , `Assoc
+            [ "index", `Int index
+            ; "start_date", opt_string start_date
+            ; "project", opt_string project
+            ; "sector", `String sector
+            ; "label", `String label
+            ] )
+      ]
   in
   Yojson.to_string x
 ;;
 
 let stop ?duration index =
   let x =
-    `Variant
-      ( "Stop_recording"
-      , Some (`Assoc [ "index", `Int index; "duration", opt_int duration ]) )
+    `Assoc
+      [ "ctor", `String "Stop_recording"
+      ; "value", `Assoc [ "index", `Int index; "duration", opt_int duration ]
+      ]
   in
   Yojson.to_string x
 ;;
 
 let delete ~index =
-  let x = `Variant ("Delete", Some (`Assoc [ "index", `Int index ])) in
+  let x =
+    `Assoc [ "ctor", `String "Delete"; "value", `Assoc [ "index", `Int index ] ]
+  in
   Yojson.to_string x
 ;;
 

@@ -42,7 +42,7 @@
   (rensai (= :version))
   ppx_expect
   (mdx :with-test)
-  (yojson (= 2.2.2))
+  (yojson (>= 3.0.0))
   (fmt (>= 0.9.0))
   (logs (>= 0.7.0))
   (cmdliner (>= 1.3.0))

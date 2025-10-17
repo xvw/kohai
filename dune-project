@@ -22,7 +22,7 @@
  (depends
   (ocaml (>= 5.3.0))
   menhir
-  (yojson (= 2.2.2))
+  (yojson (>= 3.0.0))
   (fmt (>= 0.9.0))
   ppx_expect
   (mdx :with-test)))

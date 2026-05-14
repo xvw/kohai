@@ -2,8 +2,7 @@ open Kohai_server
 open Util
 
 let%expect_test "get sectors without files" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = Virtfs.(from_list [ dir "supervised" [] ])
       let now = Kohai_core.Datetime.unix
     end))
@@ -36,8 +35,7 @@ let%expect_test "get sectors with files" =
     ]
     |> String.concat "\n"
   in
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs =
         Virtfs.(
           from_list
@@ -80,8 +78,7 @@ let%expect_test "store sectors" =
     ]
     |> String.concat "\n"
   in
-  let module V =
-    Virtfs.Make (struct
+  let module V = Virtfs.Make (struct
       let fs =
         Virtfs.(
           from_list
@@ -166,8 +163,7 @@ let%expect_test "get one sector with file" =
     ]
     |> String.concat "\n"
   in
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs =
         Virtfs.(
           from_list

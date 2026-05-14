@@ -7,8 +7,7 @@ let std_fs =
 ;;
 
 let%expect_test "ensure supervision - not supervised" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
       let now = Kohai_core.Datetime.unix
     end))
@@ -30,8 +29,7 @@ let%expect_test "ensure supervision - not supervised" =
 ;;
 
 let%expect_test "get supervised directory" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
       let now = Kohai_core.Datetime.unix
     end))
@@ -45,8 +43,7 @@ let%expect_test "get supervised directory" =
 ;;
 
 let%expect_test "set supervised dir with relative path" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
       let now = Kohai_core.Datetime.unix
     end))
@@ -68,8 +65,7 @@ let%expect_test "set supervised dir with relative path" =
 ;;
 
 let%expect_test "set supervised dir with inexistant path" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
       let now = Kohai_core.Datetime.unix
     end))
@@ -93,8 +89,7 @@ let%expect_test "set supervised dir with inexistant path" =
 ;;
 
 let%expect_test "set supervised dir with valid path" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
       let now = Kohai_core.Datetime.unix
     end))
@@ -108,8 +103,7 @@ let%expect_test "set supervised dir with valid path" =
 ;;
 
 let%expect_test "set supervised dir with valid path" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
       let now = Kohai_core.Datetime.unix
     end))
@@ -161,8 +155,7 @@ let%expect_test "set supervised dir with valid path" =
 ;;
 
 let%expect_test "set supervised dir with valid path" =
-  let module Handler =
-    Kohai_core.Eff.Handler (Virtfs.Make (struct
+  let module Handler = Kohai_core.Eff.Handler (Virtfs.Make (struct
       let fs = std_fs
       let now = Kohai_core.Datetime.unix
     end))

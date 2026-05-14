@@ -142,10 +142,10 @@ val record : (string * t) list conv
     For example, let's imagine the following type:
 
     {@ocaml[
-      type my_dummy_type =
-        | Foo
-        | Bar of int
-        | Baz of string
+    type my_dummy_type =
+      | Foo
+      | Bar of int
+      | Baz of string
     ]}
 
     We could imagine the encoded transformation as follows:
@@ -233,46 +233,46 @@ val record_to_assoc : record -> (string * t) list
     Let's imagine these different types:
 
     {@ocaml[
-      type gender =
-        | Male
-        | Female
-        | Other of string
+    type gender =
+      | Male
+      | Female
+      | Other of string
 
-      type user =
-        { first_name : string
-        ; last_name : string
-        ; is_active : bool
-        ; gender : gender
-        ; crowd : user list
-        }
+    type user =
+      { first_name : string
+      ; last_name : string
+      ; is_active : bool
+      ; gender : gender
+      ; crowd : user list
+      }
 
-      let user ?(crowd = []) ?(is_active = true) first_name last_name gender =
-        { first_name; last_name; is_active; gender; crowd }
-      ;;
+    let user ?(crowd = []) ?(is_active = true) first_name last_name gender =
+      { first_name; last_name; is_active; gender; crowd }
+    ;;
     ]}
 
     These could, for example, be described using the following
     different encoders:
 
     {@ocaml[
-      let conv_gender =
-        constr (function
-          | Male -> "male", unit ()
-          | Female -> "female", unit ()
-          | Other s -> "other", string s)
-      ;;
+    let conv_gender =
+      constr (function
+        | Male -> "male", unit ()
+        | Female -> "female", unit ()
+        | Other s -> "other", string s)
+    ;;
     ]}
 
     {@ocaml[
-      let rec conv_user { first_name; last_name; is_active; gender; crowd } =
-        record
-          [ "first_name", string first_name
-          ; "last_name", string last_name
-          ; "is_active", bool is_active
-          ; "gender", conv_gender gender
-          ; "crowd", list conv_user crowd
-          ]
-      ;;
+    let rec conv_user { first_name; last_name; is_active; gender; crowd } =
+      record
+        [ "first_name", string first_name
+        ; "last_name", string last_name
+        ; "is_active", bool is_active
+        ; "gender", conv_gender gender
+        ; "crowd", list conv_user crowd
+        ]
+    ;;
     ]}
 
     And we can now use it to encode arbitrary users:

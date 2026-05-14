@@ -90,8 +90,7 @@ let default_dt =
 ;;
 
 let%expect_test "get transient logs when file are empty" =
-  let module FS =
-    Virtfs.Make (struct
+  let module FS = Virtfs.Make (struct
       let fs = default_fs
       let now = default_dt
     end)
@@ -119,8 +118,7 @@ let%expect_test "get transient logs when file are empty" =
 ;;
 
 let%expect_test "end-to-end test - 1" =
-  let module FS =
-    Virtfs.Make (struct
+  let module FS = Virtfs.Make (struct
       let fs = default_fs
       let now = default_dt
     end)
@@ -382,8 +380,7 @@ let dump_list x =
 ;;
 
 let%expect_test "end-to-end test - 2" =
-  let module FS =
-    Virtfs.Make (struct
+  let module FS = Virtfs.Make (struct
       let fs = default_fs
       let now = default_dt
     end)

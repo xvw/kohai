@@ -5,8 +5,8 @@ let print pp value =
 ;;
 
 let pp_ok ppf _ = Format.fprintf ppf "ok"
-let dump_null = Fmt.any "null"
-let dump_unit = Fmt.any "null"
+let dump_null ppf () = Fmt.any "null" ppf ()
+let dump_unit ppf () = Fmt.any "null" ppf ()
 let dump_bool = Fmt.bool
 let dump_char = Fmt.char
 let dump_int = Fmt.int

@@ -31,6 +31,7 @@ depends: [
   "ocaml-lsp-server" {with-dev-setup}
   "utop" {with-dev-setup}
   "odoc" {with-doc}
+  "menhir" {>= "20180523"}
 ]
 build: [
   ["dune" "subst"] {dev}

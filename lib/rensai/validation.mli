@@ -59,16 +59,16 @@
            Ast.(record ["first_name", list int [1; 2; 3]]) ;;
       val y : (string * string * int option) Validation.checked =
         Error
-         (Rensai.Validation.Unexpected_record
+         (Validation.Unexpected_record
            {Rensai.Validation.errors =
-             Rensai.Nel.(::)
-              (Rensai.Validation.Invalid_field
+             Nel.(::)
+              (Validation.Invalid_field
                 {Rensai.Validation.field = "first_name";
                  error =
-                  Rensai.Validation.Unexpected_kind
-                   {Rensai.Validation.expected = Rensai.Kind.String;
-                    given = Rensai.Kind.List Rensai.Kind.Int; value = [1; 2; 3]}},
-              [Rensai.Validation.Missing_field "last_name"]);
+                  Validation.Unexpected_kind
+                   {Rensai.Validation.expected = Kind.String;
+                    given = Kind.List Kind.Int; value = [1; 2; 3]}},
+              [Validation.Missing_field "last_name"]);
             value = {first_name = [1; 2; 3]}})
     ]rr} *)
 

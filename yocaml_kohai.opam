@@ -15,6 +15,7 @@ depends: [
   "yocaml_rensai" {= version}
   "yocaml" {>= "2.0.0"}
   "odoc" {with-doc}
+  "menhir" {>= "20180523"}
 ]
 build: [
   ["dune" "subst"] {dev}
